@@ -77,12 +77,15 @@ void yyerror(const YYLTYPE* p_loc, const struct state* p_state, const char* str)
 
 int main()
 {
-    const char INPUT[] = {
-		'E', '\x1f', 'A', '\x1f', 'S', '\x1f','f', 'o', 'o', '\x1e', 0
-	};
+    char input[] = "E|A|S|foo|bar|baz+";
+	const char* const first = input;
+	const char* const last = input + strlen(input);
 
-	const char* first = INPUT;
-	const char* last = INPUT + strlen(INPUT);
+	for(char* p = input; p != last; ++p)
+	{
+		if(*p == '+') *p = '\x1e';
+		if(*p == '|') *p = '\x1f';
+	}
 
 	struct state state = { first, last, true, first, 0 };
     int ret = yyparse(&state);
