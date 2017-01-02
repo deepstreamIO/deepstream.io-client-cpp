@@ -1,5 +1,9 @@
+CC := gcc
+CFLAGS := -Wextra -Wall -std=c99 -pedantic -g
+
+
 a.out: parser.tab.h parser.tab.c main.c
-	gcc -Wextra -Wall -std=c99 -pedantic parser.tab.c main.c
+	$(CC) $(CFLAGS) parser.tab.c main.c
 
 
 parser.tab.c: parser.y
