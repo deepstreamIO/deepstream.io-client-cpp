@@ -64,6 +64,8 @@ ack: ACK {printf("ack\n"); };
 
 mps_f: MPS { p_state->tokenize_header = false; };
 
-payload: NON_SEPARATOR payload { ++p_state->num_data; }
-       |
-       ;
+payload: NON_SEPARATOR payload_list { ++p_state->num_data; };
+
+payload_list:
+			| MPS NON_SEPARATOR payload_list { ++p_state->num_data; }
+			;
