@@ -35,6 +35,9 @@ int main()
 		return 1;
 	}
 
+	char* const input = new char[size+2];
+	std::memset(input, 0, size);
+	std::strncpy(input, string, size);
 
 	for(unsigned iter = 0; iter < 1u<<20; ++iter)
 	{
@@ -43,7 +46,7 @@ int main()
 
 		// yy_scan_bytes() copies the string!
 		// consider fmemopen() as an alternative
-		YY_BUFFER_STATE buffer = yy_scan_bytes(string, size, scanner);
+		YY_BUFFER_STATE buffer = yy_scan_buffer(input, size+2, scanner);
 		yy_switch_to_buffer(buffer, scanner);
 
 		for(ret = 0; ret > EOF; ret = yylex(scanner))

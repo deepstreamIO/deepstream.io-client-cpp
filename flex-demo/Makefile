@@ -21,7 +21,7 @@ parser.o: parser.cpp
 
 
 lex.yy.h lex.yy.c: lexer.l
-	flex --header-file=lex.yy.h lexer.l
+	flex --fast --header-file=lex.yy.h lexer.l
 
 
 .PHONY: clean all
