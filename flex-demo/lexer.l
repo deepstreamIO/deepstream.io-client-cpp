@@ -1,52 +1,26 @@
 %option noyywrap
 %option reentrant
+%option extra-type="struct deepstream_parser_state*"
 
 
+%{
+#include "parser.h"
+%}
 
+/* message part separator */
+MPS [\x1f]
+/* message separator */
+MS  [\x1e]
+/* non-separator */
+NS  [^\x1e^\x1f]
+
+/*{NS}.*{MS}                { return DS_PARSE(TOKEN_UNKNOWN); };*/
 
 %%
-^E[\x1f]A[\x1f]S                printf("Event Ack Subscribe\n");
-^E[\x1f]L                       printf("Event Listen\n");
-[\x1e]$                         printf("No payload\n");
-([\x1f][^\x1e^\x1f]+)+[\x1e]$   printf("Payload\n");
-\n
-
+^E{MPS}A{MPS}S            { return DS_PARSE(TOKEN_E_A_S); };
+^E{MPS}L                  { return DS_PARSE(TOKEN_E_L); };
+{MPS}{NS}+                { return DS_PARSE(TOKEN_PAYLOAD); };
+{MS}                      { return DS_PARSE(TOKEN_RECORD_SEPARATOR); };
+<<EOF>>                   { return DS_PARSE(TOKEN_EOF); }
 
 %%
-#include <string.h>
-
-#include <assert.h>
-
-#define TOKEN_EVENT_ACK_SUBSCRIBE
-#define TOKEN_HAS_PAYLOAD
-#define NO_PAYLOAD
-
-// control memory consumption with yyalloc, yyrealloc, yyfree
-int main()
-{
-    //char string[] = "E|A|S+\n";
-    //char string[] = "E|A|S|foo|bar|baz+\n";
-    char string[] = "E|L|name+\n";
-	size_t size = strlen(string);
-
-	for(size_t i = 0; i < size; ++i)
-	{
-		if(string[i] == '+') string[i] = '\x1e';
-		if(string[i] == '|') string[i] = '\x1f';
-	}
-
-
-	yyscan_t scanner;
-	yylex_init(&scanner);
-
-	// yy_scan_bytes() copies the string!
-	// consider fmemopen() as an alternative
-	YY_BUFFER_STATE buffer = yy_scan_bytes(string, size, scanner);
-	yy_switch_to_buffer(buffer, scanner);
-
-	int ret = yylex(scanner);
-	assert( ret == 0 );
-
-	yy_delete_buffer(buffer, scanner);
-	yylex_destroy(scanner);
-}

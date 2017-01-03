@@ -1,12 +1,23 @@
-CC := gcc
-CFLAGS := -Wextra -Wall -std=c99 -pedantic -g
+CC       := cc
+CXX      := c++
+CFLAGS   := -Wextra -Wall -std=c99 -pedantic -g
+CXXFLAGS := -Wextra -Wall -std=c++11 -pedantic -g
 LEX_CFLAGS := -Wno-unused-function -Wno-unused-parameter
 
 
 all: a.out
 
-a.out: lex.yy.h lex.yy.c
-	$(CC) $(CFLAGS) $(LEX_CFLAGS) lex.yy.c
+a.out: lex.yy.o main.o parser.o
+	$(CXX) $(CXXFLAGS) lex.yy.o main.o parser.o
+
+lex.yy.o: lex.yy.h lex.yy.c
+	$(CC) $(CFLAGS) $(LEX_CFLAGS) -c lex.yy.c
+
+main.o: main.cpp
+	$(CXX) $(CXXFLAGS) -c $<
+
+parser.o: parser.cpp
+	$(CXX) $(CXXFLAGS) -c $<
 
 
 lex.yy.h lex.yy.c: lexer.l
@@ -17,3 +28,4 @@ lex.yy.h lex.yy.c: lexer.l
 
 clean:
 	$(RM) lex.yy.h lex.yy.c
+	$(RM) lex.yy.o main.o parser.o
