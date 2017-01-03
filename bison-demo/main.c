@@ -26,7 +26,7 @@ int yylex(void* lvalp, YYLTYPE* p_loc, struct state* p_state)
     if(p == last)
         return EOF;
 
-	printf("%c (%d)\n", *p_save, *p_save);
+	//printf("%c (%d)\n", *p_save, *p_save);
 
 	if(*p == '\x1e' || *p == '\x1f')
 	{
@@ -46,7 +46,7 @@ int yylex(void* lvalp, YYLTYPE* p_loc, struct state* p_state)
 	p_loc->first_column = p_save - first + 1;
 	p_loc->last_column = p - first;
 
-	printf("%d:%d %zu\n", p_loc->first_column, p_loc->last_column, matchlen);
+	//printf("%d:%d %zu\n", p_loc->first_column, p_loc->last_column, matchlen);
 
 	if( !p_state->tokenize_header )
 		return NON_SEPARATOR;
@@ -87,8 +87,11 @@ int main()
 		if(*p == '|') *p = '\x1f';
 	}
 
-	struct state state = { first, last, true, first, 0 };
-    int ret = yyparse(&state);
+	for(size_t i = 0; i < 1u<<20; ++i)
+	{
+		struct state state = { first, last, true, first, 0 };
+		int ret = yyparse(&state);
+	}
 
-    printf("ret = %d args=%zu\n", ret, state.num_data);
+    //printf("ret = %d args=%zu\n", ret, state.num_data);
 }

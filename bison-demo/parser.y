@@ -56,11 +56,11 @@ record_actions: ACTION_SUBSCRIBE
               | ACTION_UNLISTEN
               | ACTION_CREATE_READ
 
-topic_event: TOPIC_EVENT { printf("event\n"); };
+topic_event: TOPIC_EVENT;
 topic_record: TOPIC_RECORD { printf("record\n"); };
 
 
-ack: ACK {printf("ack\n"); };
+ack: ACK;
 
 mps_f: MPS { p_state->tokenize_header = false; };
 

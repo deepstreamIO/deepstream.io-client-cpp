@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Wextra -Wall -std=c99 -pedantic -g
+CFLAGS := -Wextra -Wall -std=c99 -pedantic -g -O2 -DNDEBUG
 
 
 a.out: parser.tab.h parser.tab.c main.c
