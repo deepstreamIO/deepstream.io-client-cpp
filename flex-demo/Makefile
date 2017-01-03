@@ -1,7 +1,7 @@
 CC       := cc
 CXX      := c++
-CFLAGS   := -Wextra -Wall -std=c99 -pedantic -g
-CXXFLAGS := -Wextra -Wall -std=c++11 -pedantic -g
+CFLAGS   := -Wextra -Wall -std=c99 -pedantic -O2 -g -DNDEBUG
+CXXFLAGS := -Wextra -Wall -std=c++11 -pedantic -O2 -g -DNDEBUG
 LEX_CFLAGS := -Wno-unused-function -Wno-unused-parameter
 
 

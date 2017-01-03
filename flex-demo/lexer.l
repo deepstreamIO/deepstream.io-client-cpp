@@ -1,6 +1,9 @@
 %option noyywrap
 %option reentrant
 %option extra-type="struct deepstream_parser_state*"
+%option noyyalloc
+%option noyyrealloc
+%option noyyfree
 
 
 %{

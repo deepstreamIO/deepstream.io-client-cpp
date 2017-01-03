@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 
 #include "parser.h"
 #include "parser.hpp"
@@ -27,7 +28,7 @@ int deepstream_parser_handle(
 	std::size_t offset = p_state->offset;
 	p_state->offset = offset + matchlen;
 
-	std::printf("offset=%zu len=%zu\n", offset, matchlen);
+	//std::printf("offset=%zu len=%zu\n", offset, matchlen);
 
 	if(token == TOKEN_UNKNOWN)
 	{
@@ -90,7 +91,7 @@ int deepstream_parser_handle(
 			break;
 
 		case TOKEN_PAYLOAD:
-			std::printf("payload (length=%zu)\n", matchlen-1);
+			//std::printf("payload (length=%zu)\n", matchlen-1);
 			break;
 
 		case TOKEN_RECORD_SEPARATOR:
@@ -106,13 +107,36 @@ int deepstream_parser_handle(
 
 		case TOKEN_E_A_S:
 			//Message(Topic::EVENT, Action::SUBSCRIBE, true);
+			//std::printf("Event Ack Subscribe\n");
 			break;
 
 		case TOKEN_E_L:
 			//Message(Topic::EVENT, Action::LISTEN);
-			std::printf("Event Listen\n");
+			//std::printf("Event Listen\n");
 			break;
 	};
 
 	return token;
+}
+
+
+
+void* yyalloc (std::size_t size, void*)
+{
+	void* ptr = std::malloc(size);
+	//std::printf("yyalloc %4zu %p\n", size, ptr);
+	return ptr;
+}
+
+void* yyrealloc (void* ptr, size_t size, void*)
+{
+	void* new_ptr = std::realloc(ptr, size);
+	//std::printf("yyrealloc %4zu %p %p\n", size, ptr, new_ptr);
+	return new_ptr;
+}
+
+void yyfree (void* ptr, void*)
+{
+	//std::printf("yyfree %p\n", ptr);
+	std::free(ptr);
 }

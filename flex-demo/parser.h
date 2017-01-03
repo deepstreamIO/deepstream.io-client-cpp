@@ -39,6 +39,12 @@ int deepstream_parser_handle(
 		yyget_text(yyscanner), yyget_leng(yyscanner) \
 	); \
 
+
+void* yyalloc (size_t bytes, void * yyscanner);
+void* yyrealloc (void * ptr, size_t bytes, void * yyscanner);
+void yyfree (void * ptr, void * yyscanner);
+
+
 #if __cplusplus
 }
 #endif

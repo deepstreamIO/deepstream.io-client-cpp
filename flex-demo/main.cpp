@@ -16,7 +16,8 @@ int main()
 {
     //char string[] = "E|A|S+";
     //char string[] = "E|A|S|foo|bar|baz+";
-    char string[] = "E|L|name+";
+    //char string[] = "E|L|name+";
+    char string[] = "E|A|S|foo|bar|baz+";
 	std::size_t size = strlen(string);
 
 	for(std::size_t i = 0; i < size; ++i)
@@ -34,25 +35,30 @@ int main()
 		return 1;
 	}
 
-	deepstream::parser::State parser_state;
-	yyset_extra(&parser_state, scanner);
 
-	// yy_scan_bytes() copies the string!
-	// consider fmemopen() as an alternative
-	YY_BUFFER_STATE buffer = yy_scan_bytes(string, size, scanner);
-	yy_switch_to_buffer(buffer, scanner);
-
-	for(ret = 0; ret > EOF; ret = yylex(scanner))
+	for(unsigned iter = 0; iter < 1u<<20; ++iter)
 	{
-	}
-	std::printf("main after yylex()\n");
+		deepstream::parser::State parser_state;
+		yyset_extra(&parser_state, scanner);
 
-	if(ret < EOF)
-	{
-		std::perror("yylex");
-		return 1;
+		// yy_scan_bytes() copies the string!
+		// consider fmemopen() as an alternative
+		YY_BUFFER_STATE buffer = yy_scan_bytes(string, size, scanner);
+		yy_switch_to_buffer(buffer, scanner);
+
+		for(ret = 0; ret > EOF; ret = yylex(scanner))
+		{
+		}
+		//std::printf("main after yylex()\n");
+
+		if(ret < EOF)
+		{
+			std::perror("yylex");
+			return 1;
+		}
+
+		yy_delete_buffer(buffer, scanner);
 	}
 
-	yy_delete_buffer(buffer, scanner);
 	yylex_destroy(scanner);
 }
