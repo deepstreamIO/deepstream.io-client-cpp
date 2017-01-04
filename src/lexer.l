@@ -5,7 +5,7 @@
 
 
 %{
-#include "parser.h"
+#include <parser.h>
 %}
 
 /* message part separator */
@@ -15,7 +15,6 @@ MS  [\x1e]
 /* non-separator */
 NS  [^\x1e^\x1f]
 
-/*{NS}.*{MS}            { return DS_PARSE(TOKEN_UNKNOWN); };*/
 
 %%
 ^A{MPS}A                { return DS_PARSE(TOKEN_A_A); }
