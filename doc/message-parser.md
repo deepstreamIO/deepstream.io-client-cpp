@@ -20,8 +20,9 @@ multi-byte characters by setting the highest bit the storage locations occupied
 by this character so ASCII character 30 and 31 cannot accidentally occur in
 message because of the UTF-8 encoding of a non-ASCII character. Thus, deepstream
 messages are LL(1); in layman's terms, having an LL(1) grammar means messages
-can be parsed by examining the characters sequentially and one at a time, e.g.,
-by using regular expressions.
+can be parsed by examining the characters sequentially and one at a time.
+Furthermore, there is no to use a stack for parsing so messages can be parsed
+with regular expressions.
 
 
 ## Parser Generator vs Handwritten Parser
