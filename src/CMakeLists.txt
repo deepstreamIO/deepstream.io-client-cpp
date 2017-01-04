@@ -15,7 +15,7 @@ FLEX_TARGET(
 
 
 add_library(
-	deepstream_parser
+	deepstream_parser SHARED
 	message.cpp
 	parser.cpp
 	${FLEX_lexer_OUTPUT})
