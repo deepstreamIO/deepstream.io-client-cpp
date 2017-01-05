@@ -31,18 +31,47 @@ MS  [\x1e]
 NS  [^\x1e^\x1f]
 
 
+/*
+ * From the documentation:
+ *  For historical reasons, start conditions do not have their own name-space
+ *  within the generated scanner. The start condition names are unmodified in
+ *  the generated scanner and generated header.
+ */
+%x yypayload yyerror
+
+
 %%
-^A{MPS}A                { return DS_PARSE(TOKEN_A_A); }
-^A{MPS}E{MPS}INVALID_AUTH_DATA { return DS_PARSE(TOKEN_A_E_IAD); };
-^A{MPS}E{MPS}TOO_MANY_AUTH_ATTEMPTS { return DS_PARSE(TOKEN_A_E_TMAA); };
-^A{MPS}REQ              { return DS_PARSE(TOKEN_A_REQ); };
-^E{MPS}A{MPS}L          { return DS_PARSE(TOKEN_E_A_L); };
-^E{MPS}A{MPS}S          { return DS_PARSE(TOKEN_E_A_S); };
-^E{MPS}L                { return DS_PARSE(TOKEN_E_L); };
-^E{MPS}S                { return DS_PARSE(TOKEN_E_S); };
-^E{MPS}US               { return DS_PARSE(TOKEN_E_US); };
-{MPS}{NS}+              { return DS_PARSE(TOKEN_PAYLOAD); };
-{MS}                    { return DS_PARSE(TOKEN_RECORD_SEPARATOR); };
-<<EOF>>                 { return DS_PARSE(TOKEN_EOF); }
+
+<INITIAL>{
+	A{MPS}A        { BEGIN(yypayload); return DS_PARSE(TOKEN_A_A); }
+	A{MPS}E{MPS}INVALID_AUTH_DATA {
+		BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_IAD); };
+	A{MPS}E{MPS}TOO_MANY_AUTH_ATTEMPTS {
+		BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_TMAA); };
+	A{MPS}REQ      { BEGIN(yypayload); return DS_PARSE(TOKEN_A_REQ); };
+
+	E{MPS}A{MPS}L  { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_L); };
+	E{MPS}A{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_S); };
+	E{MPS}L        { BEGIN(yypayload); return DS_PARSE(TOKEN_E_L); };
+	E{MPS}S        { BEGIN(yypayload); return DS_PARSE(TOKEN_E_S); };
+	E{MPS}US       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_US); };
+
+	{MS}           { return DS_PARSE(TOKEN_UNKNOWN); }
+	.              { BEGIN(yyerror); yymore(); };
+}
+
+
+<yypayload>{
+	{MPS}{NS}+   { return DS_PARSE(TOKEN_PAYLOAD); };
+	{MS}         { BEGIN(INITIAL); return DS_PARSE(TOKEN_RECORD_SEPARATOR); };
+
+	.            { BEGIN(yyerror); yymore(); }
+}
+
+<yyerror>{
+	[^\x1e]+{MS}?  { BEGIN(INITIAL); return DS_PARSE(TOKEN_UNKNOWN); };
+}
+
+<<EOF>>            { return DS_PARSE(TOKEN_EOF); };
 
 %%

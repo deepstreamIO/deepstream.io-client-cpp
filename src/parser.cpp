@@ -22,7 +22,6 @@
 #include <cassert>
 
 
-
 bool is_header_token(enum deepstream_token token)
 {
 	int min_event_num = TOKEN_A_A;

@@ -19,7 +19,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdio.h> // EOF
+#include <stdio.h>
 
 #if __cplusplus
 extern "C" {
@@ -56,12 +56,16 @@ int deepstream_parser_handle(
 	const char*, size_t);
 
 
+#if DEEPSTREAM_TEST_LEXER
+#define DS_PARSE(TOKEN) (TOKEN)
+#else
 #define \
 	DS_PARSE(TOKEN) \
 	deepstream_parser_handle( \
 		yyget_extra(yyscanner), TOKEN, \
 		yyget_text(yyscanner), yyget_leng(yyscanner) \
-	); \
+	)
+#endif
 
 
 #if __cplusplus

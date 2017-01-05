@@ -37,6 +37,24 @@ endfunction()
 
 
 find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
+find_package(FLEX REQUIRED)
 
 
-add_boost_test(simple.cpp deepstream_parser)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+
+# lexer testing
+FLEX_TARGET(
+	test_lexer
+	"${CMAKE_SOURCE_DIR}/src/lexer.l"
+	"${CMAKE_CURRENT_BINARY_DIR}/test_lexer.c"
+	DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/test_lexer.h")
+
+set_source_files_properties(
+	"${CMAKE_CURRENT_BINARY_DIR}/test_lexer.c"
+	PROPERTIES COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter")
+
+add_library(test_lexer ${FLEX_test_lexer_OUTPUTS})
+target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)
+
+add_boost_test(lexer.cpp test_lexer)

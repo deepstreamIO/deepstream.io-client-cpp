@@ -63,6 +63,9 @@ struct State
 
 
 
+static_assert( EOF == TOKEN_EOF, "" );
+
+
 BOOST_AUTO_TEST_CASE(empty_string)
 {
 	State state("");
@@ -73,23 +76,154 @@ BOOST_AUTO_TEST_CASE(empty_string)
 }
 
 
-BOOST_AUTO_TEST_CASE(unknown_token)
+BOOST_AUTO_TEST_CASE(auth_ack)
 {
-	State state("THIS_IS_AN_UNKNOWN_TOKEN");
+	State state("A|A+");
 
-	int ret = EOF;
-	do
-	{
-		ret = yylex(state.scanner);
-		printf("%d\n", ret);
-	} while(ret != EOF);
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
 
-	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_RECORD_SEPARATOR );
 
 	ret = yylex(state.scanner);
 	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+}
+
+
+// Test detection of unknown tokens
+
+BOOST_AUTO_TEST_CASE(unknown_token_header)
+{
+	State state("THIS_IS_AN_UNKNOWN_TOKEN");
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
+
+	ret = yylex(state.scanner);
 	BOOST_CHECK_EQUAL( ret, EOF );
 }
 
 
+BOOST_AUTO_TEST_CASE(unknown_token_payload)
+{
+	State state("E|SERROR");
 
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 3 );
+	BOOST_CHECK_EQUAL( ret, TOKEN_E_S );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
+	BOOST_CHECK_EQUAL( "ERROR", yyget_text(state.scanner) );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, EOF );
+}
+
+
+// Test error recovery
+
+BOOST_AUTO_TEST_CASE(unknown_token_recovery)
+{
+	State state("THIS_IS_AN_UNKNOWN_TOKEN+A|A+");
+
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_RECORD_SEPARATOR );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, EOF );
+}
+
+
+BOOST_AUTO_TEST_CASE(unknown_token_recovery_MS_only)
+{
+	// Message separators \x1e are used for error recovery
+	// Test what happens if the invalid message consists only of the single
+	// token \x1e.
+
+	State state("+A|A+");
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_RECORD_SEPARATOR );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, EOF );
+}
+
+
+// Test EOF is recognized in every state
+
+BOOST_AUTO_TEST_CASE(recognize_EOF_state_header)
+{
+	State state("A|A");
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, EOF );
+}
+
+
+BOOST_AUTO_TEST_CASE(recognize_EOF_state_payload)
+{
+	State state("E|S|event");
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_E_S );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_PAYLOAD );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, EOF );
+}
+
+
+BOOST_AUTO_TEST_CASE(recognize_EOF_state_error)
+{
+	State state("ERROR");
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, EOF );
+}
+
+
+// Test sequence of messages
+
+BOOST_AUTO_TEST_CASE(messages)
+{
+	State state("A|A+E|S|event+");
+	deepstream_token tokens[] = {
+		TOKEN_A_A,
+		TOKEN_RECORD_SEPARATOR,
+		TOKEN_E_S,
+		TOKEN_PAYLOAD,
+		TOKEN_RECORD_SEPARATOR,
+		TOKEN_EOF
+	};
+	const std::size_t NUM_TOKENS = sizeof(tokens) / sizeof(tokens[0]);
+
+	for(std::size_t i = 0; i < NUM_TOKENS; ++i)
+	{
+		int ret = yylex(state.scanner);
+		BOOST_CHECK_EQUAL( ret, tokens[i] );
+	}
+}
