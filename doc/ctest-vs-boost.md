@@ -1,7 +1,5 @@
 # CTest vs Boost.Test
 
-TODO: what are CTest "test labels"?
-
 Boost.Test offers the possibility to execute a number of tests with a single
 command invocation and so does CTest. In this document I briefly explain on the
 abilities of CTest and Boost.Test as well as a resolution of this issue
