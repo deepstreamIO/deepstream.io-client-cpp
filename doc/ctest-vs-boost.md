@@ -1,5 +1,7 @@
 # CTest vs Boost.Test
 
+TODO: what are CTest "test labels"?
+
 Boost.Test offers the possibility to execute a number of tests with a single
 command invocation and so does CTest. In this document I briefly explain on the
 abilities of CTest and Boost.Test as well as a resolution of this issue
@@ -9,8 +11,9 @@ abilities of CTest and Boost.Test as well as a resolution of this issue
 ## CTest Abilities
 
 CTest only run a fixed set of tests. Features:
-- run all tests
 - run tests matching (not matching) a regular expression
+- label tests,
+- run tests whose labels match a regular expression
 - run tests in random order
 - suppress test output by default unless the test fails
 - run tests in parallel
@@ -24,8 +27,8 @@ Valgrind.
 Boost.Test provides C++ facilities for writing, collecting, and grouping tests.
 Features:
 - [runtime parameters](http://www.boost.org/doc/libs/1_63_0/libs/test/doc/html/boost_test/utf_reference/rt_param_reference.html)
-  can be set via command line or environment variables,
-- [group tests](http://www.boost.org/doc/libs/1_63_0/libs/test/doc/html/boost_test/tests_organization/tests_grouping.html),
+  can be set via command line or environment variables
+- [group tests](http://www.boost.org/doc/libs/1_63_0/libs/test/doc/html/boost_test/tests_organization/tests_grouping.html)
 - [run tests conditionally](http://www.boost.org/doc/libs/1_63_0/libs/test/doc/html/boost_test/tests_organization/enabling.html)
 - [dependencies between tests](http://www.boost.org/doc/libs/1_63_0/libs/test/doc/html/boost_test/tests_organization/tests_dependencies.html)
 
@@ -51,4 +54,4 @@ individual CTest tests. Advantages are:
 - full control of Boost.test runtime variables.
 Disadvantages are:
 - test dependencies are not supported by CTest,
-- grouping has to be based purely on test names.
+Grouping can be realized with CTest labels.
