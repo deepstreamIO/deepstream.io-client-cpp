@@ -16,8 +16,11 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <message.hpp>
 #include <parser.h>
 #include <parser.hpp>
+
+#include <boost/scope_exit.hpp>
 
 #include <cassert>
 
@@ -31,106 +34,192 @@ bool is_header_token(enum deepstream_token token)
 
 
 
+deepstream_parser_state::deepstream_parser_state(const char* p, std::size_t sz):
+	buffer_(p),
+	buffer_size_(sz),
+	tokenizing_header_(true),
+	offset_(0)
+{
+	assert(buffer_);
+	assert(buffer_size_ > 0);
+}
+
+
+
+
 int deepstream_parser_handle(
 	deepstream::parser::State* p_state, deepstream_token token,
-	const char* match, std::size_t matchlen)
+	const char* text, std::size_t textlen)
 {
-	using deepstream::Topic;
-	using deepstream::Action;
+	assert( p_state );
+
+	return p_state->handle_token(token, text, textlen);
+}
+
+
+
+int deepstream_parser_state::handle_token(
+	deepstream_token token, const char* text, std::size_t textlen)
+{
+	assert( text );
+	assert( textlen > 0 );
+
+	assert( messages_.size() <= offset_ );
+
+	assert( text >= buffer_ );
+	assert( text + textlen <= buffer_ + buffer_size_ );
+	assert( offset_ + textlen <= buffer_size_ );
+
+	assert( !strncmp(buffer_+offset_, text, textlen) );
+
+
+	BOOST_SCOPE_EXIT(offset_, textlen) {
+		offset_ += textlen;
+	} BOOST_SCOPE_EXIT_END
+
+
+	if(token == TOKEN_UNKNOWN)
+		handle_error(token, text, textlen);
+	else if(token == TOKEN_EOF && !tokenizing_header_)
+		handle_error(token, text, textlen);
+	else if(token == TOKEN_PAYLOAD)
+		handle_payload(token, text, textlen);
+	else if(token == TOKEN_RECORD_SEPARATOR)
+		{}
+	else if( is_header_token(token) )
+		handle_header(token, text, textlen);
+	else
+	{
+		assert(0);
+	}
+
+	return token;
+}
+
+
+void deepstream_parser_state::handle_error(
+	deepstream_token token, const char*, std::size_t textlen)
+{
 	using deepstream::parser::Error;
 
-	assert( p_state );
-	assert( match );
-	assert( matchlen > 0 );
+	assert( token == TOKEN_EOF || token == TOKEN_UNKNOWN );
+	assert( textlen > 0 || (textlen == 0 && token == EOF) );
 
-	const char* buffer = p_state->buffer;
-	std::size_t offset = p_state->offset;
-	bool tokenizing_header = p_state->tokenizing_header;
-	auto& messages = p_state->messages;
-	auto& errors = p_state->errors;
 
-	p_state->offset = offset + matchlen;
+	BOOST_SCOPE_EXIT(tokenizing_header_) {
+		tokenizing_header_ = true; // reset parser status on exit
+	} BOOST_SCOPE_EXIT_END
 
-	if( (tokenizing_header && !is_header_token(token)) ||
-		(!tokenizing_header && is_header_token(token)) )
+
+	if( token == TOKEN_EOF )
 	{
-		errors.emplace_back(offset, matchlen, Error::UNEXPECTED_TOKEN);
-		return token;
+		assert( !tokenizing_header_ );
+		assert( !messages_.empty() );
+
+		messages_.pop_back();
+		errors_.emplace_back(offset_, textlen, Error::UNEXPECTED_EOF);
 	}
 
 
-	// handle legal tokens
-	if( tokenizing_header && is_header_token(token) )
-		p_state->tokenizing_header = false;
+	if( token == TOKEN_UNKNOWN && tokenizing_header_ )
+	{
+		errors_.emplace_back(offset_, textlen, Error::UNEXPECTED_TOKEN);
+	}
+
+	if( token == TOKEN_UNKNOWN && !tokenizing_header_ )
+	{
+		assert( !messages_.empty() );
+
+		std::size_t msg_start = messages_.back().offset();
+		std::size_t msg_size = messages_.back().size();
+		messages_.pop_back();
+
+		assert( msg_start + msg_size == offset_ );
+
+		errors_.emplace_back(
+			msg_start, msg_size+textlen, Error::CORRUPT_MESSAGE);
+	}
+}
+
+
+#define DS_ADD_MSG(...) \
+		do { \
+			messages_.emplace_back(buffer_, offset_, textlen, __VA_ARGS__); \
+		} while(false)
+
+
+void deepstream_parser_state::handle_header(
+	deepstream_token token, const char*, std::size_t textlen)
+{
+	using deepstream::Topic;
+	using deepstream::Action;
+
+	BOOST_SCOPE_EXIT(tokenizing_header_) {
+		tokenizing_header_ = false;
+	} BOOST_SCOPE_EXIT_END
+
 
 	switch(token)
 	{
+		// avoid compiler warnings
 		case TOKEN_EOF:
-			if(!tokenizing_header)
-				errors.emplace_back(
-					offset, matchlen, Error::UNEXPECTED_EOF);
-			break;
-
 		case TOKEN_UNKNOWN:
-			errors.emplace_back(
-				offset, matchlen, Error::UNEXPECTED_TOKEN);
-			break;
-
-
 		case TOKEN_PAYLOAD:
-			// TODO
-			break;
-
 		case TOKEN_RECORD_SEPARATOR:
-			p_state->tokenizing_header = true;
+			assert(0);
 			break;
-
 
 		case TOKEN_A_A:
-			messages.emplace_back(
-				buffer, Topic::AUTH, Action::REQUEST, true);
+			DS_ADD_MSG(Topic::AUTH, Action::REQUEST, true);
 			break;
 
 		case TOKEN_A_E_IAD:
-			messages.emplace_back(
-				buffer, Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA, true);
+			DS_ADD_MSG(Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA, true);
 			break;
 
 		case TOKEN_A_E_TMAA:
-			messages.emplace_back(
-				buffer, Topic::AUTH, Action::ERROR_TOO_MANY_AUTH_ATTEMPTS,true);
+			DS_ADD_MSG(Topic::AUTH, Action::ERROR_TOO_MANY_AUTH_ATTEMPTS);
 			break;
 
 		case TOKEN_A_REQ:
-			messages.emplace_back(
-				buffer, Topic::AUTH, Action::REQUEST);
+			DS_ADD_MSG(Topic::AUTH, Action::REQUEST);
 			break;
 
 		case TOKEN_E_A_L:
-			messages.emplace_back(
-				buffer, Topic::EVENT, Action::LISTEN, true);
+			DS_ADD_MSG(Topic::EVENT, Action::LISTEN, true);
 			break;
 
 		case TOKEN_E_A_S:
-			messages.emplace_back(
-				buffer, Topic::EVENT, Action::SUBSCRIBE, true);
+			DS_ADD_MSG(Topic::EVENT, Action::SUBSCRIBE, true);
 			break;
 
 		case TOKEN_E_L:
-			messages.emplace_back(
-				buffer, Topic::EVENT, Action::LISTEN);
+			DS_ADD_MSG(Topic::EVENT, Action::LISTEN);
 			break;
 
 		case TOKEN_E_S:
-			messages.emplace_back(
-				buffer, Topic::EVENT, Action::SUBSCRIBE);
+			DS_ADD_MSG(Topic::EVENT, Action::SUBSCRIBE);
 			break;
 
 		case TOKEN_E_US:
-			messages.emplace_back(
-				buffer, Topic::EVENT, Action::UNSUBSCRIBE);
+			DS_ADD_MSG(Topic::EVENT, Action::UNSUBSCRIBE);
 			break;
-	};
+	}
+}
 
-	return token;
+
+void deepstream_parser_state::handle_payload(
+	deepstream_token token, const char* text, std::size_t textlen)
+{
+	using namespace deepstream::parser;
+
+	assert( token == TOKEN_PAYLOAD );
+	assert( text );
+	assert( textlen > 0 );
+	assert( text[0] == ASCII_UNIT_SEPARATOR );
+	assert( !messages_.empty() );
+
+	auto& msg = messages_.back();
+	msg.arguments_.emplace_back(offset_+1, textlen-1);
+	msg.size_ += textlen;
 }
