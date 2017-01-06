@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cstdio>
 #include <cstdlib>
 
 #include <message.hpp>
@@ -63,8 +62,11 @@ int deepstream_parser_state::handle_token(
 	assert( text );
 	assert( textlen > 0 );
 
-	assert( offset_ + textlen <= buffer_size_ || token == TOKEN_EOF );
-	assert( !memcmp(buffer_+offset_, text, textlen) );
+	assert( token != TOKEN_EOF || *text == '\0' );
+	assert( token != TOKEN_EOF || textlen == 1 );
+	assert( token != TOKEN_EOF || offset_ + textlen == buffer_size_ + 1 );
+	assert( token == TOKEN_EOF || offset_ + textlen <= buffer_size_ );
+	assert( token == TOKEN_EOF || !memcmp(buffer_+offset_, text, textlen) );
 
 	assert( messages_.size() <= offset_ );
 	assert( errors_.size() <= offset_ );
