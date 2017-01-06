@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(simple)
 {
 	const auto input = Message::from_human_readable("A|A+");
 	const auto copy(input);
-	const char* matches[] = { &input[0], &input[3], &input[4] };
+	const char* matches[] = { &input[0], &input[3], "" };
 	std::size_t sizes[] = { 3, 1, 1 };
 
 	const deepstream_token tokens[] = {
