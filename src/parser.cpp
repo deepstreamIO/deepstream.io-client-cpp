@@ -63,16 +63,15 @@ int deepstream_parser_state::handle_token(
 	assert( text );
 	assert( textlen > 0 );
 
-	assert( messages_.size() <= offset_ );
-
 	assert( offset_ + textlen <= buffer_size_ || token == TOKEN_EOF );
-
 	assert( !memcmp(buffer_+offset_, text, textlen) );
 
+	assert( messages_.size() <= offset_ );
+	assert( errors_.size() <= offset_ );
 
-	BOOST_SCOPE_EXIT(&offset_, token, textlen) {
-		if(token != TOKEN_EOF)
-			offset_ += textlen;
+
+	BOOST_SCOPE_EXIT(&offset_, textlen) {
+		offset_ += textlen;
 	} BOOST_SCOPE_EXIT_END
 
 
@@ -80,6 +79,8 @@ int deepstream_parser_state::handle_token(
 		handle_error(token, text, textlen);
 	else if(token == TOKEN_EOF)
 	{
+		assert(offset_ == buffer_size_);
+
 		if(!tokenizing_header_)
 			handle_error(token, text, textlen);
 	}

@@ -16,6 +16,8 @@
 
 #include <cstring>
 
+#include <ostream>
+
 #include <message.hpp>
 
 #include <cassert>
@@ -23,6 +25,21 @@
 
 namespace deepstream
 {
+
+std::ostream& operator<<(std::ostream& os, Topic topic)
+{
+	os << static_cast<int>(topic);
+	return os;
+}
+
+
+std::ostream& operator<<(std::ostream& os, Action action)
+{
+	os << static_cast<int>(action);
+	return os;
+}
+
+
 
 std::vector<char> Message::from_human_readable(const char* p)
 {
@@ -47,13 +64,13 @@ std::vector<char> Message::from_human_readable(const char* p, std::size_t size)
 
 Message::Message(
 	const char* p, std::size_t offset, std::size_t header_size,
-	Topic topic, Action action, bool isAck) :
+	Topic topic, Action action, bool is_ack) :
 	base_(p),
 	offset_(offset),
 	size_(header_size),
 	topic_(topic),
 	action_(action),
-	isAck_(isAck)
+	is_ack_(is_ack)
 {
 	assert(base_);
 	assert(header_size > 0);
