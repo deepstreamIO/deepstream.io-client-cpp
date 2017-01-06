@@ -29,11 +29,14 @@ extern "C" {
 
 struct State
 {
-	explicit State(const char* p) :
-		input(strlen(p)+2, 0)
+	/**
+	 * @param[in] p Pointer to scanner input (need not be null-terminated)
+	 * @param[in] size Length of the string referenced by p
+	 */
+	explicit State(const char* p, std::size_t size) :
+		input(size+2, 0)
 	{
-		std::size_t size = std::strlen(p);
-		std::strncpy(&input[0], p, size);
+		std::memcpy(&input[0], p, size);
 
 		for(std::size_t i = 0; i < size; ++i)
 		{
@@ -47,6 +50,11 @@ struct State
 		buffer = yy_scan_buffer(&input[0], size+2, scanner);
 		yy_switch_to_buffer(buffer, scanner);
 	}
+
+	// convenience constructor for null-terminated strings
+	explicit State(const char* p) :
+		State(p, std::strlen(p))
+	{}
 
 	~State()
 	{
@@ -214,6 +222,30 @@ BOOST_AUTO_TEST_CASE(messages)
 	deepstream_token tokens[] = {
 		TOKEN_A_A,
 		TOKEN_RECORD_SEPARATOR,
+		TOKEN_E_S,
+		TOKEN_PAYLOAD,
+		TOKEN_RECORD_SEPARATOR,
+		TOKEN_EOF
+	};
+	const std::size_t NUM_TOKENS = sizeof(tokens) / sizeof(tokens[0]);
+
+	for(std::size_t i = 0; i < NUM_TOKENS; ++i)
+	{
+		int ret = yylex(state.scanner);
+		BOOST_CHECK_EQUAL( ret, tokens[i] );
+	}
+}
+
+
+//
+
+BOOST_AUTO_TEST_CASE(nullchar)
+{
+	const char input[] = "E|S|eve\0nt+";
+	std::size_t size = sizeof(input);
+
+	State state(input, size);
+	deepstream_token tokens[] = {
 		TOKEN_E_S,
 		TOKEN_PAYLOAD,
 		TOKEN_RECORD_SEPARATOR,
