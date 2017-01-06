@@ -19,6 +19,7 @@
 
 #include <cstddef>
 
+#include <iosfwd>
 #include <vector>
 
 
@@ -61,6 +62,12 @@ namespace deepstream
 	};
 
 
+	// needed by Boost.Test checks
+	std::ostream& operator<<(std::ostream&, Topic);
+	std::ostream& operator<<(std::ostream&, Action);
+
+
+
 	struct Message
 	{
 		typedef std::vector<Location> LocationList;
@@ -82,7 +89,7 @@ namespace deepstream
 
 		explicit Message(
 			const char* p, std::size_t offset, std::size_t header_size,
-			Topic topic, Action action, bool isAck=false);
+			Topic topic, Action action, bool is_ack=false);
 
 		const char* base() const { return base_; }
 		std::size_t offset() const { return offset_; }
@@ -90,7 +97,7 @@ namespace deepstream
 
 		Topic topic() const { return topic_; }
 		Action action() const { return action_; }
-		bool isAck() const { return isAck_; }
+		bool is_ack() const { return is_ack_; }
 
 		const char* const base_;
 		const std::size_t offset_;
@@ -98,7 +105,7 @@ namespace deepstream
 
 		const Topic topic_;
 		const Action action_;
-		const bool isAck_;
+		const bool is_ack_;
 
 		LocationList arguments_;
 	};

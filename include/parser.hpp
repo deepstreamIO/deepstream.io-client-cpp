@@ -60,8 +60,11 @@ struct deepstream_parser_state
 
 	explicit deepstream_parser_state(const char* p, std::size_t sz);
 
+	// the lexer modifies its input. thus, the lexer works with a copy of the
+	// input so the argument text cannot be assumed to be a substring of buffer_
+	// starting at offset_.
 	int handle_token(
-		deepstream_token, const char*, std::size_t);
+		deepstream_token, const char* text, std::size_t);
 	void handle_error(
 		deepstream_token, const char*, std::size_t);
 	void handle_header(

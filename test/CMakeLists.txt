@@ -59,3 +59,4 @@ target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)
 
 add_boost_test(message.cpp deepstream_parser)
 add_boost_test(lexer.cpp test_lexer)
+add_boost_test(parser.cpp deepstream_parser)
