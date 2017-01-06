@@ -46,10 +46,10 @@ BOOST_AUTO_TEST_CASE(empty_string)
 
 BOOST_AUTO_TEST_CASE(simple)
 {
-	const auto input = Message::from_human_readable("A|A+", 5);
+	const auto input = Message::from_human_readable("A|A+");
 	const auto copy(input);
 	const char* matches[] = { &input[0], &input[3], &input[4] };
-	std::size_t sizes[] = { 3, 2, 1 };
+	std::size_t sizes[] = { 3, 1, 1 };
 
 	const deepstream_token tokens[] = {
 		TOKEN_A_A, TOKEN_RECORD_SEPARATOR, TOKEN_EOF
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(simple)
 
 	BOOST_CHECK_EQUAL( msg.base_, copy.data() );
 	BOOST_CHECK_EQUAL( msg.offset_, 0 );
-	BOOST_CHECK_EQUAL( msg.size_, 3 );
+	BOOST_CHECK_EQUAL( msg.size_, input.size() );
 
 	BOOST_CHECK_EQUAL( msg.topic(), Topic::AUTH );
 	BOOST_CHECK_EQUAL( msg.action(), Action::REQUEST );
