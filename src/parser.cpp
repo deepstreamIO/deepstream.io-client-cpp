@@ -87,7 +87,12 @@ int deepstream_parser_state::handle_token(
 	else if(token == TOKEN_PAYLOAD)
 		handle_payload(token, text, textlen);
 	else if(token == TOKEN_RECORD_SEPARATOR)
-		{}
+	{
+		assert( !messages_.empty() );
+		assert( textlen == 1 );
+
+		messages_.back().size_ += textlen;
+	}
 	else if( is_header_token(token) )
 		handle_header(token, text, textlen);
 	else
