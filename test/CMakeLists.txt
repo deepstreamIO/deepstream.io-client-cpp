@@ -57,5 +57,5 @@ set_source_files_properties(
 add_library(test_lexer ${FLEX_test_lexer_OUTPUTS})
 target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)
 
+add_boost_test(message.cpp deepstream_parser)
 add_boost_test(lexer.cpp test_lexer)
-add_boost_test(parser.cpp deepstream_parser)
