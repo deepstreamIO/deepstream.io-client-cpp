@@ -41,7 +41,6 @@ deepstream_parser_state::deepstream_parser_state(const char* p, std::size_t sz):
 	offset_(0)
 {
 	assert(buffer_);
-	assert(buffer_size_ > 0);
 }
 
 
@@ -66,22 +65,24 @@ int deepstream_parser_state::handle_token(
 
 	assert( messages_.size() <= offset_ );
 
-	assert( text >= buffer_ );
-	assert( text + textlen <= buffer_ + buffer_size_ );
-	assert( offset_ + textlen <= buffer_size_ );
+	assert( offset_ + textlen <= buffer_size_ || token == TOKEN_EOF );
 
-	assert( !strncmp(buffer_+offset_, text, textlen) );
+	assert( !memcmp(buffer_+offset_, text, textlen) );
 
 
-	BOOST_SCOPE_EXIT(&offset_, textlen) {
-		offset_ += textlen;
+	BOOST_SCOPE_EXIT(&offset_, token, textlen) {
+		if(token != TOKEN_EOF)
+			offset_ += textlen;
 	} BOOST_SCOPE_EXIT_END
 
 
 	if(token == TOKEN_UNKNOWN)
 		handle_error(token, text, textlen);
-	else if(token == TOKEN_EOF && !tokenizing_header_)
-		handle_error(token, text, textlen);
+	else if(token == TOKEN_EOF)
+	{
+		if(!tokenizing_header_)
+			handle_error(token, text, textlen);
+	}
 	else if(token == TOKEN_PAYLOAD)
 		handle_payload(token, text, textlen);
 	else if(token == TOKEN_RECORD_SEPARATOR)
