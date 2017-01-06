@@ -56,7 +56,7 @@ int deepstream_parser_handle(
 	const char*, size_t);
 
 
-#if DEEPSTREAM_TEST_LEXER
+#ifdef DEEPSTREAM_TEST_LEXER
 #define DS_PARSE(TOKEN) (TOKEN)
 #else
 #define \

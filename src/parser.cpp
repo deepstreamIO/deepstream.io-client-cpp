@@ -73,7 +73,7 @@ int deepstream_parser_state::handle_token(
 	assert( !strncmp(buffer_+offset_, text, textlen) );
 
 
-	BOOST_SCOPE_EXIT(offset_, textlen) {
+	BOOST_SCOPE_EXIT(&offset_, textlen) {
 		offset_ += textlen;
 	} BOOST_SCOPE_EXIT_END
 
@@ -161,12 +161,15 @@ void deepstream_parser_state::handle_header(
 
 	switch(token)
 	{
-		// avoid compiler warnings
+		// avoid compiler warnings [-Wswitch]
 		case TOKEN_EOF:
 		case TOKEN_UNKNOWN:
 		case TOKEN_PAYLOAD:
 		case TOKEN_RECORD_SEPARATOR:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunreachable-code"
 			assert(0);
+#pragma clang diagnostic pop
 			break;
 
 		case TOKEN_A_A:
