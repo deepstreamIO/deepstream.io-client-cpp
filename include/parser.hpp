@@ -18,11 +18,12 @@
 
 #include <cstddef>
 
+#include <parser.h>
+#include <message.hpp>
+
 
 namespace deepstream
 {
-	struct Message;
-
 	namespace parser
 	{
 		struct Error
