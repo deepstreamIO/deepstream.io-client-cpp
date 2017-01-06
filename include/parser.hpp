@@ -18,11 +18,11 @@
 
 #include <cstddef>
 
-#include <message.hpp>
-
 
 namespace deepstream
 {
+	struct Message;
+
 	namespace parser
 	{
 		struct Error
@@ -31,7 +31,7 @@ namespace deepstream
 			{
 				UNEXPECTED_TOKEN,
 				UNEXPECTED_EOF,
-				EMPTY_PAYLOAD
+				CORRUPT_MESSAGE
 			};
 
 
@@ -46,6 +46,8 @@ namespace deepstream
 
 
 		typedef deepstream_parser_state State;
+
+		const char ASCII_UNIT_SEPARATOR = 31;
 	}
 }
 
@@ -55,18 +57,26 @@ struct deepstream_parser_state
 	typedef std::vector<deepstream::Message> MessageList;
 	typedef std::vector<deepstream::parser::Error> ErrorList;
 
-	explicit deepstream_parser_state(const char* buf) :
-		buffer(buf),
-		tokenizing_header(true),
-		offset(0)
-	{}
+	explicit deepstream_parser_state(const char* p, std::size_t sz);
 
-	const char* const buffer;
-	bool tokenizing_header;
-	std::size_t offset;
+	int handle_token(
+		deepstream_token, const char*, std::size_t);
+	void handle_error(
+		deepstream_token, const char*, std::size_t);
+	void handle_header(
+		deepstream_token, const char*, std::size_t);
+	void handle_payload(
+		deepstream_token, const char*, std::size_t);
 
-	MessageList messages;
-	ErrorList errors;
+
+	const char* const buffer_;
+	const std::size_t buffer_size_;
+
+	bool tokenizing_header_;
+	std::size_t offset_;
+
+	MessageList messages_;
+	ErrorList errors_;
 };
 
 #endif

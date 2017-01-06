@@ -21,13 +21,18 @@
 namespace deepstream
 {
 
-Message::Message(const char* p, Topic topic, Action action, bool isAck) :
-	buffer_(p),
+Message::Message(
+	const char* p, std::size_t offset, std::size_t header_size,
+	Topic topic, Action action, bool isAck) :
+	base_(p),
+	offset_(offset),
+	size_(header_size),
 	topic_(topic),
 	action_(action),
 	isAck_(isAck)
 {
-	assert(p);
+	assert(base_);
+	assert(header_size > 0);
 }
 
 }

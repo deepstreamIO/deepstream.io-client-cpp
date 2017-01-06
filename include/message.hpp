@@ -65,19 +65,26 @@ namespace deepstream
 		typedef std::vector<Location> LocationList;
 
 		explicit Message(
-			const char* p, Topic topic, Action action, bool isAck=false);
+			const char* p, std::size_t offset, std::size_t header_size,
+			Topic topic, Action action, bool isAck=false);
 
-		const char* buffer() const { return buffer_; }
+		const char* base() const { return base_; }
+		std::size_t offset() const { return offset_; }
+		std::size_t size() const { return size_; }
+
 		Topic topic() const { return topic_; }
 		Action action() const { return action_; }
 		bool isAck() const { return isAck_; }
 
-		const char* const buffer_;
+		const char* const base_;
+		const std::size_t offset_;
+		std::size_t size_;
+
 		const Topic topic_;
 		const Action action_;
 		const bool isAck_;
 
-		LocationList data_;
+		LocationList arguments_;
 	};
 }
 
