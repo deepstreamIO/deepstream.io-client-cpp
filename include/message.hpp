@@ -18,6 +18,7 @@
 
 
 #include <cstddef>
+
 #include <vector>
 
 
@@ -63,6 +64,21 @@ namespace deepstream
 	struct Message
 	{
 		typedef std::vector<Location> LocationList;
+
+
+		/**
+		 * This function takes a human-readable deepstream message, e.g.,
+		 * `E|A|S|event+`, and returns in machine-readable counterpart by
+		 * replacing `|` with the ASCII character 31 (unit separator) and `+`
+		 * with ASCII character 30 (record separator).
+		 *
+		 * This functions returns vector<char> because vector<T>::data() returns
+		 * sequential, writable memory while std::string::data() returns a
+		 * pointer to const.
+		 */
+		static std::vector<char> from_human_readable(const char* p);
+		static std::vector<char> from_human_readable(const char* p, std::size_t size);
+
 
 		explicit Message(
 			const char* p, std::size_t offset, std::size_t header_size,

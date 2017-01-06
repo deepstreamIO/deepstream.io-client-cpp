@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <cstring>
+
 #include <message.hpp>
 
 #include <cassert>
@@ -20,6 +23,27 @@
 
 namespace deepstream
 {
+
+std::vector<char> Message::from_human_readable(const char* p)
+{
+	return Message::from_human_readable(p, std::strlen(p));
+}
+
+std::vector<char> Message::from_human_readable(const char* p, std::size_t size)
+{
+	std::vector<char> xs( size, 0 );
+	std::memcpy( &xs[0], p, size );
+
+	for(std::size_t i = 0; i < size; ++i)
+	{
+		if(xs[i] == '+') xs[i] = '\x1e';
+		if(xs[i] == '|') xs[i] = '\x1f';
+	}
+
+	return xs;
+}
+
+
 
 Message::Message(
 	const char* p, std::size_t offset, std::size_t header_size,
