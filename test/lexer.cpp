@@ -80,7 +80,9 @@ BOOST_AUTO_TEST_CASE(empty_string)
 
 	int ret = yylex(state.scanner);
 	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
-	BOOST_CHECK_EQUAL( ret, EOF );
+
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 1 );
+	BOOST_CHECK_EQUAL( *yyget_text(state.scanner), 0 );
 }
 
 
