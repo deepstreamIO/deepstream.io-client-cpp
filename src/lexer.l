@@ -43,11 +43,11 @@ NS  [^\x1e^\x1f]
  * A proper message will cause the lexer to return the following tokens:
  * - a header token, e.g., TOKEN_A_A,
  * - TOKEN_PAYLOAD zero or more times,
- * - TOKEN_RECORD_SEPARATOR.
+ * - TOKEN_MESSAGE_SEPARATOR.
  * If an unknown token is encountered, the lexer discards input until it
  * encounters a message separator. The question is now if for every unknown
  * token, the lexer should return one token (TOKEN_UNKNOWN) or two tokens
- * (TOKEN_UNKNOWN followed by TOKEN_RECORD_SEPARATOR). This lexer returns only
+ * (TOKEN_UNKNOWN followed by TOKEN_MESSAGE_SEPARATOR). This lexer returns only
  * one token because the invalid message may consist only of the message
  * separator; with two tokens as return value, one of the tokens must correspond
  * to a match of length zero and the scanner must return two tokens although it
@@ -77,7 +77,7 @@ NS  [^\x1e^\x1f]
 
 <yypayload>{
 	{MPS}{NS}+   { return DS_PARSE(TOKEN_PAYLOAD); };
-	{MS}         { BEGIN(INITIAL); return DS_PARSE(TOKEN_RECORD_SEPARATOR); };
+	{MS}         { BEGIN(INITIAL); return DS_PARSE(TOKEN_MESSAGE_SEPARATOR); };
 
 	.            { BEGIN(yyerror); yymore(); }
 }

@@ -88,7 +88,7 @@ int deepstream_parser_state::handle_token(
 	}
 	else if(token == TOKEN_PAYLOAD)
 		handle_payload(token, text, textlen);
-	else if(token == TOKEN_RECORD_SEPARATOR)
+	else if(token == TOKEN_MESSAGE_SEPARATOR)
 	{
 		assert( !messages_.empty() );
 		assert( textlen == 1 );
@@ -174,7 +174,7 @@ void deepstream_parser_state::handle_header(
 		case TOKEN_EOF:
 		case TOKEN_UNKNOWN:
 		case TOKEN_PAYLOAD:
-		case TOKEN_RECORD_SEPARATOR:
+		case TOKEN_MESSAGE_SEPARATOR:
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunreachable-code"
 			assert(0);

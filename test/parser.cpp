@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(simple)
 	std::size_t sizes[] = { 3, 1, 1 };
 
 	const deepstream_token tokens[] = {
-		TOKEN_A_A, TOKEN_RECORD_SEPARATOR, TOKEN_EOF
+		TOKEN_A_A, TOKEN_MESSAGE_SEPARATOR, TOKEN_EOF
 	};
 
 	const std::size_t num_tokens = sizeof(tokens) / sizeof(tokens[0]);
@@ -95,8 +95,8 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 	const auto copy(input);
 
 	const deepstream_token tokens[] = {
-		TOKEN_E_A_L, TOKEN_PAYLOAD, TOKEN_RECORD_SEPARATOR,
-		TOKEN_E_A_S, TOKEN_PAYLOAD, TOKEN_RECORD_SEPARATOR,
+		TOKEN_E_A_L, TOKEN_PAYLOAD, TOKEN_MESSAGE_SEPARATOR,
+		TOKEN_E_A_S, TOKEN_PAYLOAD, TOKEN_MESSAGE_SEPARATOR,
 		TOKEN_EOF
 	};
 
