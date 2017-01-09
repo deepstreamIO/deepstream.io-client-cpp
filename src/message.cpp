@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <limits>
 #include <cstring>
 
 #include <ostream>
@@ -58,6 +59,55 @@ std::vector<char> Message::from_human_readable(const char* p, std::size_t size)
 	}
 
 	return xs;
+}
+
+
+
+std::pair<std::size_t, std::size_t> Message::num_arguments(
+	Topic topic, Action action, bool is_ack)
+{
+	typedef std::pair<std::size_t, std::size_t> T;
+
+	const std::size_t max = std::numeric_limits<std::size_t>::max();
+	const T error(max, max);
+
+	auto f = [] (std::size_t n) { return T(n, n); };
+
+	switch(topic)
+	{
+		case Topic::AUTH:
+			switch(action)
+			{
+				case Action::REQUEST:
+					return is_ack ? f(0) : f(1);
+				case Action::ERROR_INVALID_AUTH_DATA:
+				case Action::ERROR_TOO_MANY_AUTH_ATTEMPTS:
+					return f(0);
+
+				default:
+					assert(0);
+					return error;
+			}
+
+		case Topic::EVENT:
+			switch(action)
+			{
+				case Action::LISTEN:
+				case Action::SUBSCRIBE:
+				case Action::UNLISTEN:
+				case Action::UNSUBSCRIBE:
+					return is_ack ? f(2) : f(1);
+
+				default:
+					assert(0);
+					return error;
+			}
+
+		default:
+			assert(0);
+	}
+
+	return error;
 }
 
 
