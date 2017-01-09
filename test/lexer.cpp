@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(auth_ack)
 	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_RECORD_SEPARATOR );
+	BOOST_CHECK_EQUAL( ret, TOKEN_MESSAGE_SEPARATOR );
 
 	ret = yylex(state.scanner);
 	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_recovery)
 	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_RECORD_SEPARATOR );
+	BOOST_CHECK_EQUAL( ret, TOKEN_MESSAGE_SEPARATOR );
 
 	ret = yylex(state.scanner);
 	BOOST_CHECK_EQUAL( ret, EOF );
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_recovery_MS_only)
 	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_RECORD_SEPARATOR );
+	BOOST_CHECK_EQUAL( ret, TOKEN_MESSAGE_SEPARATOR );
 
 	ret = yylex(state.scanner);
 	BOOST_CHECK_EQUAL( ret, EOF );
@@ -223,10 +223,10 @@ BOOST_AUTO_TEST_CASE(messages)
 	State state("A|A+E|S|event+");
 	deepstream_token tokens[] = {
 		TOKEN_A_A,
-		TOKEN_RECORD_SEPARATOR,
+		TOKEN_MESSAGE_SEPARATOR,
 		TOKEN_E_S,
 		TOKEN_PAYLOAD,
-		TOKEN_RECORD_SEPARATOR,
+		TOKEN_MESSAGE_SEPARATOR,
 		TOKEN_EOF
 	};
 	const std::size_t NUM_TOKENS = sizeof(tokens) / sizeof(tokens[0]);
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(nullchar)
 	deepstream_token tokens[] = {
 		TOKEN_E_S,
 		TOKEN_PAYLOAD,
-		TOKEN_RECORD_SEPARATOR,
+		TOKEN_MESSAGE_SEPARATOR,
 		TOKEN_EOF
 	};
 	const std::size_t NUM_TOKENS = sizeof(tokens) / sizeof(tokens[0]);
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(invalid_message_sequence)
 		TOKEN_E_S,
 		TOKEN_PAYLOAD,
 		TOKEN_PAYLOAD,
-		TOKEN_RECORD_SEPARATOR,
+		TOKEN_MESSAGE_SEPARATOR,
 		TOKEN_EOF
 	};
 	const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(invalid_message_at_eof)
 
 	const deepstream_token TOKENS[] = {
 		TOKEN_A_A,
-		TOKEN_RECORD_SEPARATOR,
+		TOKEN_MESSAGE_SEPARATOR,
 		TOKEN_UNKNOWN,
 		TOKEN_EOF
 	};
