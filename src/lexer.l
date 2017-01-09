@@ -83,7 +83,7 @@ NS  [^\x1e^\x1f]
 }
 
 <yyerror>{
-	[^\x1e]*{MS}?  { BEGIN(INITIAL); return DS_PARSE(TOKEN_UNKNOWN); };
+	[^\x1e]*{MS}*  { BEGIN(INITIAL); return DS_PARSE(TOKEN_UNKNOWN); };
 }
 
 <<EOF>>            { return DS_PARSE(TOKEN_EOF); };

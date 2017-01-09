@@ -266,10 +266,9 @@ BOOST_AUTO_TEST_CASE(nullchar)
 // test sequences of invalid messages
 BOOST_AUTO_TEST_CASE(invalid_message_sequence)
 {
-	const char INPUT[] = "A|X|X++|+E|S|A|X+";
+	const char INPUT[] = "X|X|X++|+E|S|A|X+";
 
 	const deepstream_token TOKENS[] = {
-		TOKEN_UNKNOWN,
 		TOKEN_UNKNOWN,
 		TOKEN_UNKNOWN,
 		TOKEN_E_S,
@@ -282,11 +281,10 @@ BOOST_AUTO_TEST_CASE(invalid_message_sequence)
 
 	State state(INPUT);
 
-	const std::size_t TEXTLENS[NUM_TOKENS] = { 6, 1, 2, 3, 2, 2, 1, 1 };
+	const std::size_t TEXTLENS[NUM_TOKENS] = { 7, 2, 3, 2, 2, 1, 1 };
 	const char* const TEXTS[NUM_TOKENS] = {
-		&state.input[ 0], &state.input[ 6], &state.input[ 7],
-		&state.input[ 9], &state.input[12], &state.input[14], &state.input[16],
-		&state.input[17]
+		&state.input[ 0], &state.input[ 7], &state.input[ 9], &state.input[12],
+		&state.input[14], &state.input[16], &state.input[17]
 	};
 
 	for(std::size_t i = 0; i < NUM_TOKENS; ++i)
