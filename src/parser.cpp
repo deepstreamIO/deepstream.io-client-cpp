@@ -89,12 +89,7 @@ int deepstream_parser_state::handle_token(
 	else if(token == TOKEN_PAYLOAD)
 		handle_payload(token, text, textlen);
 	else if(token == TOKEN_MESSAGE_SEPARATOR)
-	{
-		assert( !messages_.empty() );
-		assert( textlen == 1 );
-
-		messages_.back().size_ += textlen;
-	}
+		handle_message_separator(token, text, textlen);
 	else if( is_header_token(token) )
 		handle_header(token, text, textlen);
 	else
@@ -234,4 +229,34 @@ void deepstream_parser_state::handle_payload(
 	auto& msg = messages_.back();
 	msg.arguments_.emplace_back(offset_+1, textlen-1);
 	msg.size_ += textlen;
+}
+
+
+void deepstream_parser_state::handle_message_separator(
+	deepstream_token token, const char* text, std::size_t textlen)
+{
+	using namespace deepstream::parser;
+
+	assert( token == TOKEN_MESSAGE_SEPARATOR );
+	assert( text );
+	assert( textlen == 1 );
+	assert( text[0] == ASCII_RECORD_SEPARATOR );
+	assert( !messages_.empty() );
+
+	auto& msg = messages_.back();
+	msg.size_ += textlen;
+
+	std::size_t msg_offset = msg.offset();
+	std::size_t msg_size = msg.size();
+	std::size_t num_args = msg.arguments_.size();
+	const auto& expected_num_args = msg.num_arguments();
+	std::size_t min_num_args = expected_num_args.first;
+	std::size_t max_num_args = expected_num_args.second;
+
+	if( num_args >= min_num_args && num_args <= max_num_args )
+		return;
+
+	messages_.pop_back();
+	errors_.emplace_back(
+		msg_offset, msg_size, Error::INVALID_NUMBER_OF_ARGUMENTS);
 }

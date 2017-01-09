@@ -20,6 +20,7 @@
 #include <cstddef>
 
 #include <iosfwd>
+#include <utility>
 #include <vector>
 
 
@@ -86,6 +87,15 @@ namespace deepstream
 		static std::vector<char> from_human_readable(const char* p);
 		static std::vector<char> from_human_readable(const char* p, std::size_t size);
 
+		/**
+		 * This function returns the minum and maximum number of arguments for
+		 * every message, e.g., for "E|S|event+" (event subscription), this
+		 * function returns the pair (1, 1).
+		 */
+		static std::pair<std::size_t,std::size_t> num_arguments(
+			Topic topic, Action action, bool is_ack);
+
+
 
 		explicit Message(
 			const char* p, std::size_t offset, std::size_t header_size,
@@ -98,6 +108,10 @@ namespace deepstream
 		Topic topic() const { return topic_; }
 		Action action() const { return action_; }
 		bool is_ack() const { return is_ack_; }
+
+		std::pair<std::size_t, std::size_t> num_arguments() const {
+			return num_arguments( topic(), action(), is_ack() );
+		}
 
 		const char* const base_;
 		const std::size_t offset_;

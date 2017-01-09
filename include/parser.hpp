@@ -32,7 +32,8 @@ namespace deepstream
 			{
 				UNEXPECTED_TOKEN,
 				UNEXPECTED_EOF,
-				CORRUPT_MESSAGE
+				CORRUPT_MESSAGE,
+				INVALID_NUMBER_OF_ARGUMENTS
 			};
 
 
@@ -48,6 +49,7 @@ namespace deepstream
 
 		typedef deepstream_parser_state State;
 
+		const char ASCII_RECORD_SEPARATOR = 30;
 		const char ASCII_UNIT_SEPARATOR = 31;
 	}
 }
@@ -70,6 +72,8 @@ struct deepstream_parser_state
 	void handle_header(
 		deepstream_token, const char*, std::size_t);
 	void handle_payload(
+		deepstream_token, const char*, std::size_t);
+	void handle_message_separator(
 		deepstream_token, const char*, std::size_t);
 
 
