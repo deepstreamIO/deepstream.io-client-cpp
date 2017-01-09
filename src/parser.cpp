@@ -18,6 +18,7 @@
 #include <message.hpp>
 #include <parser.h>
 #include <parser.hpp>
+#include <use.hpp>
 
 #include <boost/scope_exit.hpp>
 
@@ -226,6 +227,9 @@ void deepstream_parser_state::handle_payload(
 	assert( text[0] == ASCII_UNIT_SEPARATOR );
 	assert( !messages_.empty() );
 
+	deepstream::use(token);
+	deepstream::use(text);
+
 	auto& msg = messages_.back();
 	msg.arguments_.emplace_back(offset_+1, textlen-1);
 	msg.size_ += textlen;
@@ -242,6 +246,9 @@ void deepstream_parser_state::handle_message_separator(
 	assert( textlen == 1 );
 	assert( text[0] == ASCII_RECORD_SEPARATOR );
 	assert( !messages_.empty() );
+
+	deepstream::use(token);
+	deepstream::use(text);
 
 	auto& msg = messages_.back();
 	msg.size_ += textlen;
