@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 3.0.0)
-project(deepstream.io-client-c++ VERSION 0.1.0 LANGUAGES C CXX)
+cmake_minimum_required(VERSION 2.8)
+project(deepstream.io-client-c++)
+enable_language(C)
+enable_language(CXX)
+set(deepstream.io-client-c++_VERSION_MAJOR 0)
+set(deepstream.io-client-c++_VERSION_MINOR 1)
+set(deepstream.io-client-c++_VERSION_PATCH 0)
 
 
 option(BUILD_TESTING "Build tests" OFF)
