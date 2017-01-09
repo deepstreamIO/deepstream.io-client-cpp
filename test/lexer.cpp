@@ -299,3 +299,35 @@ BOOST_AUTO_TEST_CASE(invalid_message_sequence)
 		BOOST_CHECK( !strncmp(yyget_text(state.scanner), TEXTS[i], len) );
 	}
 }
+
+
+// test case with invalid message at the end of file and no message separator
+BOOST_AUTO_TEST_CASE(invalid_message_at_eof)
+{
+	const char INPUT[] = "A|A+INVALID";
+
+	const deepstream_token TOKENS[] = {
+		TOKEN_A_A,
+		TOKEN_RECORD_SEPARATOR,
+		TOKEN_UNKNOWN,
+		TOKEN_EOF
+	};
+	const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
+
+	State state(INPUT);
+
+	const std::size_t TEXTLENS[NUM_TOKENS] = { 3, 1, 7, 1 };
+	const char* const TEXTS[NUM_TOKENS] = {
+		&state.input[ 0], &state.input[ 3], &state.input[ 4], &state.input[11]
+	};
+
+	for(std::size_t i = 0; i < NUM_TOKENS; ++i)
+	{
+		int ret = yylex(state.scanner);
+		BOOST_CHECK_EQUAL( ret, TOKENS[i] );
+
+		std::size_t len = TEXTLENS[i];
+		BOOST_REQUIRE_EQUAL( yyget_leng(state.scanner), len );
+		BOOST_CHECK( !strncmp(yyget_text(state.scanner), TEXTS[i], len) );
+	}
+}
