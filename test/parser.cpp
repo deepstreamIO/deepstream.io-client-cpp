@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(simple)
 
 	Message& msg = state.messages_.front();
 
-	BOOST_CHECK_EQUAL( msg.base_, copy.data() );
+	BOOST_CHECK( msg.base_ == copy.data() );
 	BOOST_CHECK_EQUAL( msg.offset_, 0 );
 	BOOST_CHECK_EQUAL( msg.size_, input.size() );
 
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 
 	for(const Message& msg : state.messages_)
 	{
-		BOOST_CHECK_EQUAL( msg.base_, copy.data() );
+		BOOST_CHECK( msg.base_ == copy.data() );
 
 		BOOST_CHECK_EQUAL( msg.topic(), Topic::EVENT );
 		BOOST_CHECK( !msg.is_ack() );
