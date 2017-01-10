@@ -44,17 +44,24 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 
 # lexer testing
-FLEX_TARGET(
-	test_lexer
-	"${CMAKE_SOURCE_DIR}/src/lexer.l"
+add_custom_command(
+	OUTPUT
 	"${CMAKE_CURRENT_BINARY_DIR}/test_lexer.c"
-	DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/test_lexer.h")
+	"${CMAKE_CURRENT_BINARY_DIR}/test_lexer.h"
+	DEPENDS "${CMAKE_SOURCE_DIR}/src/lexer.l"
+	COMMAND ${FLEX_EXECUTABLE}
+		--outfile=test_lexer.c
+		--header-file=test_lexer.h
+		-- "${CMAKE_SOURCE_DIR}/src/lexer.l"
+	COMMENT "[FLEX][test] Bulding lexer with Flex ${FLEX_VERSION}"
+	VERBATIM
+)
 
 set_source_files_properties(
 	"${CMAKE_CURRENT_BINARY_DIR}/test_lexer.c"
 	PROPERTIES COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter")
 
-add_library(test_lexer ${FLEX_test_lexer_OUTPUTS})
+add_library(test_lexer test_lexer.c)
 target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)
 
 add_boost_test(message.cpp deepstream_parser)
