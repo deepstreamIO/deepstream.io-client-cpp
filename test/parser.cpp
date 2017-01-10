@@ -25,6 +25,15 @@
 #include <parser.hpp>
 
 
+// Remarks:
+// - Do not use BOOST_CHECK_EQUAL() to compare const char* variables as
+//   Boost.Test attempts to be smart by calling std::strcmp()
+//   [with Boost 1.53, see boost/test/impl/test_tools.ipp:383, equal_impl()].
+//   In this file, const char* variables do not always reference null-terminated
+//   strings, e.g., when using std::vector<char*>::data(). If this happens,
+//   Valgrind may detect invalid reads.
+
+
 namespace deepstream {
 namespace parser
 {
