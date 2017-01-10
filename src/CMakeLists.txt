@@ -1,4 +1,6 @@
-find_package(FLEX REQUIRED)
+find_package(Boost 1.46 REQUIRED)
+find_package(FLEX 2.5 REQUIRED)
+
 
 add_custom_command(
 	OUTPUT
@@ -9,10 +11,9 @@ add_custom_command(
 		--outfile=lexer.c
 		--header-file=lexer.h
 		-- "${CMAKE_CURRENT_SOURCE_DIR}/lexer.l"
-	COMMENT "[FLEX][src] Bulding lexer with Flex ${FLEX_VERSION}"
+	COMMENT "[FLEX][src] Building lexer with Flex ${FLEX_VERSION}"
 	VERBATIM
 )
-
 
 set_source_files_properties(
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c"
@@ -20,8 +21,6 @@ set_source_files_properties(
 		COMPILE_DEFINITIONS "_POSIX_SOURCE"
 		COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter -Wno-type-limits -Wno-sign-compare"
 )
-
-find_package(Boost 1.46 REQUIRED)
 
 add_library(
 	deepstream_parser SHARED
