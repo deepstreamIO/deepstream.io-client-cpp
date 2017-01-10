@@ -1,4 +1,4 @@
-find_package(FLEX)
+find_package(FLEX REQUIRED)
 
 add_custom_command(
 	OUTPUT
@@ -9,7 +9,7 @@ add_custom_command(
 		--outfile=lexer.c
 		--header-file=lexer.h
 		-- "${CMAKE_CURRENT_SOURCE_DIR}/lexer.l"
-	COMMENT "[FLEX] Bulding lexer with Flex ${FLEX_VERSION}"
+	COMMENT "[FLEX][src] Bulding lexer with Flex ${FLEX_VERSION}"
 	VERBATIM
 )
 
