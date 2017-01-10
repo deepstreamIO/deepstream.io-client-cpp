@@ -61,7 +61,7 @@ set_source_files_properties(
 	"${CMAKE_CURRENT_BINARY_DIR}/test_lexer.c"
 	PROPERTIES
 		COMPILE_DEFINITIONS "_POSIX_SOURCE"
-		COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter"
+		COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter -Wno-type-limits -Wno-sign-compare"
 )
 
 add_library(test_lexer test_lexer.c)
