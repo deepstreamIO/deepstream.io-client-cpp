@@ -59,7 +59,10 @@ add_custom_command(
 
 set_source_files_properties(
 	"${CMAKE_CURRENT_BINARY_DIR}/test_lexer.c"
-	PROPERTIES COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter")
+	PROPERTIES
+		COMPILE_DEFINITIONS "_POSIX_SOURCE"
+		COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter"
+)
 
 add_library(test_lexer test_lexer.c)
 target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)

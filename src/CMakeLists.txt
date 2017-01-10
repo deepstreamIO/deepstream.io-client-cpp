@@ -16,7 +16,10 @@ add_custom_command(
 
 set_source_files_properties(
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c"
-	PROPERTIES COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter")
+	PROPERTIES
+		COMPILE_DEFINITIONS "_POSIX_SOURCE"
+		COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter"
+)
 
 find_package(Boost 1.46 REQUIRED)
 
