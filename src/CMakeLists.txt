@@ -18,6 +18,8 @@ set_source_files_properties(
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c"
 	PROPERTIES COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter")
 
+find_package(Boost 1.46 REQUIRED)
+
 add_library(
 	deepstream_parser SHARED
 	message.cpp
@@ -25,3 +27,4 @@ add_library(
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
 target_include_directories(deepstream_parser PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(deepstream_parser PUBLIC ${Boost_INCLUDE_DIRS})
