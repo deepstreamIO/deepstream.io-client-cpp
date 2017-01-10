@@ -250,6 +250,11 @@ void deepstream_parser_state::handle_message_separator(
 	deepstream::use(token);
 	deepstream::use(text);
 
+	DEEPSTREAM_ON_EXIT( [this] () {
+		this->tokenizing_header_ = true;
+	} );
+
+
 	auto& msg = messages_.back();
 	msg.size_ += textlen;
 
