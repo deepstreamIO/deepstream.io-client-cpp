@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 #include <cstdlib>
+#include <cstring>
 
 #include <message.hpp>
 #include <parser.h>
 #include <parser.hpp>
+#include <scope_guard.hpp>
 #include <use.hpp>
-
-#include <boost/scope_exit.hpp>
 
 #include <cassert>
 
@@ -67,15 +67,15 @@ int deepstream_parser_state::handle_token(
 	assert( token != TOKEN_EOF || textlen == 1 );
 	assert( token != TOKEN_EOF || offset_ + textlen == buffer_size_ + 1 );
 	assert( token == TOKEN_EOF || offset_ + textlen <= buffer_size_ );
-	assert( token == TOKEN_EOF || !memcmp(buffer_+offset_, text, textlen) );
+	assert( token == TOKEN_EOF || !std::memcmp(buffer_+offset_, text, textlen));
 
 	assert( messages_.size() <= offset_ );
 	assert( errors_.size() <= offset_ );
 
 
-	BOOST_SCOPE_EXIT(&offset_, textlen) {
-		offset_ += textlen;
-	} BOOST_SCOPE_EXIT_END
+	DEEPSTREAM_ON_EXIT([this, textlen] () {
+		this->offset_ += textlen;
+	} );
 
 
 	if(token == TOKEN_UNKNOWN)
@@ -111,9 +111,9 @@ void deepstream_parser_state::handle_error(
 	assert( textlen > 0 || (textlen == 0 && token == EOF) );
 
 
-	BOOST_SCOPE_EXIT(tokenizing_header_) {
-		tokenizing_header_ = true; // reset parser status on exit
-	} BOOST_SCOPE_EXIT_END
+	DEEPSTREAM_ON_EXIT( [this] () {
+		this->tokenizing_header_ = true; // reset parser status on exit
+	} );
 
 
 	if( token == TOKEN_EOF )
@@ -159,9 +159,9 @@ void deepstream_parser_state::handle_header(
 	using deepstream::Topic;
 	using deepstream::Action;
 
-	BOOST_SCOPE_EXIT(tokenizing_header_) {
-		tokenizing_header_ = false;
-	} BOOST_SCOPE_EXIT_END
+	DEEPSTREAM_ON_EXIT( [this] () {
+		this->tokenizing_header_ = false;
+	} );
 
 
 	switch(token)
