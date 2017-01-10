@@ -70,6 +70,9 @@ BOOST_AUTO_TEST_CASE(simple)
 
 	for(std::size_t i = 0; i < num_tokens; ++i)
 	{
+		bool tokenizing_header = state.tokenizing_header_;
+		BOOST_CHECK( (i==0||i==2) ? tokenizing_header : !tokenizing_header );
+
 		int ret = state.handle_token(tokens[i], matches[i], sizes[i]);
 
 		BOOST_CHECK_EQUAL( ret, tokens[i] );
@@ -122,6 +125,11 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 
 	for(std::size_t i = 0; i < num_tokens; ++i)
 	{
+		BOOST_CHECK( (i==0||i==3||i==6) ?
+			state.tokenizing_header_ :
+			!state.tokenizing_header_
+		);
+
 		std::size_t offset = std::accumulate( matchlens, matchlens+i, 0 );
 		BOOST_CHECK_EQUAL( state.offset_, offset );
 
@@ -134,6 +142,8 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 
 		BOOST_CHECK_EQUAL( state.offset_, offset+matchlens[i] );
 	}
+
+	BOOST_CHECK( state.tokenizing_header_ );
 
 	for(const Message& msg : state.messages_)
 	{
@@ -196,6 +206,9 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 
 	for(std::size_t i = 0; i < NUM_TOKENS; ++i)
 	{
+		bool tokenizing_header = state.tokenizing_header_;
+		BOOST_CHECK( (i==0||i==3) ? tokenizing_header : !tokenizing_header );
+
 		std::size_t offset = std::accumulate( MATCHLENS, MATCHLENS+i, 0 );
 		BOOST_CHECK_EQUAL( state.offset_, offset );
 
