@@ -3,6 +3,10 @@ if(NOT BUILD_TESTING)
 endif()
 
 
+find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
+find_package(FLEX 2.5 REQUIRED)
+
+
 # This functions searches all unit tests implemented with boost.test and turns
 # each of them into a single CTest test case. See `doc/ctest-vs-boost.md` for
 # the motivation behind this.
@@ -36,10 +40,6 @@ function(add_boost_test FILENAME DEPENDENCY_LIB)
 endfunction()
 
 
-find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
-find_package(FLEX REQUIRED)
-
-
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 
@@ -53,7 +53,7 @@ add_custom_command(
 		--outfile=test_lexer.c
 		--header-file=test_lexer.h
 		-- "${CMAKE_SOURCE_DIR}/src/lexer.l"
-	COMMENT "[FLEX][test] Bulding lexer with Flex ${FLEX_VERSION}"
+	COMMENT "[FLEX][test] Building lexer with Flex ${FLEX_VERSION}"
 	VERBATIM
 )
 
