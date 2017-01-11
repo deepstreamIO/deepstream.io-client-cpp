@@ -19,6 +19,7 @@
 #include <cstring>
 
 #include <numeric>
+#include <random>
 #include <vector>
 
 #include <message.hpp>
@@ -228,6 +229,108 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 	BOOST_CHECK_EQUAL( e.location_.offset_, 0 );
 	BOOST_CHECK_EQUAL( e.location_.length_, 8 );
 	BOOST_CHECK_EQUAL( e.tag_, Error::INVALID_NUMBER_OF_ARGUMENTS );
+}
+
+
+
+BOOST_AUTO_TEST_CASE(random_tokens)
+{
+	const deepstream_token TOKENS[] = {
+		TOKEN_UNKNOWN,
+		TOKEN_PAYLOAD,
+		TOKEN_MESSAGE_SEPARATOR,
+		TOKEN_A_A,
+		TOKEN_A_E_IAD,
+		TOKEN_A_E_TMAA,
+		TOKEN_A_REQ,
+		TOKEN_E_A_L,
+		TOKEN_E_A_S,
+		TOKEN_E_L,
+		TOKEN_E_S,
+		TOKEN_E_US
+	};
+
+	const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
+	const std::size_t N = 1000;
+
+	for(std::size_t iteration = 0; iteration < 10; ++iteration)
+	{
+		std::mt19937_64 engine( iteration );
+
+		std::uniform_int_distribution<std::size_t> rand3(0, 2);
+		std::uniform_int_distribution<std::size_t> rand_index(0, NUM_TOKENS-1);
+		std::uniform_int_distribution<std::size_t> rand_uint(1, 20);
+		std::uniform_int_distribution<char> rand_char;
+
+		auto generate3 =
+			[&engine, &rand3] () { return rand3(engine); };
+		auto generate_index =
+			[&engine, &rand_index] () { return rand_index(engine); };
+		auto generate_uint =
+			[&engine, &rand_uint] () { return rand_uint(engine); };
+		auto generate_char =
+			[&engine, &rand_char] () { return rand_char(engine); };
+
+		std::vector<char> input(N);
+		std::generate( input.begin(), input.end(), generate_char );
+
+		std::vector<char> copy(input);
+
+		State state( copy.data(), copy.size() );
+
+		for(std::size_t offset = 0; offset < N; )
+		{
+			std::size_t index = state.tokenizing_header_
+				? generate_index()
+				: generate3();
+			deepstream_token token = TOKENS[index];
+
+			std::size_t textlen = (token == TOKEN_MESSAGE_SEPARATOR)
+				? 1
+				: std::min(generate_uint(), N-offset);
+
+			if( state.messages_.empty() &&
+				(token == TOKEN_MESSAGE_SEPARATOR || token == TOKEN_PAYLOAD) )
+				token = TOKEN_UNKNOWN;
+
+			if( token == TOKEN_PAYLOAD )
+				copy[offset] = input[offset] = ASCII_UNIT_SEPARATOR;
+			if( token == TOKEN_MESSAGE_SEPARATOR )
+				copy[offset] = input[offset] = ASCII_RECORD_SEPARATOR;
+
+			std::size_t num_messages = state.messages_.size();
+			std::size_t num_errors = state.errors_.size();
+
+			int ret = deepstream_parser_handle(
+				&state, token, &input[offset], textlen
+			);
+
+			BOOST_CHECK_EQUAL( ret, token );
+
+			if( token == TOKEN_UNKNOWN )
+			{
+				BOOST_CHECK( state.tokenizing_header_ );
+				BOOST_CHECK(
+					state.messages_.size() == num_messages + 1 ||
+					state.errors_.size() == num_errors + 1
+				);
+			}
+			if( token == TOKEN_MESSAGE_SEPARATOR )
+				BOOST_CHECK( state.tokenizing_header_ );
+			if( is_header_token(token) )
+				BOOST_CHECK( !state.tokenizing_header_ );
+
+			offset += textlen;
+
+			BOOST_CHECK_EQUAL( offset, state.offset_ );
+		}
+
+		int ret = deepstream_parser_handle(&state, TOKEN_EOF, "", 1);
+
+		BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+		BOOST_CHECK( state.tokenizing_header_ );
+		BOOST_CHECK_EQUAL( state.offset_, N+1 );
+	}
 }
 
 }
