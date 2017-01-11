@@ -64,6 +64,12 @@ NS  [^\x1e^\x1f]
 		BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_TMAA); };
 	A{MPS}REQ      { BEGIN(yypayload); return DS_PARSE(TOKEN_A_REQ); };
 
+	C{MPS}A        { BEGIN(yypayload); return DS_PARSE(TOKEN_C_A); }
+	C{MPS}CH       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_CH); }
+	C{MPS}CHR      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_CHR); }
+	C{MPS}RED      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_RED); }
+	C{MPS}REJ      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_REJ); }
+
 	E{MPS}A{MPS}L  { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_L); };
 	E{MPS}A{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_S); };
 	E{MPS}L        { BEGIN(yypayload); return DS_PARSE(TOKEN_E_L); };

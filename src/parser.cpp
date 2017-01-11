@@ -196,6 +196,25 @@ void deepstream_parser_state::handle_header(
 			DS_ADD_MSG(Topic::AUTH, Action::REQUEST);
 			break;
 
+		case TOKEN_C_A:
+			DS_ADD_MSG(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true);
+			break;
+
+		case TOKEN_C_CH:
+			DS_ADD_MSG(Topic::CONNECTION, Action::CHALLENGE);
+			break;
+
+		case TOKEN_C_CHR:
+			DS_ADD_MSG(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
+			break;
+
+		case TOKEN_C_RED:
+			DS_ADD_MSG(Topic::CONNECTION, Action::REDIRECT);
+			break;
+
+		case TOKEN_C_REJ:
+			DS_ADD_MSG(Topic::CONNECTION, Action::REJECT);
+
 		case TOKEN_E_A_L:
 			DS_ADD_MSG(Topic::EVENT, Action::LISTEN, true);
 			break;
