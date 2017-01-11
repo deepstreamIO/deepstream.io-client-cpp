@@ -33,7 +33,7 @@ namespace deepstream
 	{
 		typedef std::function<void(void)> FunT;
 
-		ScopeGuard(FunT f) : f_(f) {};
+		ScopeGuard(FunT f) : f_(f) {}
 		~ScopeGuard() { f_(); }
 
 		FunT f_;
