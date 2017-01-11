@@ -174,10 +174,7 @@ void deepstream_parser_state::handle_header(
 		case TOKEN_UNKNOWN:
 		case TOKEN_PAYLOAD:
 		case TOKEN_MESSAGE_SEPARATOR:
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunreachable-code"
 			assert(0);
-#pragma clang diagnostic pop
 			break;
 
 		case TOKEN_A_A:
