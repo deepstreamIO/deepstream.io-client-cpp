@@ -159,6 +159,9 @@ void deepstream_parser_state::handle_header(
 	using deepstream::Topic;
 	using deepstream::Action;
 
+	assert( is_header_token(token) );
+	assert( tokenizing_header_ );
+
 	DEEPSTREAM_ON_EXIT( [this] () {
 		this->tokenizing_header_ = false;
 	} );
