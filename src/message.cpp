@@ -89,6 +89,26 @@ std::pair<std::size_t, std::size_t> Message::num_arguments(
 					return error;
 			}
 
+		case Topic::CONNECTION:
+			switch(action)
+			{
+				case Action::CHALLENGE:
+					return f(0);
+
+				case Action::CHALLENGE_RESPONSE:
+					return is_ack ? f(0) : f(1);
+
+				case Action::REDIRECT:
+					return f(1);
+
+				case Action::REJECT:
+					return T(0, 1);
+
+				default:
+					assert(0);
+					return error;
+			}
+
 		case Topic::EVENT:
 			switch(action)
 			{
