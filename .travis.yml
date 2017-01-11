@@ -1,0 +1,23 @@
+language: cpp
+compiler:
+    - clang
+    - gcc
+
+git:
+    depth: 3
+
+
+addons:
+    apt:
+        packages:
+            - libboost-dev
+            - libbost-test-dev
+            - flex
+
+
+before_script:
+    - mkdir build
+    - cd_build
+    - cmake -DBUILD_TESTING=ON ~/deepstream.io-client-cpp
+
+script: make -j2 && make -j2 test
