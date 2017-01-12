@@ -30,3 +30,10 @@ add_library(
 
 target_include_directories(deepstream_parser PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(deepstream_parser PUBLIC ${Boost_INCLUDE_DIRS})
+
+
+add_library(
+	deepstream_client SHARED
+	client.cpp)
+
+target_link_libraries(deepstream_client PUBLIC deepstream_parser)

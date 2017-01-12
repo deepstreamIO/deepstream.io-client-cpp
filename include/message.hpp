@@ -66,10 +66,17 @@ namespace deepstream
 		UNSUBSCRIBE
 	};
 
+	enum class Sender
+	{
+		CLIENT,
+		SERVER
+	};
+
 
 	// needed by Boost.Test checks
 	std::ostream& operator<<(std::ostream&, Topic);
 	std::ostream& operator<<(std::ostream&, Action);
+	std::ostream& operator<<(std::ostream&, Sender);
 
 
 
@@ -112,6 +119,8 @@ namespace deepstream
 		Topic topic() const { return topic_; }
 		Action action() const { return action_; }
 		bool is_ack() const { return is_ack_; }
+
+		const LocationList& arguments() const { return arguments_; }
 
 		std::pair<std::size_t, std::size_t> num_arguments() const {
 			return num_arguments( topic(), action(), is_ack() );
