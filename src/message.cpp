@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#include <limits>
 #include <cstring>
 
+#include <algorithm>
+#include <limits>
 #include <ostream>
 
 #include <message.hpp>
@@ -56,14 +57,9 @@ std::vector<char> Message::from_human_readable(const char* p)
 
 std::vector<char> Message::from_human_readable(const char* p, std::size_t size)
 {
-	std::vector<char> xs( size, 0 );
-	std::memcpy( &xs[0], p, size );
-
-	for(std::size_t i = 0; i < size; ++i)
-	{
-		if(xs[i] == '+') xs[i] = '\x1e';
-		if(xs[i] == '|') xs[i] = '\x1f';
-	}
+	std::vector<char> xs( p, p+size );
+	std::replace( xs.begin(), xs.end(), '|', '\x1f' );
+	std::replace( xs.begin(), xs.end(), '+', '\x1e' );
 
 	return xs;
 }
