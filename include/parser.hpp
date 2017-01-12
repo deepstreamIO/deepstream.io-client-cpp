@@ -42,6 +42,10 @@ namespace deepstream
 				tag_(tag)
 			{}
 
+
+			const Location& location() const { return location_; }
+			Tag tag() const { return tag_; }
+
 			Location location_;
 			Tag tag_;
 		};
