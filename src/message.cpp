@@ -41,6 +41,13 @@ std::ostream& operator<<(std::ostream& os, Action action)
 }
 
 
+std::ostream& operator<<(std::ostream& os, Sender sender)
+{
+	os << static_cast<int>(sender);
+	return os;
+}
+
+
 
 std::vector<char> Message::from_human_readable(const char* p)
 {
