@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cstdio>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
@@ -24,6 +25,9 @@
 
 #include <message.hpp>
 #include <parser.hpp>
+extern "C" {
+#include <lexer.h>
+}
 
 
 // Remarks:
@@ -331,6 +335,61 @@ BOOST_AUTO_TEST_CASE(random_tokens)
 		BOOST_CHECK( state.tokenizing_header_ );
 		BOOST_CHECK_EQUAL( state.offset_, N+1 );
 	}
+}
+
+
+// lexer, parser integration tests
+
+BOOST_AUTO_TEST_CASE(simple_integration)
+{
+	const char raw[] = "A|A+ERROR+++E|A|L|p|m+";
+	const std::vector<char> input = Message::from_human_readable(raw);
+
+	std::vector<char> lexer_input( input.size()+2 );
+	std::copy( input.cbegin(), input.cend(), lexer_input.begin() );
+
+	yyscan_t scanner;
+	int ret = yylex_init(&scanner);
+	BOOST_REQUIRE_EQUAL(ret, 0);
+
+	YY_BUFFER_STATE buffer = \
+		yy_scan_buffer( lexer_input.data(), lexer_input.size(), scanner );
+	yy_switch_to_buffer(buffer, scanner);
+
+	State parser( input.data(), input.size() );
+	yyset_extra(&parser, scanner);
+
+	for( int ret = TOKEN_UNKNOWN; ret != TOKEN_EOF; ret = yylex(scanner) );
+
+	BOOST_CHECK( parser.buffer_ == input.data() );
+	BOOST_CHECK_EQUAL( parser.buffer_size_, input.size() );
+
+	BOOST_CHECK( parser.tokenizing_header_ );
+	BOOST_CHECK_EQUAL( parser.offset_, parser.buffer_size_ + 1 );
+
+	BOOST_CHECK_EQUAL( parser.messages_.size(), 2 );
+	BOOST_CHECK_EQUAL( parser.errors_.size(), 1 );
+
+	const Message& msg_f = parser.messages_.front();
+	BOOST_CHECK( msg_f.base() == input.data() );
+	BOOST_CHECK_EQUAL( msg_f.offset(), 0 );
+	BOOST_CHECK_EQUAL( msg_f.size(), 4 );
+	BOOST_CHECK_EQUAL( msg_f.topic(), Topic::AUTH );
+	BOOST_CHECK_EQUAL( msg_f.action(), Action::REQUEST );
+	BOOST_CHECK( msg_f.is_ack() );
+	BOOST_CHECK( msg_f.arguments().empty() );
+
+	const Message& msg_b = parser.messages_.back();
+	BOOST_CHECK( msg_b.base() == input.data() );
+	BOOST_CHECK_EQUAL( msg_b.offset(), 12 );
+	BOOST_CHECK_EQUAL( msg_b.size(), 10 );
+	BOOST_CHECK_EQUAL( msg_b.topic(), Topic::EVENT );
+	BOOST_CHECK_EQUAL( msg_b.action(), Action::LISTEN );
+	BOOST_CHECK( msg_b.is_ack() );
+	BOOST_CHECK_EQUAL( msg_b.arguments().size(), 2 );
+
+	const Error& error = parser.errors_.front();
+	BOOST_CHECK_EQUAL( error.tag(), Error::UNEXPECTED_TOKEN );
 }
 
 }
