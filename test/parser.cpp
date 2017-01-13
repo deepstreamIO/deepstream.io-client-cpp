@@ -239,22 +239,7 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 
 BOOST_AUTO_TEST_CASE(random_tokens)
 {
-	const deepstream_token TOKENS[] = {
-		TOKEN_UNKNOWN,
-		TOKEN_PAYLOAD,
-		TOKEN_MESSAGE_SEPARATOR,
-		TOKEN_A_A,
-		TOKEN_A_E_IAD,
-		TOKEN_A_E_TMAA,
-		TOKEN_A_REQ,
-		TOKEN_E_A_L,
-		TOKEN_E_A_S,
-		TOKEN_E_L,
-		TOKEN_E_S,
-		TOKEN_E_US
-	};
-
-	const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
+	const std::size_t NUM_TOKENS = TOKEN_MAXVAL - TOKEN_UNKNOWN;
 	const std::size_t N = 1000;
 
 	for(std::size_t iteration = 0; iteration < 10; ++iteration)
@@ -287,7 +272,8 @@ BOOST_AUTO_TEST_CASE(random_tokens)
 			std::size_t index = state.tokenizing_header_
 				? generate_index()
 				: generate3();
-			deepstream_token token = TOKENS[index];
+			deepstream_token token =
+				static_cast<deepstream_token>( TOKEN_UNKNOWN + index );
 
 			std::size_t textlen = (token == TOKEN_MESSAGE_SEPARATOR)
 				? 1

@@ -51,6 +51,7 @@ int deepstream_parser_handle(
 	const char* text, std::size_t textlen)
 {
 	assert( p_state );
+	assert( token != TOKEN_MAXVAL );
 
 	return p_state->handle_token(token, text, textlen);
 }
@@ -60,6 +61,8 @@ int deepstream_parser_handle(
 int deepstream_parser_state::handle_token(
 	deepstream_token token, const char* text, std::size_t textlen)
 {
+	assert( token != TOKEN_MAXVAL );
+
 	assert( text );
 	assert( textlen > 0 );
 
@@ -174,6 +177,7 @@ void deepstream_parser_state::handle_header(
 		case TOKEN_UNKNOWN:
 		case TOKEN_PAYLOAD:
 		case TOKEN_MESSAGE_SEPARATOR:
+		case TOKEN_MAXVAL:
 			assert(0);
 			break;
 

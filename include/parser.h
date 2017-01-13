@@ -49,7 +49,12 @@ enum deepstream_token
 	TOKEN_E_A_S,
 	TOKEN_E_L,
 	TOKEN_E_S,
-	TOKEN_E_US
+	TOKEN_E_US,
+	/**
+	 * The following token is a dummy value for development purposes, e.g.,
+	 * the number of valid tokens is TOKENS_MAXVAL - TOKEN_UNKNOWN + 1.
+	 */
+	TOKEN_MAXVAL
 };
 
 
