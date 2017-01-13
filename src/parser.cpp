@@ -152,7 +152,8 @@ void deepstream_parser_state::handle_error(
 
 #define DS_ADD_MSG(...) \
 		do { \
-			messages_.emplace_back(buffer_, offset_, textlen, __VA_ARGS__); \
+			assert( textlen==deepstream::Message::Header::size(__VA_ARGS__) ); \
+			messages_.emplace_back(buffer_, offset_, __VA_ARGS__); \
 		} while(false)
 
 
@@ -168,7 +169,6 @@ void deepstream_parser_state::handle_header(
 	DEEPSTREAM_ON_EXIT( [this] () {
 		this->tokenizing_header_ = false;
 	} );
-
 
 	switch(token)
 	{

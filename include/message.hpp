@@ -79,27 +79,50 @@ namespace deepstream
 	std::ostream& operator<<(std::ostream&, Sender);
 
 
-	const char* to_string(Topic topic, Action action, bool is_ack=false);
-
-
-
 	struct Message
 	{
 		typedef std::vector<Location> LocationList;
 
+		struct Header
+		{
+			static const char* to_string(Topic, Action, bool is_ack=false);
+			static std::size_t size(Topic, Action, bool is_ack=false);
 
-		/**
-		 * This function takes a human-readable deepstream message, e.g.,
-		 * `E|A|S|event+`, and returns in machine-readable counterpart by
-		 * replacing `|` with the ASCII character 31 (unit separator) and `+`
-		 * with ASCII character 30 (record separator).
-		 *
-		 * This functions returns vector<char> because vector<T>::data() returns
-		 * sequential, writable memory while std::string::data() returns a
-		 * pointer to const.
-		 */
-		static std::vector<char> from_human_readable(const char* p);
-		static std::vector<char> from_human_readable(const char* p, std::size_t size);
+			/**
+			 * This function takes a human-readable deepstream message, e.g.,
+			 * `E|A|S|event+`, and returns in machine-readable counterpart by
+			 * replacing `|` with the ASCII character 31 (unit separator) and
+			 * `+` with ASCII character 30 (record separator).
+			 *
+			 * This functions returns vector<char> because vector<T>::data()
+			 * returns sequential, writable memory while std::string::data()
+			 * returns a pointer to const.
+			 */
+			static std::vector<char> from_human_readable(const char* p);
+			static std::vector<char> from_human_readable(
+				const char* p, std::size_t size);
+
+			static std::pair<const Header*, std::size_t> all();
+
+
+			explicit Header(Topic topic, Action action, bool is_ack=false) :
+				topic_(topic), action_(action), is_ack_(is_ack)
+			{}
+
+
+			const char* to_string() const;
+			std::size_t size() const;
+
+			Topic topic() const { return topic_; }
+			Action action() const { return action_; }
+			bool is_ack() const { return is_ack_; }
+
+
+			Topic topic_;
+			Action action_;
+			bool is_ack_;
+		};
+
 
 		/**
 		 * This function returns the minimum and maximum number of arguments for
@@ -112,16 +135,19 @@ namespace deepstream
 
 
 		explicit Message(
-			const char* p, std::size_t offset, std::size_t header_size,
+			const char* p, std::size_t offset,
 			Topic topic, Action action, bool is_ack=false);
+		explicit Message(const char*, std::size_t, const Header&);
+
 
 		const char* base() const { return base_; }
 		std::size_t offset() const { return offset_; }
 		std::size_t size() const { return size_; }
 
-		Topic topic() const { return topic_; }
-		Action action() const { return action_; }
-		bool is_ack() const { return is_ack_; }
+		const Header& header() const { return header_; }
+		Topic topic() const { return header_.topic(); }
+		Action action() const { return header_.action(); }
+		bool is_ack() const { return header_.is_ack(); }
 
 		const LocationList& arguments() const { return arguments_; }
 
@@ -133,10 +159,7 @@ namespace deepstream
 		const std::size_t offset_;
 		std::size_t size_;
 
-		const Topic topic_;
-		const Action action_;
-		const bool is_ack_;
-
+		Header header_;
 		LocationList arguments_;
 	};
 }

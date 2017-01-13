@@ -29,10 +29,10 @@ namespace deepstream
 
 BOOST_AUTO_TEST_CASE(from_human_readable_empty)
 {
-	auto xs = Message::from_human_readable("");
+	auto xs = Message::Header::from_human_readable("");
 	BOOST_CHECK_EQUAL( xs.size(), 0 );
 
-	auto ys = Message::from_human_readable("", 0);
+	auto ys = Message::Header::from_human_readable("", 0);
 	BOOST_CHECK_EQUAL( xs.size(), 0 );
 }
 
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(from_human_readable_simple)
 	std::iota( input.begin(), input.end(), 0 );
 
 	std::vector<char> output =
-		Message::from_human_readable( input.data(), input.size() );
+		Message::Header::from_human_readable( input.data(), input.size() );
 
 	BOOST_CHECK_EQUAL( input.size(), output.size() );
 
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(from_human_readable_nop)
 	input['|'] = 'X';
 
 	std::vector<char> output =
-		Message::from_human_readable( input.data(), input.size() );
+		Message::Header::from_human_readable( input.data(), input.size() );
 
 	BOOST_CHECK_EQUAL( input.size(), output.size() );
 	BOOST_CHECK( std::equal(input.begin(), input.end(), output.begin()) );

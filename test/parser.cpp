@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(empty_string)
 
 BOOST_AUTO_TEST_CASE(simple)
 {
-	const auto input = Message::from_human_readable("A|A+");
+	const auto input = Message::Header::from_human_readable("A|A+");
 	const auto copy(input);
 	const char* matches[] = { &input[0], &input[3], "" };
 	std::size_t sizes[] = { 3, 1, 1 };
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 {
 	const char STRING[] = "E|L|listen+E|S|event+";
 
-	const auto input = Message::from_human_readable(STRING);
+	const auto input = Message::Header::from_human_readable(STRING);
 	const auto copy(input);
 
 	const deepstream_token tokens[] = {
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 {
 	const char STRING[] = "E|A|L|l+";
 
-	const auto input = Message::from_human_readable(STRING);
+	const auto input = Message::Header::from_human_readable(STRING);
 	const auto copy(input);
 
 	const deepstream_token TOKENS[] = {
@@ -236,100 +236,12 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 }
 
 
-
-BOOST_AUTO_TEST_CASE(random_tokens)
-{
-	const std::size_t NUM_TOKENS = TOKEN_MAXVAL - TOKEN_UNKNOWN;
-	const std::size_t N = 1000;
-
-	for(std::size_t iteration = 0; iteration < 10; ++iteration)
-	{
-		std::mt19937_64 engine( iteration );
-
-		std::uniform_int_distribution<std::size_t> rand3(0, 2);
-		std::uniform_int_distribution<std::size_t> rand_index(0, NUM_TOKENS-1);
-		std::uniform_int_distribution<std::size_t> rand_uint(1, 20);
-		std::uniform_int_distribution<char> rand_char;
-
-		auto generate3 =
-			[&engine, &rand3] () { return rand3(engine); };
-		auto generate_index =
-			[&engine, &rand_index] () { return rand_index(engine); };
-		auto generate_uint =
-			[&engine, &rand_uint] () { return rand_uint(engine); };
-		auto generate_char =
-			[&engine, &rand_char] () { return rand_char(engine); };
-
-		std::vector<char> input(N);
-		std::generate( input.begin(), input.end(), generate_char );
-
-		std::vector<char> copy(input);
-
-		State state( copy.data(), copy.size() );
-
-		for(std::size_t offset = 0; offset < N; )
-		{
-			std::size_t index = state.tokenizing_header_
-				? generate_index()
-				: generate3();
-			deepstream_token token =
-				static_cast<deepstream_token>( TOKEN_UNKNOWN + index );
-
-			std::size_t textlen = (token == TOKEN_MESSAGE_SEPARATOR)
-				? 1
-				: std::min(generate_uint(), N-offset);
-
-			if( state.messages_.empty() &&
-				(token == TOKEN_MESSAGE_SEPARATOR || token == TOKEN_PAYLOAD) )
-				token = TOKEN_UNKNOWN;
-
-			if( token == TOKEN_PAYLOAD )
-				copy[offset] = input[offset] = ASCII_UNIT_SEPARATOR;
-			if( token == TOKEN_MESSAGE_SEPARATOR )
-				copy[offset] = input[offset] = ASCII_RECORD_SEPARATOR;
-
-			std::size_t num_messages = state.messages_.size();
-			std::size_t num_errors = state.errors_.size();
-
-			int ret = deepstream_parser_handle(
-				&state, token, &input[offset], textlen
-			);
-
-			BOOST_CHECK_EQUAL( ret, token );
-
-			if( token == TOKEN_UNKNOWN )
-			{
-				BOOST_CHECK( state.tokenizing_header_ );
-				BOOST_CHECK(
-					state.messages_.size() == num_messages + 1 ||
-					state.errors_.size() == num_errors + 1
-				);
-			}
-			if( token == TOKEN_MESSAGE_SEPARATOR )
-				BOOST_CHECK( state.tokenizing_header_ );
-			if( is_header_token(token) )
-				BOOST_CHECK( !state.tokenizing_header_ );
-
-			offset += textlen;
-
-			BOOST_CHECK_EQUAL( offset, state.offset_ );
-		}
-
-		int ret = deepstream_parser_handle(&state, TOKEN_EOF, "", 1);
-
-		BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
-		BOOST_CHECK( state.tokenizing_header_ );
-		BOOST_CHECK_EQUAL( state.offset_, N+1 );
-	}
-}
-
-
 // lexer, parser integration tests
 
 BOOST_AUTO_TEST_CASE(simple_integration)
 {
 	const char raw[] = "A|A+ERROR+++E|A|L|p|m+";
-	const std::vector<char> input = Message::from_human_readable(raw);
+	const std::vector<char> input = Message::Header::from_human_readable(raw);
 
 	std::vector<char> lexer_input( input.size()+2 );
 	std::copy( input.cbegin(), input.cend(), lexer_input.begin() );

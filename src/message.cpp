@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <cstring>
 
 #include <algorithm>
@@ -67,7 +66,7 @@ std::ostream& operator<<(std::ostream& os, Sender sender)
 	} while(false)
 
 
-const char* to_string(Topic topic, Action action, bool is_ack)
+const char* Message::Header::to_string(Topic topic, Action action, bool is_ack)
 {
 	DS2STR(Topic::CONNECTION, Action::CHALLENGE, "C|CH");
 	DS2STR(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, "C|CHR");
@@ -91,13 +90,32 @@ const char* to_string(Topic topic, Action action, bool is_ack)
 }
 
 
-
-std::vector<char> Message::from_human_readable(const char* p)
+std::size_t Message::Header::size(Topic topic, Action action, bool is_ack)
 {
-	return Message::from_human_readable(p, std::strlen(p));
+	return std::strlen( to_string(topic, action, is_ack) );
 }
 
-std::vector<char> Message::from_human_readable(const char* p, std::size_t size)
+
+const char* Message::Header::to_string() const
+{
+	return to_string( topic_, action_, is_ack_ );
+}
+
+
+std::size_t Message::Header::size() const
+{
+	return size( topic_, action_, is_ack_ );
+}
+
+
+
+std::vector<char> Message::Header::from_human_readable(const char* p)
+{
+	return Message::Header::from_human_readable( p, std::strlen(p) );
+}
+
+std::vector<char> Message::Header::from_human_readable(
+	const char* p, std::size_t size)
 {
 	std::vector<char> xs( p, p+size );
 	std::replace( xs.begin(), xs.end(), '|', '\x1f' );
@@ -178,17 +196,21 @@ std::pair<std::size_t, std::size_t> Message::num_arguments(
 
 
 Message::Message(
-	const char* p, std::size_t offset, std::size_t header_size,
+	const char* p, std::size_t offset,
 	Topic topic, Action action, bool is_ack) :
+	Message( p, offset, Header(topic,action,is_ack) )
+{
+
+}
+
+
+Message::Message(const char* p, std::size_t offset, const Header& header) :
 	base_(p),
 	offset_(offset),
-	size_(header_size),
-	topic_(topic),
-	action_(action),
-	is_ack_(is_ack)
+	size_(header.size()),
+	header_(header)
 {
-	assert(base_);
-	assert(header_size > 0);
+	assert( base_ );
 }
 
 }
