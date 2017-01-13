@@ -50,6 +50,48 @@ std::ostream& operator<<(std::ostream& os, Sender sender)
 
 
 
+#define DS2STR_ACK(TOPIC, ACTION, STRING) \
+	do { \
+		if( topic == TOPIC && action == ACTION && is_ack ) \
+		{ \
+			return STRING; \
+		} \
+	} while(false)
+
+#define DS2STR(TOPIC,ACTION,STRING) \
+	do { \
+		if( topic == TOPIC && action == ACTION && !is_ack ) \
+		{ \
+			return STRING; \
+		} \
+	} while(false)
+
+
+const char* to_string(Topic topic, Action action, bool is_ack)
+{
+	DS2STR(Topic::CONNECTION, Action::CHALLENGE, "C|CH");
+	DS2STR(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, "C|CHR");
+	DS2STR(Topic::CONNECTION, Action::REDIRECT, "C|RED");
+	DS2STR(Topic::CONNECTION, Action::REJECT, "C|REJ");
+	DS2STR_ACK(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, "C|A");
+
+	DS2STR(Topic::AUTH, Action::REQUEST, "A|REQ");
+	DS2STR(Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA, "A|E|INVALID_AUTH_DATA");
+	DS2STR(Topic::AUTH, Action::ERROR_TOO_MANY_AUTH_ATTEMPTS, "A|E|INVALID_AUTH_DATA");
+	DS2STR_ACK(Topic::AUTH, Action::REQUEST, "A|A");
+
+	DS2STR(Topic::EVENT, Action::LISTEN, "E|L");
+	DS2STR(Topic::EVENT, Action::SUBSCRIBE, "E|S");
+	DS2STR(Topic::EVENT, Action::UNSUBSCRIBE, "E|US");
+	DS2STR_ACK(Topic::EVENT, Action::LISTEN, "E|A|L");
+	DS2STR_ACK(Topic::EVENT, Action::SUBSCRIBE, "E|A|S");
+
+	assert(0);
+	return nullptr;
+}
+
+
+
 std::vector<char> Message::from_human_readable(const char* p)
 {
 	return Message::from_human_readable(p, std::strlen(p));
