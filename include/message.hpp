@@ -79,6 +79,9 @@ namespace deepstream
 	std::ostream& operator<<(std::ostream&, Sender);
 
 
+	const char* to_string(Topic topic, Action action, bool is_ack=false);
+
+
 
 	struct Message
 	{
