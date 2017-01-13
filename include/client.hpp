@@ -22,7 +22,7 @@
 namespace deepstream
 {
 	enum class Sender;
-	class Message;
+	struct Message;
 
 	namespace client
 	{
