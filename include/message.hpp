@@ -85,6 +85,8 @@ namespace deepstream
 
 		struct Header
 		{
+			static std::pair<const Header*, const Header*> all();
+
 			static const char* to_string(Topic, Action, bool is_ack=false);
 			static std::size_t size(Topic, Action, bool is_ack=false);
 
@@ -101,8 +103,6 @@ namespace deepstream
 			static std::vector<char> from_human_readable(const char* p);
 			static std::vector<char> from_human_readable(
 				const char* p, std::size_t size);
-
-			static std::pair<const Header*, std::size_t> all();
 
 
 			explicit Header(Topic topic, Action action, bool is_ack=false) :
@@ -162,6 +162,9 @@ namespace deepstream
 		Header header_;
 		LocationList arguments_;
 	};
+
+
+	bool operator== (const Message::Header&, const Message::Header&);
 }
 
 #endif

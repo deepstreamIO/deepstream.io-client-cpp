@@ -49,62 +49,110 @@ std::ostream& operator<<(std::ostream& os, Sender sender)
 
 
 
-#define DS2STR_ACK(TOPIC, ACTION, STRING) \
-	do { \
-		if( topic == TOPIC && action == ACTION && is_ack ) \
-		{ \
-			return STRING; \
-		} \
-	} while(false)
+// The list order follows from lexicographical ordering of its tokens, i.e.,
+// A|A <= A|E|INVALID_AUTH_DATA <= A|REQ <= C|A ...
+const Message::Header HEADERS[] = {
+	Message::Header( Topic::AUTH, Action::REQUEST, true ),
+	Message::Header( Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA ),
+	Message::Header( Topic::AUTH, Action::ERROR_TOO_MANY_AUTH_ATTEMPTS ),
+	Message::Header( Topic::AUTH, Action::REQUEST ),
 
-#define DS2STR(TOPIC,ACTION,STRING) \
-	do { \
-		if( topic == TOPIC && action == ACTION && !is_ack ) \
-		{ \
-			return STRING; \
-		} \
-	} while(false)
+	Message::Header( Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true ),
+	Message::Header( Topic::CONNECTION, Action::CHALLENGE ),
+	Message::Header( Topic::CONNECTION, Action::CHALLENGE_RESPONSE ),
+	Message::Header( Topic::CONNECTION, Action::REDIRECT ),
+	Message::Header( Topic::CONNECTION, Action::REJECT ),
+
+	Message::Header( Topic::EVENT, Action::LISTEN, true ),
+	Message::Header( Topic::EVENT, Action::SUBSCRIBE, true ),
+	Message::Header( Topic::EVENT, Action::UNSUBSCRIBE, true ),
+	Message::Header( Topic::EVENT, Action::LISTEN ),
+	Message::Header( Topic::EVENT, Action::SUBSCRIBE ),
+	Message::Header( Topic::EVENT, Action::UNSUBSCRIBE )
+};
+
+const std::size_t NUM_HEADERS = sizeof(HEADERS) / sizeof(HEADERS[0]);
+
+const char* HEADER_TO_STRING[] = {
+	"A|A",
+	"A|E|INVALID_AUTH_DATA",
+	"A|E|TOO_MANY_AUTH_ATTEMPTS",
+	"A|REQ",
+
+	"C|A",
+	"C|CH",
+	"C|CHR",
+	"C|RED",
+	"C|REJ",
+
+	"E|A|L",
+	"E|A|S",
+	"E|A|US",
+	"E|L",
+	"E|S",
+	"E|US"
+};
+
+const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
+	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(2, 2),
+
+	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(0, 1),
+
+	std::pair<std::size_t, std::size_t>(2, 2),
+	std::pair<std::size_t, std::size_t>(2, 2),
+	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(2, 2)
+};
+
+
+#define DS_COUNT(XS) (sizeof(XS)/sizeof(XS[0]))
+static_assert( DS_COUNT(HEADERS) == DS_COUNT(HEADER_TO_STRING), "" );
+static_assert( DS_COUNT(HEADERS) == DS_COUNT(HEADER_NUM_PAYLOAD), "" );
+
+
+std::pair<const Message::Header*, const Message::Header*> Message::Header::all()
+{
+	return std::make_pair( HEADERS, HEADERS+NUM_HEADERS );
+}
 
 
 const char* Message::Header::to_string(Topic topic, Action action, bool is_ack)
 {
-	DS2STR(Topic::CONNECTION, Action::CHALLENGE, "C|CH");
-	DS2STR(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, "C|CHR");
-	DS2STR(Topic::CONNECTION, Action::REDIRECT, "C|RED");
-	DS2STR(Topic::CONNECTION, Action::REJECT, "C|REJ");
-	DS2STR_ACK(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, "C|A");
+	return Message::Header(topic, action, is_ack).to_string();
+}
 
-	DS2STR(Topic::AUTH, Action::REQUEST, "A|REQ");
-	DS2STR(Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA, "A|E|INVALID_AUTH_DATA");
-	DS2STR(Topic::AUTH, Action::ERROR_TOO_MANY_AUTH_ATTEMPTS, "A|E|INVALID_AUTH_DATA");
-	DS2STR_ACK(Topic::AUTH, Action::REQUEST, "A|A");
 
-	DS2STR(Topic::EVENT, Action::LISTEN, "E|L");
-	DS2STR(Topic::EVENT, Action::SUBSCRIBE, "E|S");
-	DS2STR(Topic::EVENT, Action::UNSUBSCRIBE, "E|US");
-	DS2STR_ACK(Topic::EVENT, Action::LISTEN, "E|A|L");
-	DS2STR_ACK(Topic::EVENT, Action::SUBSCRIBE, "E|A|S");
+std::size_t Message::Header::size(Topic topic, Action action, bool is_ack)
+{
+	return Message::Header(topic, action, is_ack).size();
+}
+
+
+const char* Message::Header::to_string() const
+{
+	for(std::size_t i = 0; i < NUM_HEADERS; ++i)
+	{
+		if( *this == HEADERS[i] )
+			return HEADER_TO_STRING[i];
+	}
 
 	assert(0);
 	return nullptr;
 }
 
 
-std::size_t Message::Header::size(Topic topic, Action action, bool is_ack)
-{
-	return std::strlen( to_string(topic, action, is_ack) );
-}
-
-
-const char* Message::Header::to_string() const
-{
-	return to_string( topic_, action_, is_ack_ );
-}
-
-
 std::size_t Message::Header::size() const
 {
-	return size( topic_, action_, is_ack_ );
+	return std::strlen( to_string() );
 }
 
 
@@ -125,71 +173,34 @@ std::vector<char> Message::Header::from_human_readable(
 }
 
 
+bool operator== (const Message::Header& left, const Message::Header& right)
+{
+	if( left.topic() != right.topic() ) return false;
+	if( left.action() != right.action() ) return false;
+	if( left.is_ack() != right.is_ack() ) return false;
+
+	return true;
+}
+
+
 
 std::pair<std::size_t, std::size_t> Message::num_arguments(
 	Topic topic, Action action, bool is_ack)
 {
-	typedef std::pair<std::size_t, std::size_t> T;
+	typedef std::pair<std::size_t, std::size_t> RetType;
 
-	const std::size_t max = std::numeric_limits<std::size_t>::max();
-	const T error(max, max);
+	Header h(topic, action, is_ack);
 
-	auto f = [] (std::size_t n) { return T(n, n); };
-
-	switch(topic)
+	for(std::size_t i = 0; i < NUM_HEADERS; ++i)
 	{
-		case Topic::AUTH:
-			switch(action)
-			{
-				case Action::REQUEST:
-					return is_ack ? f(0) : f(1);
-				case Action::ERROR_INVALID_AUTH_DATA:
-				case Action::ERROR_TOO_MANY_AUTH_ATTEMPTS:
-					return f(0);
-
-				default:
-					assert(0);
-					return error;
-			}
-
-		case Topic::CONNECTION:
-			switch(action)
-			{
-				case Action::CHALLENGE:
-					return f(0);
-
-				case Action::CHALLENGE_RESPONSE:
-					return is_ack ? f(0) : f(1);
-
-				case Action::REDIRECT:
-					return f(1);
-
-				case Action::REJECT:
-					return T(0, 1);
-
-				default:
-					assert(0);
-					return error;
-			}
-
-		case Topic::EVENT:
-			switch(action)
-			{
-				case Action::LISTEN:
-				case Action::SUBSCRIBE:
-				case Action::UNLISTEN:
-				case Action::UNSUBSCRIBE:
-					return is_ack ? f(2) : f(1);
-
-				default:
-					assert(0);
-					return error;
-			}
-
-		default:
-			assert(0);
+		if( h == HEADERS[i] )
+			return HEADER_NUM_PAYLOAD[i];
 	}
 
+	const std::size_t max = std::numeric_limits<std::size_t>::max();
+	const RetType error(max, max);
+
+	assert(0);
 	return error;
 }
 
