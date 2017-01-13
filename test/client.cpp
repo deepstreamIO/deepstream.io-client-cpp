@@ -26,19 +26,13 @@ namespace client
 
 BOOST_AUTO_TEST_CASE(lifetime)
 {
-	char dummy;
+	char dummy = 0;
 
 	auto make_msg = [&dummy] (Topic topic, Action action) {
-		std::size_t offset = 0;
-		std::size_t header_size = 1;
-
-		return Message(&dummy, offset, header_size, topic, action);
+		return Message(&dummy, 0, topic, action);
 	};
 	auto make_ack_msg = [&dummy] (Topic topic, Action action) {
-		std::size_t offset = 0;
-		std::size_t header_size = 1;
-
-		return Message(&dummy, offset, header_size, topic, action, true);
+		return Message(&dummy, 0, topic, action, true);
 	};
 
 	State s0 = State::AWAIT_CONNECTION;
