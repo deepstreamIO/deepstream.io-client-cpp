@@ -102,7 +102,7 @@ namespace deepstream
 		static std::vector<char> from_human_readable(const char* p, std::size_t size);
 
 		/**
-		 * This function returns the minum and maximum number of arguments for
+		 * This function returns the minimum and maximum number of arguments for
 		 * every message, e.g., for "E|S|event+" (event subscription), this
 		 * function returns the pair (1, 1).
 		 */
