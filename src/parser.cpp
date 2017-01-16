@@ -256,7 +256,7 @@ void deepstream_parser_state::handle_payload(
 	assert( token == TOKEN_PAYLOAD );
 	assert( text );
 	assert( textlen > 0 );
-	assert( text[0] == ASCII_UNIT_SEPARATOR );
+	assert( text[0] == deepstream::ASCII_UNIT_SEPARATOR );
 	assert( !messages_.empty() );
 
 	deepstream::use(token);
@@ -276,7 +276,7 @@ void deepstream_parser_state::handle_message_separator(
 	assert( token == TOKEN_MESSAGE_SEPARATOR );
 	assert( text );
 	assert( textlen == 1 );
-	assert( text[0] == ASCII_RECORD_SEPARATOR );
+	assert( text[0] == deepstream::ASCII_RECORD_SEPARATOR );
 	assert( !messages_.empty() );
 
 	deepstream::use(token);

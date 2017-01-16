@@ -26,6 +26,10 @@
 
 namespace deepstream
 {
+	const char ASCII_RECORD_SEPARATOR = 30;
+	const char ASCII_UNIT_SEPARATOR = 31;
+
+
 	struct Location
 	{
 		explicit Location(std::size_t offset, std::size_t length) :
@@ -97,6 +101,8 @@ namespace deepstream
 
 			const char* to_string() const;
 			std::size_t size() const;
+
+			std::vector<char> to_binary() const;
 
 			Topic topic() const { return topic_; }
 			Action action() const { return action_; }

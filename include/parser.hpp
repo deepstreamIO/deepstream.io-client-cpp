@@ -52,9 +52,6 @@ namespace deepstream
 
 
 		typedef deepstream_parser_state State;
-
-		const char ASCII_RECORD_SEPARATOR = 30;
-		const char ASCII_UNIT_SEPARATOR = 31;
 	}
 }
 

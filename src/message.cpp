@@ -157,6 +157,13 @@ std::size_t Message::Header::size() const
 
 
 
+std::vector<char> Message::Header::to_binary() const
+{
+	return from_human_readable( to_string() );
+}
+
+
+
 std::vector<char> Message::from_human_readable(const char* p)
 {
 	return Message::from_human_readable( p, std::strlen(p) );
