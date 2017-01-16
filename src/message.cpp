@@ -157,12 +157,12 @@ std::size_t Message::Header::size() const
 
 
 
-std::vector<char> Message::Header::from_human_readable(const char* p)
+std::vector<char> Message::from_human_readable(const char* p)
 {
-	return Message::Header::from_human_readable( p, std::strlen(p) );
+	return Message::from_human_readable( p, std::strlen(p) );
 }
 
-std::vector<char> Message::Header::from_human_readable(
+std::vector<char> Message::from_human_readable(
 	const char* p, std::size_t size)
 {
 	std::vector<char> xs( p, p+size );

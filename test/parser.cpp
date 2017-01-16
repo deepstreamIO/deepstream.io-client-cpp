@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(empty_string)
 
 BOOST_AUTO_TEST_CASE(simple)
 {
-	const auto input = Message::Header::from_human_readable("A|A+");
+	const auto input = Message::from_human_readable("A|A+");
 	const auto copy(input);
 	const char* matches[] = { &input[0], &input[3], "" };
 	std::size_t sizes[] = { 3, 1, 1 };
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 {
 	const char STRING[] = "E|L|listen+E|S|event+";
 
-	const auto input = Message::Header::from_human_readable(STRING);
+	const auto input = Message::from_human_readable(STRING);
 	const auto copy(input);
 
 	const deepstream_token tokens[] = {
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 {
 	const char STRING[] = "E|A|L|l+";
 
-	const auto input = Message::Header::from_human_readable(STRING);
+	const auto input = Message::from_human_readable(STRING);
 	const auto copy(input);
 
 	const deepstream_token TOKENS[] = {
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 BOOST_AUTO_TEST_CASE(simple_integration)
 {
 	const char raw[] = "A|A+ERROR+++E|A|L|p|m+";
-	const std::vector<char> input = Message::Header::from_human_readable(raw);
+	const std::vector<char> input = Message::from_human_readable(raw);
 
 	std::vector<char> lexer_input( input.size()+2 );
 	std::copy( input.cbegin(), input.cend(), lexer_input.begin() );
