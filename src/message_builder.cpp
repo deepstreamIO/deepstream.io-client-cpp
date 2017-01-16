@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include <algorithm>
+#include <stdexcept>
 
 #include <message.hpp>
 #include <message_builder.hpp>
@@ -76,6 +77,11 @@ std::vector<char> MessageBuilder::execute() const
 
 void MessageBuilder::add_argument(const Argument& arg)
 {
+	auto it = std::find(arg.cbegin(), arg.cend(), ASCII_UNIT_SEPARATOR);
+
+	if( it != arg.cend() )
+		throw std::invalid_argument("ASCII unit separator in payload detected");
+
 	arguments_.push_back(arg);
 }
 
