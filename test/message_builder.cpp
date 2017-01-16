@@ -17,6 +17,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cstring>
+#include <climits>
 
 #include <message_builder.hpp>
 
@@ -62,17 +63,34 @@ BOOST_AUTO_TEST_CASE(binary_payload)
 {
 	typedef MessageBuilder::Argument Argument;
 
-	const char MSG[] = "E|A|S|pattern|match+";
-
-	Message::Header header(Topic::EVENT, Action::SUBSCRIBE);
-	Argument arg1(1, 0);
-
+	Message::Header header( Topic::EVENT, Action::SUBSCRIBE, true );
+	std::vector<char> message( header.to_binary() );
 	MessageBuilder builder(header);
 
-	auto out = builder.execute();
-	auto bin = Message::from_human_readable(MSG);
+	const int n = 3;
+	for(int u = 0; u < n; ++u)
+	{
+		Argument arg;
+		message.push_back( ASCII_UNIT_SEPARATOR );
 
-	BOOST_REQUIRE_EQUAL( out.size(), bin.size() );
+		for(int c = u*CHAR_MAX/n; c < (u+1)*CHAR_MAX/n; ++c)
+		{
+			if( c == ASCII_UNIT_SEPARATOR || c == ASCII_RECORD_SEPARATOR )
+				continue;
+
+			arg.push_back(c);
+			message.push_back(c);
+		}
+
+		builder.add_argument(arg);
+	}
+
+	message.push_back( ASCII_RECORD_SEPARATOR );
+
+	auto out = builder.execute();
+
+	BOOST_REQUIRE_EQUAL( out.size(), message.size() );
+	BOOST_CHECK( std::equal(out.cbegin(), out.cend(), message.cbegin()) );
 }
 
 }
