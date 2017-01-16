@@ -152,13 +152,12 @@ void deepstream_parser_state::handle_error(
 
 #define DS_ADD_MSG(...) \
 		do { \
-			assert( textlen==deepstream::Message::Header::size(__VA_ARGS__) ); \
 			messages_.emplace_back(buffer_, offset_, __VA_ARGS__); \
 		} while(false)
 
 
 void deepstream_parser_state::handle_header(
-	deepstream_token token, const char*, std::size_t textlen)
+	deepstream_token token, const char* text, std::size_t textlen)
 {
 	using deepstream::Topic;
 	using deepstream::Action;
@@ -236,6 +235,16 @@ void deepstream_parser_state::handle_header(
 			DS_ADD_MSG(Topic::EVENT, Action::UNSUBSCRIBE);
 			break;
 	}
+
+#ifndef NDEBUG
+	const auto& msg = messages_.back();
+	const char* p = msg.header().to_string();
+	std::vector<char> bin = deepstream::Message::Header::from_human_readable(p);
+
+	assert( textlen == msg.header().size() );
+	assert( textlen == bin.size() );
+	assert( std::equal(bin.cbegin(), bin.cend(), text) );
+#endif
 }
 
 
