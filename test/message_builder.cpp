@@ -19,6 +19,9 @@
 #include <cstring>
 #include <climits>
 
+#include <algorithm>
+#include <stdexcept>
+
 #include <message_builder.hpp>
 
 
@@ -91,6 +94,16 @@ BOOST_AUTO_TEST_CASE(binary_payload)
 
 	BOOST_REQUIRE_EQUAL( out.size(), message.size() );
 	BOOST_CHECK( std::equal(out.cbegin(), out.cend(), message.cbegin()) );
+}
+
+
+BOOST_AUTO_TEST_CASE(check_args)
+{
+	Message::Header header( Topic::EVENT, Action::SUBSCRIBE );
+	MessageBuilder builder(header);
+	MessageBuilder::Argument arg{ASCII_UNIT_SEPARATOR};
+
+	BOOST_CHECK_THROW( builder.add_argument(arg), std::invalid_argument );
 }
 
 }
