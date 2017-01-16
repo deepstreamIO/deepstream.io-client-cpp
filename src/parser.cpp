@@ -239,7 +239,7 @@ void deepstream_parser_state::handle_header(
 #ifndef NDEBUG
 	const auto& msg = messages_.back();
 	const char* p = msg.header().to_string();
-	std::vector<char> bin = deepstream::Message::Header::from_human_readable(p);
+	std::vector<char> bin = deepstream::Message::from_human_readable(p);
 
 	assert( textlen == msg.header().size() );
 	assert( textlen == bin.size() );

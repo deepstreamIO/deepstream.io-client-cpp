@@ -90,21 +90,6 @@ namespace deepstream
 			static const char* to_string(Topic, Action, bool is_ack=false);
 			static std::size_t size(Topic, Action, bool is_ack=false);
 
-			/**
-			 * This function takes a human-readable deepstream message, e.g.,
-			 * `E|A|S|event+`, and returns in machine-readable counterpart by
-			 * replacing `|` with the ASCII character 31 (unit separator) and
-			 * `+` with ASCII character 30 (record separator).
-			 *
-			 * This functions returns vector<char> because vector<T>::data()
-			 * returns sequential, writable memory while std::string::data()
-			 * returns a pointer to const.
-			 */
-			static std::vector<char> from_human_readable(const char* p);
-			static std::vector<char> from_human_readable(
-				const char* p, std::size_t size);
-
-
 			explicit Header(Topic topic, Action action, bool is_ack=false) :
 				topic_(topic), action_(action), is_ack_(is_ack)
 			{}
@@ -122,6 +107,22 @@ namespace deepstream
 			Action action_;
 			bool is_ack_;
 		};
+
+
+
+		/**
+		 * This function takes a human-readable deepstream message, e.g.,
+		 * `E|A|S|event+`, and returns in machine-readable counterpart by
+		 * replacing `|` with the ASCII character 31 (unit separator) and
+		 * `+` with ASCII character 30 (record separator).
+		 *
+		 * This functions returns vector<char> because vector<T>::data()
+		 * returns sequential, writable memory while std::string::data()
+		 * returns a pointer to const.
+		 */
+		static std::vector<char> from_human_readable(const char* p);
+		static std::vector<char> from_human_readable(
+			const char* p, std::size_t size);
 
 
 		/**
