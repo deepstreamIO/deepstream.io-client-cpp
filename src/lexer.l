@@ -28,7 +28,7 @@ MPS [\x1f]
 /* message separator */
 MS  [\x1e]
 /* non-separator */
-NS  [^\x1e^\x1f]
+NS  [^\x1e\x1f]
 
 
 /*
