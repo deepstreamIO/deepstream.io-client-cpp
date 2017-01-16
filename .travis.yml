@@ -11,13 +11,13 @@ addons:
     apt:
         packages:
             - libboost-dev
-            - libbost-test-dev
+            - libboost-test-dev
             - flex
 
 
 before_script:
     - mkdir build
-    - cd_build
+    - cd build
     - cmake -DBUILD_TESTING=ON ~/deepstream.io-client-cpp
 
 script: make -j2 && make -j2 test
