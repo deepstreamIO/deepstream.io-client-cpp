@@ -25,6 +25,7 @@ set_source_files_properties(
 add_library(
 	deepstream_parser SHARED
 	message.cpp
+	message_builder.cpp
 	parser.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
