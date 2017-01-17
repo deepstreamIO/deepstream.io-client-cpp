@@ -132,6 +132,36 @@ Consider JSON paths support.
 	- ISC license
 
 
+### WebSocket Libraries
+
+GitHub statistics as of Jan 17, 2017.
+
+- [Beast HTTP/WebSocket](https://github.com/vinniefalco/Beast)
+	- depends on boost>=1.58
+	- uses Boost.Asio
+	- header only
+	- GitHub: 54 watchers, 265 stars, 52 forks
+	- Boost license
+- [Boost.Asio](http://www.boost.org/doc/libs/release/doc/html/boost_asio.html)
+	- general network programming
+	- Boost license
+- [libwebsockets](https://github.com/warmcat/libwebsockets)
+	- C
+	- RFC 7692 support (Compression Extensions for WebSockets)
+	- GitHub: 147 watchers, 982 stars, 436 forks
+	- LGPL 2.1
+- [noPoll](http://aspl.es/nopoll/)
+	- LGPL 2.1
+- [POCO WebSockets](https://pocoproject.org/docs/Poco.Net.WebSocket.html)
+	- Boost license
+- [WebSocket++](https://github.com/zaphoyd/websocketpp)
+	- uses C++11 or Boost.Asio
+	- header only
+	- GitHub: 207 watchers, 1564 stars, 559 forks
+	- "full RFC6455 support"
+	- 3-clause BSD license
+
+
 ### Testing
 
 - Continuous Integration
