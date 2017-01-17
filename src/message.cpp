@@ -192,15 +192,13 @@ bool operator== (const Message::Header& left, const Message::Header& right)
 
 
 std::pair<std::size_t, std::size_t> Message::num_arguments(
-	Topic topic, Action action, bool is_ack)
+	const Message::Header& header)
 {
 	typedef std::pair<std::size_t, std::size_t> RetType;
 
-	Header h(topic, action, is_ack);
-
 	for(std::size_t i = 0; i < NUM_HEADERS; ++i)
 	{
-		if( h == HEADERS[i] )
+		if( header == HEADERS[i] )
 			return HEADER_NUM_PAYLOAD[i];
 	}
 
@@ -229,6 +227,25 @@ Message::Message(const char* p, std::size_t offset, const Header& header) :
 	header_(header)
 {
 	assert( base_ );
+}
+
+
+std::size_t Message::num_arguments() const
+{
+	return arguments_.size();
+}
+
+
+std::vector<char> Message::operator[] (std::size_t i) const
+{
+	assert( i < arguments_.size() );
+
+	const char* first = base_ + arguments_[i].offset();
+	const char* last = first + arguments_[i].size();
+
+	std::vector<char> ret( first, last );
+
+	return ret;
 }
 
 }
