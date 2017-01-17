@@ -293,7 +293,9 @@ void deepstream_parser_state::handle_message_separator(
 	std::size_t msg_offset = msg.offset();
 	std::size_t msg_size = msg.size();
 	std::size_t num_args = msg.arguments_.size();
-	const auto& expected_num_args = msg.num_arguments();
+
+	const auto& expected_num_args =
+		deepstream::Message::num_arguments( msg.header() );
 	std::size_t min_num_args = expected_num_args.first;
 	std::size_t max_num_args = expected_num_args.second;
 

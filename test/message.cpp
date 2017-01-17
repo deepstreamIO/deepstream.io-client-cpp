@@ -72,4 +72,20 @@ BOOST_AUTO_TEST_CASE(from_human_readable_nop)
 	BOOST_CHECK( std::equal(input.begin(), input.end(), output.begin()) );
 }
 
+
+
+BOOST_AUTO_TEST_CASE(simple)
+{
+	const char MSG[] = "E|S|pattern+";
+
+	Message m(MSG, 0, Topic::EVENT, Action::SUBSCRIBE);
+	m.arguments_.emplace_back(4, 7);
+
+	BOOST_CHECK_EQUAL( m.num_arguments(), 1 );
+
+	auto arg = m[0];
+	BOOST_REQUIRE_EQUAL( arg.size(), 7 );
+	BOOST_CHECK( std::equal(arg.cbegin(), arg.cend(), MSG+4) );
+}
+
 }

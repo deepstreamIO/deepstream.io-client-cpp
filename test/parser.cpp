@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 	const Location& arg_f = msg_f.arguments_.front();
 
 	BOOST_CHECK_EQUAL( arg_f.offset_, 4 );
-	BOOST_CHECK_EQUAL( arg_f.length_, 6 );
-	BOOST_CHECK( !strncmp(&input[arg_f.offset_], "listen", arg_f.length_) );
+	BOOST_CHECK_EQUAL( arg_f.size_, 6 );
+	BOOST_CHECK( !strncmp(&input[arg_f.offset_], "listen", arg_f.size_) );
 
 
 	const Message& msg_b = state.messages_.back();
@@ -184,8 +184,8 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 	const Location& arg_b = msg_b.arguments_.front();
 
 	BOOST_CHECK_EQUAL( arg_b.offset_, 15 );
-	BOOST_CHECK_EQUAL( arg_b.length_, 5 );
-	BOOST_CHECK( !strncmp(&input[arg_b.offset_], "event", arg_b.length_) );
+	BOOST_CHECK_EQUAL( arg_b.size_, 5 );
+	BOOST_CHECK( !strncmp(&input[arg_b.offset_], "event", arg_b.size_) );
 }
 
 
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 	const Error& e = state.errors_.front();
 
 	BOOST_CHECK_EQUAL( e.location_.offset_, 0 );
-	BOOST_CHECK_EQUAL( e.location_.length_, 8 );
+	BOOST_CHECK_EQUAL( e.location_.size_, 8 );
 	BOOST_CHECK_EQUAL( e.tag_, Error::INVALID_NUMBER_OF_ARGUMENTS );
 }
 

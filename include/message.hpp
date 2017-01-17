@@ -32,14 +32,16 @@ namespace deepstream
 
 	struct Location
 	{
-		explicit Location(std::size_t offset, std::size_t length) :
+		explicit Location(std::size_t offset, std::size_t size) :
 			offset_(offset),
-			length_(length)
+			size_(size)
 		{}
 
+		std::size_t offset() const { return offset_; }
+		std::size_t size() const { return size_; }
 
 		std::size_t offset_;
-		std::size_t length_;
+		std::size_t size_;
 	};
 
 
@@ -136,8 +138,7 @@ namespace deepstream
 		 * every message, e.g., for "E|S|event+" (event subscription), this
 		 * function returns the pair (1, 1).
 		 */
-		static std::pair<std::size_t,std::size_t> num_arguments(
-			Topic topic, Action action, bool is_ack);
+		static std::pair<std::size_t,std::size_t> num_arguments(const Header&);
 
 
 
@@ -158,9 +159,8 @@ namespace deepstream
 
 		const LocationList& arguments() const { return arguments_; }
 
-		std::pair<std::size_t, std::size_t> num_arguments() const {
-			return num_arguments( topic(), action(), is_ack() );
-		}
+		std::size_t num_arguments() const;
+		std::vector<char> operator[] (std::size_t) const;
 
 		const char* const base_;
 		const std::size_t offset_;
