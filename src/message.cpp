@@ -19,6 +19,7 @@
 #include <limits>
 #include <ostream>
 
+#include <buffer.hpp>
 #include <message.hpp>
 
 #include <cassert>
@@ -157,38 +158,26 @@ std::size_t Message::Header::size() const
 
 
 
-std::vector<char> Message::Header::to_binary() const
+Buffer Message::Header::to_binary() const
 {
 	return from_human_readable( to_string() );
 }
 
 
 
-std::vector<char> Message::from_human_readable(const char* p)
+Buffer Message::from_human_readable(const char* p)
 {
 	return Message::from_human_readable( p, std::strlen(p) );
 }
 
-std::vector<char> Message::from_human_readable(
-	const char* p, std::size_t size)
+Buffer Message::from_human_readable(const char* p, std::size_t size)
 {
-	std::vector<char> xs( p, p+size );
+	Buffer xs( p, p+size );
 	std::replace( xs.begin(), xs.end(), '|', '\x1f' );
 	std::replace( xs.begin(), xs.end(), '+', '\x1e' );
 
 	return xs;
 }
-
-
-bool operator== (const Message::Header& left, const Message::Header& right)
-{
-	if( left.topic() != right.topic() ) return false;
-	if( left.action() != right.action() ) return false;
-	if( left.is_ack() != right.is_ack() ) return false;
-
-	return true;
-}
-
 
 
 std::pair<std::size_t, std::size_t> Message::num_arguments(
@@ -211,41 +200,41 @@ std::pair<std::size_t, std::size_t> Message::num_arguments(
 
 
 
-Message::Message(
-	const char* p, std::size_t offset,
-	Topic topic, Action action, bool is_ack) :
-	Message( p, offset, Header(topic,action,is_ack) )
+Buffer Message::operator[] (std::size_t i) const
 {
-
+	return get_impl_(i);
 }
 
 
-Message::Message(const char* p, std::size_t offset, const Header& header) :
-	base_(p),
-	offset_(offset),
-	size_(header.size()),
-	header_(header)
+Buffer Message::to_binary() const
 {
-	assert( base_ );
+	return to_binary_impl_();
 }
 
 
-std::size_t Message::num_arguments() const
+
+std::ostream& operator<<(std::ostream& os, const Message::Header& header)
 {
-	return arguments_.size();
+	os <<
+		"Message::Header(" <<
+		header.topic() <<
+		", " <<
+		header.action() <<
+		(header.is_ack() ? ", true" : "") <<
+		")";
+
+	return os;
 }
 
 
-std::vector<char> Message::operator[] (std::size_t i) const
+
+bool operator== (const Message::Header& left, const Message::Header& right)
 {
-	assert( i < arguments_.size() );
+	if( left.topic() != right.topic() ) return false;
+	if( left.action() != right.action() ) return false;
+	if( left.is_ack() != right.is_ack() ) return false;
 
-	const char* first = base_ + arguments_[i].offset();
-	const char* last = first + arguments_[i].size();
-
-	std::vector<char> ret( first, last );
-
-	return ret;
+	return true;
 }
 
 }

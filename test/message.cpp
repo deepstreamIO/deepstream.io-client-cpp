@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <numeric>
 
+#include <buffer.hpp>
 #include <message.hpp>
 
 
@@ -42,8 +43,7 @@ BOOST_AUTO_TEST_CASE(from_human_readable_simple)
 	std::vector<char> input(CHAR_MAX, 0);
 	std::iota( input.begin(), input.end(), 0 );
 
-	std::vector<char> output =
-		Message::from_human_readable( input.data(), input.size() );
+	Buffer output = Message::from_human_readable( input.data(), input.size() );
 
 	BOOST_CHECK_EQUAL( input.size(), output.size() );
 
@@ -65,27 +65,11 @@ BOOST_AUTO_TEST_CASE(from_human_readable_nop)
 	input['+'] = 'X';
 	input['|'] = 'X';
 
-	std::vector<char> output =
-		Message::from_human_readable( input.data(), input.size() );
+	Buffer output = Message::from_human_readable( input.data(), input.size() );
 
 	BOOST_CHECK_EQUAL( input.size(), output.size() );
 	BOOST_CHECK( std::equal(input.begin(), input.end(), output.begin()) );
 }
 
-
-
-BOOST_AUTO_TEST_CASE(simple)
-{
-	const char MSG[] = "E|S|pattern+";
-
-	Message m(MSG, 0, Topic::EVENT, Action::SUBSCRIBE);
-	m.arguments_.emplace_back(4, 7);
-
-	BOOST_CHECK_EQUAL( m.num_arguments(), 1 );
-
-	auto arg = m[0];
-	BOOST_REQUIRE_EQUAL( arg.size(), 7 );
-	BOOST_CHECK( std::equal(arg.cbegin(), arg.cend(), MSG+4) );
-}
 
 }

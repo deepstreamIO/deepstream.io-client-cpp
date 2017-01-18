@@ -23,21 +23,24 @@
 
 namespace deepstream
 {
-	struct MessageBuilder
+	struct MessageBuilder : public Message
 	{
-		typedef std::vector<char> Argument;
+		typedef Buffer Argument;
 		typedef std::vector<Argument> ArgumentList;
 
 
 		explicit MessageBuilder(const Message::Header&);
-
-		std::size_t size() const;
-		std::vector<char> execute() const;
+		explicit MessageBuilder(Topic topic, Action action, bool is_ack=false);
 
 		void add_argument(const Argument& arg);
 
-		const Message::Header& header() const { return header_; }
-		const ArgumentList& arguments() const { return arguments_; }
+		virtual std::size_t size_impl_() const;
+
+		virtual const Header& header_impl_() const;
+		virtual std::size_t num_arguments_impl_() const;
+		virtual Buffer get_impl_(std::size_t) const;
+
+		virtual Buffer to_binary_impl_() const;
 
 
 		const Message::Header header_;

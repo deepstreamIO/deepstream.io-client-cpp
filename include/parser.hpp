@@ -18,8 +18,8 @@
 
 #include <cstddef>
 
+#include <message_proxy.hpp>
 #include <parser.h>
-#include <message.hpp>
 
 
 namespace deepstream
@@ -37,11 +37,7 @@ namespace deepstream
 			};
 
 
-			explicit Error(std::size_t offset, std::size_t length, Tag tag) :
-				location_(offset, length),
-				tag_(tag)
-			{}
-
+			explicit Error(std::size_t offset, std::size_t length, Tag tag);
 
 			const Location& location() const { return location_; }
 			Tag tag() const { return tag_; }
@@ -58,7 +54,7 @@ namespace deepstream
 
 struct deepstream_parser_state
 {
-	typedef std::vector<deepstream::Message> MessageList;
+	typedef std::vector<deepstream::parser::MessageProxy> MessageList;
 	typedef std::vector<deepstream::parser::Error> ErrorList;
 
 	explicit deepstream_parser_state(const char* p, std::size_t sz);
