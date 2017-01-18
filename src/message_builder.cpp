@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include <algorithm>
+#include <numeric>
 #include <stdexcept>
 
 #include <message.hpp>
