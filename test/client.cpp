@@ -16,8 +16,9 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
+#include <buffer.hpp>
 #include <client.hpp>
-#include <message.hpp>
+#include <message_builder.hpp>
 
 
 namespace deepstream {
@@ -26,37 +27,35 @@ namespace client
 
 BOOST_AUTO_TEST_CASE(lifetime)
 {
-	char dummy = 0;
-
-	auto make_msg = [&dummy] (Topic topic, Action action) {
-		return Message(&dummy, 0, topic, action);
+	auto make_msg = [] (Topic topic, Action action) {
+		return MessageBuilder(topic, action);
 	};
-	auto make_ack_msg = [&dummy] (Topic topic, Action action) {
-		return Message(&dummy, 0, topic, action, true);
+	auto make_ack_msg = [] (Topic topic, Action action) {
+		return MessageBuilder(topic, action, true);
 	};
 
 	State s0 = State::AWAIT_CONNECTION;
 
-	Message msg0 = make_msg(Topic::CONNECTION, Action::CHALLENGE);
+	auto msg0 = make_msg(Topic::CONNECTION, Action::CHALLENGE);
 	State s1 = transition(s0, msg0, Sender::SERVER);
 	BOOST_CHECK_EQUAL( s1, State::CHALLENGING );
 
-	Message msg1 = make_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
-	msg1.arguments_.push_back( Location(1, 2) );
+	auto msg1 =	make_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
+	msg1.add_argument( Buffer("URL") );
 	State s2 = transition(s1, msg1, Sender::CLIENT );
 	BOOST_CHECK_EQUAL( s2, State::CHALLENGING_WAIT );
 
-	Message msg2 = make_ack_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
+	auto msg2 = make_ack_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
 	State s3 = transition(s2, msg2, Sender::SERVER);
 	BOOST_CHECK_EQUAL( s3, State::AWAIT_AUTHENTICATION );
 
-	Message msg3 = make_msg(Topic::AUTH, Action::REQUEST);
-	msg3.arguments_.push_back( Location(3, 1) );
-	msg3.arguments_.push_back( Location(4, 1) );
+	auto msg3 = make_msg(Topic::AUTH, Action::REQUEST);
+	msg3.add_argument( Buffer("username") );
+	msg3.add_argument( Buffer("password") );
 	State s4 = transition(s3, msg3, Sender::CLIENT);
 	BOOST_CHECK_EQUAL( s4, State::AUTHENTICATING );
 
-	Message msg4 = make_ack_msg(Topic::AUTH, Action::REQUEST);
+	auto msg4 = make_ack_msg(Topic::AUTH, Action::REQUEST);
 	State s5 = transition(s4, msg4, Sender::SERVER);
 	BOOST_CHECK_EQUAL( s5, State::CONNECTED );
 }

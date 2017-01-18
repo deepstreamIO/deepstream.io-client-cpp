@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include <buffer.hpp>
 #include <message_builder.hpp>
 
 
@@ -30,13 +31,26 @@ namespace deepstream
 
 BOOST_AUTO_TEST_CASE(simple)
 {
-	Message::Header header(Topic::AUTH, Action::REQUEST, true);
+	const char INPUT[] = "A|REQ|user|password+";
+	Buffer output = Message::from_human_readable(INPUT);
+
+	Message::Header header(Topic::AUTH, Action::REQUEST);
+	MessageBuilder dummy( header.topic(), header.action(), header.is_ack() );
 	MessageBuilder builder(header);
 
-	std::vector<char> bin_h = header.to_binary();
-	std::vector<char> bin_b = builder.execute();
+	BOOST_CHECK_EQUAL( builder.header(), dummy.header() );
+
+	Buffer bin_h = header.to_binary();
+	Buffer bin_b = builder.to_binary();
 
 	BOOST_CHECK( std::equal(bin_h.cbegin(), bin_h.cend(), bin_b.cbegin()) );
+
+	builder.add_argument( Buffer("user") );
+	builder.add_argument( Buffer("password") );
+
+	Buffer binary = builder.to_binary();
+	BOOST_REQUIRE_EQUAL( binary.size(), output.size() );
+	BOOST_CHECK( std::equal(output.cbegin(), output.cend(), binary.begin()) );
 }
 
 
@@ -54,7 +68,7 @@ BOOST_AUTO_TEST_CASE(message_with_payload)
 	builder.add_argument(user);
 	builder.add_argument(pwd);
 
-	auto out = builder.execute();
+	auto out = builder.to_binary();
 	auto bin = Message::from_human_readable(MSG);
 
 	BOOST_REQUIRE_EQUAL( out.size(), bin.size() );
@@ -67,7 +81,7 @@ BOOST_AUTO_TEST_CASE(binary_payload)
 	typedef MessageBuilder::Argument Argument;
 
 	Message::Header header( Topic::EVENT, Action::SUBSCRIBE, true );
-	std::vector<char> message( header.to_binary() );
+	Buffer message = header.to_binary();
 	MessageBuilder builder(header);
 
 	const int n = 3;
@@ -90,7 +104,7 @@ BOOST_AUTO_TEST_CASE(binary_payload)
 
 	message.push_back( ASCII_RECORD_SEPARATOR );
 
-	auto out = builder.execute();
+	auto out = builder.to_binary();
 
 	BOOST_REQUIRE_EQUAL( out.size(), message.size() );
 	BOOST_CHECK( std::equal(out.cbegin(), out.cend(), message.cbegin()) );

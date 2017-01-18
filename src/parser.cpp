@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <buffer.hpp>
 #include <message.hpp>
 #include <parser.h>
 #include <parser.hpp>
@@ -23,6 +24,20 @@
 #include <use.hpp>
 
 #include <cassert>
+
+
+namespace deepstream {
+namespace parser
+{
+
+Error::Error(std::size_t offset, std::size_t size, Tag tag) :
+	location_(offset, size),
+	tag_(tag)
+{}
+
+
+}
+}
 
 
 bool is_header_token(enum deepstream_token token)
@@ -239,7 +254,7 @@ void deepstream_parser_state::handle_header(
 #ifndef NDEBUG
 	const auto& msg = messages_.back();
 	const char* p = msg.header().to_string();
-	std::vector<char> bin = deepstream::Message::from_human_readable(p);
+	deepstream::Buffer bin = deepstream::Message::from_human_readable(p);
 
 	assert( textlen == msg.header().size() );
 	assert( textlen == bin.size() );

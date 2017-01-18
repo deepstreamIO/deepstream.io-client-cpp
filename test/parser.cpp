@@ -23,6 +23,7 @@
 #include <random>
 #include <vector>
 
+#include <buffer.hpp>
 #include <message.hpp>
 #include <parser.hpp>
 #include <scope_guard.hpp>
@@ -91,7 +92,7 @@ BOOST_AUTO_TEST_CASE(simple)
 		BOOST_CHECK_EQUAL( state.offset_, offset );
 	}
 
-	Message& msg = state.messages_.front();
+	MessageProxy& msg = state.messages_.front();
 
 	BOOST_CHECK( msg.base_ == copy.data() );
 	BOOST_CHECK_EQUAL( msg.offset_, 0 );
@@ -152,7 +153,7 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 
 	BOOST_CHECK( state.tokenizing_header_ );
 
-	for(const Message& msg : state.messages_)
+	for(const MessageProxy& msg : state.messages_)
 	{
 		BOOST_CHECK( msg.base_ == copy.data() );
 
@@ -164,7 +165,7 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 
 	BOOST_CHECK_EQUAL( state.messages_.size(), 2 );
 
-	const Message& msg_f = state.messages_.front();
+	const MessageProxy& msg_f = state.messages_.front();
 	BOOST_CHECK_EQUAL( msg_f.offset(), 0 );
 	BOOST_CHECK_EQUAL( msg_f.size(), 11 );
 	BOOST_CHECK_EQUAL( msg_f.topic(), Topic::EVENT );
@@ -177,7 +178,7 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 	BOOST_CHECK( !strncmp(&input[arg_f.offset_], "listen", arg_f.size_) );
 
 
-	const Message& msg_b = state.messages_.back();
+	const MessageProxy& msg_b = state.messages_.back();
 	BOOST_CHECK_EQUAL( msg_b.offset(), 11 );
 	BOOST_CHECK_EQUAL( msg_b.size(), 10 );
 	BOOST_CHECK_EQUAL( msg_b.topic(), Topic::EVENT );
@@ -273,23 +274,23 @@ BOOST_AUTO_TEST_CASE(simple_integration)
 	BOOST_CHECK_EQUAL( parser.messages_.size(), 2 );
 	BOOST_CHECK_EQUAL( parser.errors_.size(), 1 );
 
-	const Message& msg_f = parser.messages_.front();
+	const MessageProxy& msg_f = parser.messages_.front();
 	BOOST_CHECK( msg_f.base() == input.data() );
 	BOOST_CHECK_EQUAL( msg_f.offset(), 0 );
 	BOOST_CHECK_EQUAL( msg_f.size(), 4 );
 	BOOST_CHECK_EQUAL( msg_f.topic(), Topic::AUTH );
 	BOOST_CHECK_EQUAL( msg_f.action(), Action::REQUEST );
 	BOOST_CHECK( msg_f.is_ack() );
-	BOOST_CHECK( msg_f.arguments().empty() );
+	BOOST_CHECK_EQUAL( msg_f.num_arguments(), 0 );
 
-	const Message& msg_b = parser.messages_.back();
+	const MessageProxy& msg_b = parser.messages_.back();
 	BOOST_CHECK( msg_b.base() == input.data() );
 	BOOST_CHECK_EQUAL( msg_b.offset(), 12 );
 	BOOST_CHECK_EQUAL( msg_b.size(), 10 );
 	BOOST_CHECK_EQUAL( msg_b.topic(), Topic::EVENT );
 	BOOST_CHECK_EQUAL( msg_b.action(), Action::LISTEN );
 	BOOST_CHECK( msg_b.is_ack() );
-	BOOST_CHECK_EQUAL( msg_b.arguments().size(), 2 );
+	BOOST_CHECK_EQUAL( msg_b.num_arguments(), 2 );
 
 	const Error& error = parser.errors_.front();
 	BOOST_CHECK_EQUAL( error.tag(), Error::UNEXPECTED_TOKEN );

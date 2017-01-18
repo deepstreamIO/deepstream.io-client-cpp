@@ -17,7 +17,7 @@
 #include <numeric>
 #include <stdexcept>
 
-#include <message.hpp>
+#include <buffer.hpp>
 #include <message_builder.hpp>
 
 #include <cassert>
@@ -32,8 +32,25 @@ MessageBuilder::MessageBuilder(const Message::Header& header) :
 }
 
 
+MessageBuilder::MessageBuilder(Topic topic, Action action, bool is_ack) :
+	MessageBuilder( Header(topic, action, is_ack) )
+{}
 
-std::size_t MessageBuilder::size() const
+
+
+void MessageBuilder::add_argument(const Argument& arg)
+{
+	auto it = std::find(arg.cbegin(), arg.cend(), ASCII_UNIT_SEPARATOR);
+
+	if( it != arg.cend() )
+		throw std::invalid_argument("ASCII unit separator in payload detected");
+
+	arguments_.push_back(arg);
+}
+
+
+
+std::size_t MessageBuilder::size_impl_() const
 {
 	std::size_t size =
 		header_.size() +
@@ -50,15 +67,32 @@ std::size_t MessageBuilder::size() const
 }
 
 
+const Message::Header& MessageBuilder::header_impl_() const
+{
+	return header_;
+}
 
-std::vector<char> MessageBuilder::execute() const
+
+std::size_t MessageBuilder::num_arguments_impl_() const
+{
+	return arguments_.size();
+}
+
+
+Buffer MessageBuilder::get_impl_(std::size_t i) const
+{
+	return arguments_[i];
+}
+
+
+Buffer MessageBuilder::to_binary_impl_() const
 {
 	std::size_t size = this->size();
-	std::vector<char> buffer(size);
+	Buffer buffer(size);
 
 	auto out = buffer.begin();
 
-	const std::vector<char> bin_header = header_.to_binary();
+	const Buffer bin_header = header_.to_binary();
 	out = std::copy( bin_header.cbegin(), bin_header.cend(), out );
 
 	for(auto in = arguments_.cbegin(); in != arguments_.cend(); ++in)
@@ -72,18 +106,6 @@ std::vector<char> MessageBuilder::execute() const
 	assert( out+1 == buffer.end() );
 
 	return buffer;
-}
-
-
-
-void MessageBuilder::add_argument(const Argument& arg)
-{
-	auto it = std::find(arg.cbegin(), arg.cend(), ASCII_UNIT_SEPARATOR);
-
-	if( it != arg.cend() )
-		throw std::invalid_argument("ASCII unit separator in payload detected");
-
-	arguments_.push_back(arg);
 }
 
 }

@@ -21,28 +21,14 @@
 
 #include <iosfwd>
 #include <utility>
-#include <vector>
 
 
 namespace deepstream
 {
+	struct Buffer;
+
 	const char ASCII_RECORD_SEPARATOR = 30;
 	const char ASCII_UNIT_SEPARATOR = 31;
-
-
-	struct Location
-	{
-		explicit Location(std::size_t offset, std::size_t size) :
-			offset_(offset),
-			size_(size)
-		{}
-
-		std::size_t offset() const { return offset_; }
-		std::size_t size() const { return size_; }
-
-		std::size_t offset_;
-		std::size_t size_;
-	};
 
 
 	enum class Topic
@@ -87,8 +73,6 @@ namespace deepstream
 
 	struct Message
 	{
-		typedef std::vector<Location> LocationList;
-
 		struct Header
 		{
 			static std::pair<const Header*, const Header*> all();
@@ -97,23 +81,23 @@ namespace deepstream
 			static std::size_t size(Topic, Action, bool is_ack=false);
 
 			explicit Header(Topic topic, Action action, bool is_ack=false) :
-				topic_(topic), action_(action), is_ack_(is_ack)
+				topic_impl_(topic), action_impl_(action), is_ack_impl_(is_ack)
 			{}
 
 
 			const char* to_string() const;
 			std::size_t size() const;
 
-			std::vector<char> to_binary() const;
+			Buffer to_binary() const;
 
-			Topic topic() const { return topic_; }
-			Action action() const { return action_; }
-			bool is_ack() const { return is_ack_; }
+			Topic topic() const { return topic_impl_; }
+			Action action() const { return action_impl_; }
+			bool is_ack() const { return is_ack_impl_; }
 
 
-			Topic topic_;
-			Action action_;
-			bool is_ack_;
+			Topic topic_impl_;
+			Action action_impl_;
+			bool is_ack_impl_;
 		};
 
 
@@ -128,9 +112,8 @@ namespace deepstream
 		 * returns sequential, writable memory while std::string::data()
 		 * returns a pointer to const.
 		 */
-		static std::vector<char> from_human_readable(const char* p);
-		static std::vector<char> from_human_readable(
-			const char* p, std::size_t size);
+		static Buffer from_human_readable(const char* p);
+		static Buffer from_human_readable(const char* p, std::size_t size);
 
 
 		/**
@@ -141,35 +124,32 @@ namespace deepstream
 		static std::pair<std::size_t,std::size_t> num_arguments(const Header&);
 
 
+		virtual ~Message() {}
 
-		explicit Message(
-			const char* p, std::size_t offset,
-			Topic topic, Action action, bool is_ack=false);
-		explicit Message(const char*, std::size_t, const Header&);
+		std::size_t size() const { return size_impl_(); }
+
+		const Header& header() const { return header_impl_(); }
+		Topic topic() const { return header().topic(); }
+		Action action() const { return header().action(); }
+		bool is_ack() const { return header().is_ack(); }
+
+		std::size_t num_arguments() const { return num_arguments_impl_(); }
+		Buffer operator[] (std::size_t) const;
+
+		Buffer to_binary() const;
 
 
-		const char* base() const { return base_; }
-		std::size_t offset() const { return offset_; }
-		std::size_t size() const { return size_; }
+		virtual std::size_t size_impl_() const = 0;
 
-		const Header& header() const { return header_; }
-		Topic topic() const { return header_.topic(); }
-		Action action() const { return header_.action(); }
-		bool is_ack() const { return header_.is_ack(); }
+		virtual const Header& header_impl_() const = 0;
+		virtual std::size_t num_arguments_impl_() const = 0;
+		virtual Buffer get_impl_(std::size_t) const = 0;
 
-		const LocationList& arguments() const { return arguments_; }
-
-		std::size_t num_arguments() const;
-		std::vector<char> operator[] (std::size_t) const;
-
-		const char* const base_;
-		const std::size_t offset_;
-		std::size_t size_;
-
-		Header header_;
-		LocationList arguments_;
+		virtual Buffer to_binary_impl_() const = 0;
 	};
 
+
+	std::ostream& operator<<(std::ostream&, const Message::Header&);
 
 	bool operator== (const Message::Header&, const Message::Header&);
 }

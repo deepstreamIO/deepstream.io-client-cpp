@@ -26,6 +26,7 @@ add_library(
 	deepstream_parser SHARED
 	message.cpp
 	message_builder.cpp
+	message_proxy.cpp
 	parser.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
