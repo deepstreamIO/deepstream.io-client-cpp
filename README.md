@@ -22,7 +22,8 @@ The deepstream C++ client shall
 - provide documentation,
 - provide continuous integration setups for Linux, MacOS, and Windows,
 - pass the [Cucumber client specs](https://github.com/deepstreamIO/deepstream.io-client-specs) tests,
-- pass the [deepstream E2E tests](https://github.com/deepstreamIO/deepstream.io-e2e) tests after the client specs.
+- pass the [deepstream E2E tests](https://github.com/deepstreamIO/deepstream.io-e2e) tests after the client specs,
+- emulate JavaScript API or Java API: `client.event.emit('identifier', optional_payload);
 
 
 
