@@ -25,6 +25,8 @@
 
 #include <message.hpp>
 #include <parser.hpp>
+#include <scope_guard.hpp>
+
 extern "C" {
 #include <lexer.h>
 }
@@ -249,6 +251,9 @@ BOOST_AUTO_TEST_CASE(simple_integration)
 	yyscan_t scanner;
 	int ret = yylex_init(&scanner);
 	BOOST_REQUIRE_EQUAL(ret, 0);
+	DEEPSTREAM_ON_EXIT( [&scanner] () {
+		yylex_destroy(scanner);
+	} );
 
 	YY_BUFFER_STATE buffer = \
 		yy_scan_buffer( lexer_input.data(), lexer_input.size(), scanner );
