@@ -154,6 +154,7 @@ GitHub statistics as of Jan 17, 2017.
 - [noPoll](http://aspl.es/nopoll/)
 	- LGPL 2.1
 - [POCO WebSockets](https://pocoproject.org/docs/Poco.Net.WebSocket.html)
+	- GitHub: 275 watchers, 1841 stars, 701 forks
 	- Boost license
 - [WebSocket++](https://github.com/zaphoyd/websocketpp)
 	- uses C++11 or Boost.Asio
