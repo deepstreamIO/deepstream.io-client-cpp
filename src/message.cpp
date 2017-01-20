@@ -55,6 +55,7 @@ std::ostream& operator<<(std::ostream& os, Sender sender)
 const Message::Header HEADERS[] = {
 	Message::Header( Topic::AUTH, Action::REQUEST, true ),
 	Message::Header( Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA ),
+	Message::Header( Topic::AUTH, Action::ERROR_INVALID_AUTH_MSG ),
 	Message::Header( Topic::AUTH, Action::ERROR_TOO_MANY_AUTH_ATTEMPTS ),
 	Message::Header( Topic::AUTH, Action::REQUEST ),
 
@@ -77,6 +78,7 @@ const std::size_t NUM_HEADERS = sizeof(HEADERS) / sizeof(HEADERS[0]);
 const char* HEADER_TO_STRING[] = {
 	"A|A",
 	"A|E|INVALID_AUTH_DATA",
+	"A|E|INVALID_AUTH_MSG",
 	"A|E|TOO_MANY_AUTH_ATTEMPTS",
 	"A|REQ",
 
@@ -97,6 +99,7 @@ const char* HEADER_TO_STRING[] = {
 const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
 	std::pair<std::size_t, std::size_t>(0, 0),
 	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(0, 0),
 	std::pair<std::size_t, std::size_t>(1, 1),
 
