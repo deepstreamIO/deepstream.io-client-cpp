@@ -17,4 +17,4 @@ addons:
             - flex
 
 
-script: mkdir build && cd build && cmake -DBUILD_TESTING=ON .. && make -j2 && make -j2 test
+script: bash travis.sh
