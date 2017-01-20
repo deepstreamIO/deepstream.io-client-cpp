@@ -51,6 +51,8 @@ int main()
 try
 {
 	net::HTTPClientSession session("localhost", 6020);
+	session.setTimeout( Poco::Timespan::SECONDS );
+
 	net::HTTPResponse response;
 	net::HTTPRequest request(
 		net::HTTPRequest::HTTP_GET, "/deepstream", net::HTTPRequest::HTTP_1_1
@@ -58,8 +60,11 @@ try
 
 	net::WebSocket ws(session, request, response);
 
-	ds::client::State state = ds::client::State::AWAIT_CONNECTION;
+	std::printf( "receive time-out: %ds\n", ws.getReceiveTimeout().seconds() );
+	std::printf( "send time-out: %ds\n", ws.getSendTimeout().seconds() );
 
+
+	ds::client::State state = ds::client::State::AWAIT_CONNECTION;
 
 	std::vector<char> buffer(160, 0);
 	int flags = 0;
@@ -75,10 +80,6 @@ try
 		{
 			ws.shutdown();
 			throw;
-		}
-		catch(Poco::TimeoutException& e)
-		{
-			std::fprintf( stderr, "Error: timeout\n" );
 		}
 
 		if( ret == 0 )
@@ -178,10 +179,6 @@ try
 			ws.shutdown();
 			throw;
 		}
-		catch(Poco::TimeoutException& e)
-		{
-			std::fprintf( stderr, "Error: timeout\n" );
-		}
 
 		if( ret == 0 )
 		{
@@ -280,10 +277,6 @@ try
 			ws.shutdown();
 			throw;
 		}
-		catch(Poco::TimeoutException& e)
-		{
-			std::fprintf( stderr, "Error: timeout\n" );
-		}
 
 		if( ret == 0 )
 		{
@@ -372,10 +365,6 @@ try
 			ws.shutdown();
 			throw;
 		}
-		catch(Poco::TimeoutException& e)
-		{
-			std::fprintf( stderr, "Error: timeout\n" );
-		}
 
 		if( ret == 0 )
 		{
@@ -424,5 +413,9 @@ try
 }
 catch(net::ConnectionRefusedException& e)
 {
-	fprintf( stderr, "%s\n", e.what() );
+	std::fprintf( stderr, "%s\n", e.what() );
+}
+catch(Poco::TimeoutException& e)
+{
+	std::fprintf( stderr, "Error: timeout\n" );
 }
