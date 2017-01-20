@@ -50,8 +50,9 @@ BOOST_AUTO_TEST_CASE(lifetime)
 	BOOST_CHECK_EQUAL( s3, State::AWAIT_AUTHENTICATION );
 
 	auto msg3 = make_msg(Topic::AUTH, Action::REQUEST);
-	msg3.add_argument( Buffer("username") );
-	msg3.add_argument( Buffer("password") );
+	msg3.add_argument(
+		Buffer("{\"username\":\"u\",\"password\":\"p\"}")
+	);
 	State s4 = transition(s3, msg3, Sender::CLIENT);
 	BOOST_CHECK_EQUAL( s4, State::AUTHENTICATING );
 
