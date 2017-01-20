@@ -160,7 +160,7 @@ void deepstream_parser_state::handle_error(
 		assert( msg_start + msg_size == offset_ );
 
 		errors_.emplace_back(
-			msg_start, msg_size+textlen, Error::CORRUPT_MESSAGE);
+			msg_start, msg_size+textlen, Error::CORRUPT_PAYLOAD);
 	}
 }
 
