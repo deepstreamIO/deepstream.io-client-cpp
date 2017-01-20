@@ -3,6 +3,9 @@
 set -e
 
 
+num_jobs=$(getconf _NPROCESSORS_ONLN)
+
+
 poco_url='https://pocoproject.org/releases/poco-1.7.7/poco-1.7.7.tar.gz'
 poco_zip='poco-1.7.7.tar.gz'
 poco_src='poco-1.7.7'
@@ -18,7 +21,7 @@ cd build
 cmake \
 	-DCMAKE_BUILD_TYPE=Debug \
 	-DCMAKE_DEBUG_POSTFIX='' \
-	-DCMAKE_INSTALL_PREFIX=~ \
+	-DCMAKE_INSTALL_PREFIX="$poco_tmp" \
 	-DENABLE_CRYPTO=OFF \
 	-DENABLE_DATA=OFF \
 	-DENABLE_JSON=OFF \
@@ -30,7 +33,7 @@ cmake \
 	-DENABLE_XML=OFF \
 	-DENABLE_ZIP=OFF \
 	-- "../$poco_src"
-make --jobs=2
+make --jobs=$num_jobs
 make install
 popd
 
@@ -38,11 +41,11 @@ popd
 # deepstream.io C++ client
 my_src=$(pwd)
 my_tmp=$(mktemp --directory)
-cd "$my_tmp"
+pushd "$my_tmp"
 
 cmake \
-	-DCMAKE_PREFIX_PATH=~ \
+	-DCMAKE_PREFIX_PATH="$poco_tmp" \
 	-DBUILD_TESTING=ON \
 	-- "$my_src"
-make --jobs=2
-make --jobs=2 test
+make --jobs=$num_jobs
+make --jobs=$num_jobs test

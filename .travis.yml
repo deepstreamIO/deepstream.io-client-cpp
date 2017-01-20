@@ -17,4 +17,4 @@ addons:
             - flex
 
 
-script: bash travis.sh
+script: bash build-and-test.sh
