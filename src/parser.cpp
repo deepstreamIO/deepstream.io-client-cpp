@@ -236,6 +236,10 @@ void deepstream_parser_state::handle_header(
 			DS_ADD_MSG(Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA, true);
 			break;
 
+		case TOKEN_A_E_IAM:
+			DS_ADD_MSG(Topic::AUTH, Action::ERROR_INVALID_AUTH_MSG );
+			break;
+
 		case TOKEN_A_E_TMAA:
 			DS_ADD_MSG(Topic::AUTH, Action::ERROR_TOO_MANY_AUTH_ATTEMPTS);
 			break;

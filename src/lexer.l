@@ -58,10 +58,9 @@ NS  [^\x1e\x1f]
 
 <INITIAL>{
 	A{MPS}A        { BEGIN(yypayload); return DS_PARSE(TOKEN_A_A); }
-	A{MPS}E{MPS}INVALID_AUTH_DATA {
-		BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_IAD); };
-	A{MPS}E{MPS}TOO_MANY_AUTH_ATTEMPTS {
-		BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_TMAA); };
+	A{MPS}E{MPS}INVALID_AUTH_DATA { BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_IAD); };
+	A{MPS}E{MPS}INVALID_AUTH_MSG { BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_IAM); };
+	A{MPS}E{MPS}TOO_MANY_AUTH_ATTEMPTS { BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_TMAA); };
 	A{MPS}REQ      { BEGIN(yypayload); return DS_PARSE(TOKEN_A_REQ); };
 
 	C{MPS}A        { BEGIN(yypayload); return DS_PARSE(TOKEN_C_A); }
