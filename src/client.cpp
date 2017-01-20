@@ -95,7 +95,7 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::CLIENT )
 	{
 		assert( !is_ack );
-		assert( num_args == 2 );
+		assert( num_args == 1 );
 
 		return State::AUTHENTICATING;
 	}
