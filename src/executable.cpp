@@ -84,7 +84,7 @@ try
 
 		if( ret == 0 )
 		{
-			state = ds::client::State::DISCONNECTED;
+			std::fprintf( stderr, "Sudden disconnect\n" );
 			return 0;
 		}
 
@@ -130,7 +130,7 @@ try
 			ss << *it;
 			const auto error_string = ss.str();
 
-			fprintf( stderr, "Parser error: %s", error_string.c_str() );
+			std::fprintf( stderr, "Parser error: %s\n", error_string.c_str() );
 		}
 
 		for(auto it = parser.messages_.begin(); it != parser.messages_.end(); ++it)
@@ -140,7 +140,7 @@ try
 
 			if( new_state == ds::client::State::ERROR )
 			{
-				fprintf( stderr, "State error" );
+				std::fprintf( stderr, "State error\n" );
 				return 2;
 			}
 
@@ -182,7 +182,7 @@ try
 
 		if( ret == 0 )
 		{
-			state = ds::client::State::DISCONNECTED;
+			std::fprintf( stderr, "Sudden disconnect\n" );
 			return 0;
 		}
 
@@ -228,7 +228,7 @@ try
 			ss << *it;
 			const auto error_string = ss.str();
 
-			fprintf( stderr, "Parser error: %s", error_string.c_str() );
+			std::fprintf( stderr, "Parser error: %s\n", error_string.c_str() );
 		}
 
 		for(auto it = parser.messages_.begin(); it != parser.messages_.end(); ++it)
@@ -238,7 +238,7 @@ try
 
 			if( new_state == ds::client::State::ERROR )
 			{
-				fprintf( stderr, "State error" );
+				std::fprintf( stderr, "State error\n" );
 				return 2;
 			}
 
@@ -280,7 +280,7 @@ try
 
 		if( ret == 0 )
 		{
-			state = ds::client::State::DISCONNECTED;
+			std::fprintf( stderr, "Sudden disconnect\n" );
 			return 0;
 		}
 
@@ -326,8 +326,7 @@ try
 			ss << *it;
 			const auto error_string = ss.str();
 
-			fprintf( stderr, "Parser error: %s", error_string.c_str() );
-			fprintf( stderr, "'%s'\n", &buffer[0] );
+			std::fprintf( stderr, "Parser error: %s\n", error_string.c_str() );
 		}
 
 		for(auto it = parser.messages_.begin(); it != parser.messages_.end(); ++it)
@@ -337,7 +336,7 @@ try
 
 			if( new_state == ds::client::State::ERROR )
 			{
-				fprintf( stderr, "State error" );
+				std::fprintf( stderr, "State error\n" );
 				return 2;
 			}
 
@@ -368,7 +367,7 @@ try
 
 		if( ret == 0 )
 		{
-			state = ds::client::State::DISCONNECTED;
+			std::fprintf( stderr, "Sudden disconnect\n" );
 			return 0;
 		}
 
