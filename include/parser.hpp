@@ -32,7 +32,7 @@ namespace deepstream
 			{
 				UNEXPECTED_TOKEN,
 				UNEXPECTED_EOF,
-				CORRUPT_MESSAGE,
+				CORRUPT_PAYLOAD,
 				INVALID_NUMBER_OF_ARGUMENTS
 			};
 
