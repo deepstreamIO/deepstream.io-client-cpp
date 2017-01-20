@@ -18,6 +18,16 @@
 
 namespace deepstream
 {
+	/**
+	 * Helper function used for suppressing "unused variable" warnings.
+	 *
+	 * Warnings about unused variables are useful but in some situations there
+	 * are false positives, e.g., when variables are only used during debugging
+	 * and one is compiling in release mode (here: with NDEBUG defined):
+	 *   int ret = function(args); // causes warning: unused variable `ret'
+	 *   assert( ret == 0 );
+	 *   return;
+	 */
 	template<typename T> void use(const T&) {}
 }
 
