@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <ostream>
+
 #include <buffer.hpp>
 #include <message_proxy.hpp>
 
@@ -20,7 +22,16 @@
 
 
 namespace deepstream {
-namespace parser {
+namespace parser
+{
+
+std::ostream& operator<< (std::ostream& os, const Location& loc)
+{
+	os << loc.offset() + 1 << ':' << loc.offset() + loc.size() + 1;
+	return os;
+}
+
+
 
 MessageProxy::MessageProxy(
 	const char* p, std::size_t offset,

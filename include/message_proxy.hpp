@@ -18,6 +18,7 @@
 
 #include <cstddef>
 
+#include <iosfwd>
 #include <vector>
 
 #include <message.hpp>
@@ -41,6 +42,10 @@ namespace deepstream {
 			std::size_t offset_;
 			std::size_t size_;
 		};
+
+
+		std::ostream& operator<< (std::ostream&, const Location&);
+
 
 
 		struct MessageProxy : public Message

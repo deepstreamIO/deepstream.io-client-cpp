@@ -16,6 +16,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <ostream>
+
 #include <buffer.hpp>
 #include <message.hpp>
 #include <parser.h>
@@ -35,6 +37,37 @@ Error::Error(std::size_t offset, std::size_t size, Tag tag) :
 	tag_(tag)
 {}
 
+
+std::ostream& operator<< (std::ostream& os, Error::Tag tag)
+{
+	switch(tag)
+	{
+		case Error::UNEXPECTED_TOKEN:
+			os << "unexpected token";
+			break;
+
+		case Error::UNEXPECTED_EOF:
+			os << "unexpected eof";
+			break;
+
+		case Error::CORRUPT_PAYLOAD:
+			os << "correct payload";
+			break;
+
+		case Error::INVALID_NUMBER_OF_ARGUMENTS:
+			os << "invalid number of message arguments";
+			break;
+	}
+
+	return os;
+}
+
+
+std::ostream& operator<< (std::ostream& os, const Error& e)
+{
+	os << e.location() << ": " << e.tag();
+	return os;
+}
 
 }
 }

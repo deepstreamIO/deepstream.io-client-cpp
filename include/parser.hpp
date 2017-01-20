@@ -18,6 +18,8 @@
 
 #include <cstddef>
 
+#include <iosfwd>
+
 #include <message_proxy.hpp>
 #include <parser.h>
 
@@ -45,6 +47,10 @@ namespace deepstream
 			Location location_;
 			Tag tag_;
 		};
+
+
+		std::ostream& operator<< (std::ostream&, Error::Tag);
+		std::ostream& operator<< (std::ostream&, const Error&);
 
 
 		typedef deepstream_parser_state State;
