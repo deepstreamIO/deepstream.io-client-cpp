@@ -6,6 +6,8 @@ set(deepstream.io-client-c++_VERSION_MAJOR 0)
 set(deepstream.io-client-c++_VERSION_MINOR 1)
 set(deepstream.io-client-c++_VERSION_PATCH 0)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
+
 
 option(BUILD_TESTING "Build tests" OFF)
 

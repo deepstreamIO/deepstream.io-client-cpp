@@ -1,5 +1,6 @@
 find_package(Boost 1.46 REQUIRED)
 find_package(FLEX 2.5 REQUIRED)
+find_package(POCO REQUIRED)
 
 
 add_custom_command(
@@ -39,3 +40,9 @@ add_library(
 	client.cpp)
 
 target_link_libraries(deepstream_client PUBLIC deepstream_parser)
+
+
+add_executable(ds-client executable.cpp)
+target_include_directories(ds-client PUBLIC ${POCO_INCLUDE_DIRS})
+target_link_libraries(ds-client PUBLIC deepstream_client)
+target_link_libraries(ds-client PUBLIC ${POCO_LIBRARIES})
