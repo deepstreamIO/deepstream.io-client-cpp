@@ -52,6 +52,12 @@ std::ostream& operator<<(std::ostream& os, Sender sender)
 
 // The list order follows from lexicographical ordering of its tokens, i.e.,
 // A|A <= A|E|INVALID_AUTH_DATA <= A|REQ <= C|A ...
+//
+// The information about all headers is spread over the three arrays below so
+// that `Message::Header::all()` can return a pair of iterators to the
+// beginning and the one past the end of the list of headers.  The information
+// could be kept in one array (of a struct or a tuple) but the accessing the
+// information would be more involved for users of `message.hpp`.
 const Message::Header HEADERS[] = {
 	Message::Header( Topic::AUTH, Action::REQUEST, true ),
 	Message::Header( Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA ),
