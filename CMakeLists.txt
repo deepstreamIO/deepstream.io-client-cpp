@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 2.8.12)
 project(deepstream.io-client-c++)
 enable_language(C)
 enable_language(CXX)
-set(deepstream.io-client-c++_VERSION_MAJOR 0)
-set(deepstream.io-client-c++_VERSION_MINOR 1)
-set(deepstream.io-client-c++_VERSION_PATCH 0)
+set(PROJECT_VERSION_MAJOR 0)
+set(PROJECT_VERSION_MINOR 1)
+set(PROJECT_VERSION_PATCH 0)
+set(PROJECT_VERSION
+	"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
 
@@ -30,6 +32,7 @@ endif()
 
 include_directories("include")
 
+add_subdirectory(doc)
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(test)
