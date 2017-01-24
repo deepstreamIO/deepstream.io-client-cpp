@@ -58,11 +58,20 @@ namespace deepstream
 }
 
 
+/**
+ * This class represents the parser state.
+ *
+ * The class is not in a namespace because it is called by the scanner (C code).
+ */
 struct deepstream_parser_state
 {
 	typedef std::vector<deepstream::parser::MessageProxy> MessageList;
 	typedef std::vector<deepstream::parser::Error> ErrorList;
 
+	/**
+	 * @param[in] p A reference to an array of size sz
+	 * @param[in] sz The size of the array referenced by p
+	 */
 	explicit deepstream_parser_state(const char* p, std::size_t sz);
 
 	// the lexer modifies its input. thus, the lexer works with a copy of the
@@ -84,7 +93,7 @@ struct deepstream_parser_state
 	const std::size_t buffer_size_;
 
 	bool tokenizing_header_;
-	std::size_t offset_;
+	std::size_t offset_; ///< number of bytes in `buffer_` consumed so far
 
 	MessageList messages_;
 	ErrorList errors_;

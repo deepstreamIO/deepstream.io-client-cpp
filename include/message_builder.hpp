@@ -23,6 +23,9 @@
 
 namespace deepstream
 {
+	/**
+	 * This class aids with the construction of deepstream messages.
+	 */
 	struct MessageBuilder : public Message
 	{
 		typedef Buffer Argument;
