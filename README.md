@@ -20,6 +20,9 @@ The deepstream C++ client shall
 - use a popular build system,
 - provide automated tests,
 - provide documentation,
+- provide an API making the deepstream.io client API accessible,
+- allow single-threaded and multithreaded use,
+- allow synchronous (polling) and asychronous use,
 - provide continuous integration setups for Linux, MacOS, and Windows,
 - pass the [Cucumber client specs](https://github.com/deepstreamIO/deepstream.io-client-specs) tests,
 - pass the [deepstream E2E tests](https://github.com/deepstreamIO/deepstream.io-e2e) tests after the client specs,
@@ -39,8 +42,7 @@ The deepstream C++ client shall
 
 The deepstream C++ client
 - will be implemented in C++11 as far as possible,
-- uses [uWebSockets](https://github.com/uWebSockets/uWebSockets) as Websockets implementation,
-- provides a timer mechanism using POSIX threads and `timer_create()`,
+- provides a timer mechanism using `timer_create()`,
 - uses CMake as build system,
 - provides unit tests using Boost.Test,
 - is tested with Valgrind,
