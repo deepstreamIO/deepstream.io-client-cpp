@@ -23,10 +23,23 @@
 #include <cassert>
 
 
-namespace deepstream
-{
-	// This implementation instead of a typedef allows the forward declaration
-	// of Buffer. Also, the buffer can be constructed directly from strings.
+namespace deepstream {
+	/**
+	 * This class represents sequential, writable storage for binary data.
+	 *
+	 * This implementation instead of a typedef allows the forward declaration
+	 * of Buffer. Also, the buffer can be constructed directly from strings.
+	 *
+	 * This functions uses std::vector<char> because vector<T>::data() returns
+	 * sequential, writable memory while std::string::data() returns a pointer
+	 * to const (before C++17); this kind of memory access is needed for
+	 * - the scanner (sequential storage),
+	 * - reading from sockets (sequential, writable), and
+	 * - writing to sockets (sequential).
+	 * Since C++11, std::string has to use sequential storage. Hence, we might
+	 * use &string[0] to access the underlying storage but ChristophC preferred
+	 * std::vector<char> over std::string.
+	 */
 	struct Buffer : public std::vector<char>
 	{
 		typedef std::vector<char> Base;

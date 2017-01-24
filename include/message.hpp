@@ -72,13 +72,37 @@ namespace deepstream
 	std::ostream& operator<<(std::ostream&, Sender);
 
 
+	/**
+	 * This is an interface for different message representations providing
+	 * access to the data contained within a message (header and payload).
+	 *
+	 * This class uses the Non-Virtual Interface Idiom:
+	 * http://www.gotw.ca/publications/mill18.htm
+	 */
 	struct Message
 	{
 		struct Header
 		{
+			/**
+			 * This function returns the list of all valid message headers.
+			 *
+			 * The return value is a pair of iterators forming a half-open
+			 * interval.
+			 */
 			static std::pair<const Header*, const Header*> all();
 
+			/**
+			 * This function returns the human-readable representation of the
+			 * given message header.
+			 *
+			 * The input must form a valid message header.
+			 */
 			static const char* to_string(Topic, Action, bool is_ack=false);
+			/**
+			 * This function returns the number of bytes needed to store the
+			 * serialized message header in a deepstream message or its
+			 * human-readable representation.
+			 */
 			static std::size_t size(Topic, Action, bool is_ack=false);
 
 			explicit Header(Topic topic, Action action, bool is_ack=false) :
@@ -89,6 +113,10 @@ namespace deepstream
 			const char* to_string() const;
 			std::size_t size() const;
 
+			/**
+			 * This method returns the representation of this header in a
+			 * deepstream message.
+			 */
 			Buffer to_binary() const;
 
 			Topic topic() const { return topic_impl_; }
@@ -105,21 +133,23 @@ namespace deepstream
 
 		/**
 		 * This function takes a human-readable deepstream message, e.g.,
-		 * `E|A|S|event+`, and returns in machine-readable counterpart by
-		 * replacing `|` with the ASCII character 31 (unit separator) and
-		 * `+` with ASCII character 30 (record separator).
+		 * `E|A|S|event+`, and returns its machine-readable counterpart by
+		 * replacing `|` with the ASCII character 31 (unit separator) and `+`
+		 * with ASCII character 30 (record separator).
 		 *
-		 * This functions returns vector<char> because vector<T>::data()
-		 * returns sequential, writable memory while std::string::data()
-		 * returns a pointer to const.
+		 * @param[in] p A null-terminated string
 		 */
 		static Buffer from_human_readable(const char* p);
+		/**
+		 * @param[in] p A pointer to a string of length `size`
+		 * @param[in] size The length of the string referenced by p
+		 */
 		static Buffer from_human_readable(const char* p, std::size_t size);
 
 
 		/**
-		 * This function returns the minimum and maximum number of arguments for
-		 * every message, e.g., for "E|S|event+" (event subscription), this
+		 * This function returns the minimum and maximum number of arguments
+		 * for every message, e.g., for "E|S|event+" (event subscription), this
 		 * function returns the pair (1, 1).
 		 */
 		static std::pair<std::size_t,std::size_t> num_arguments(const Header&);
@@ -127,6 +157,9 @@ namespace deepstream
 
 		virtual ~Message() {}
 
+		/**
+		 * This method returns the size of the message in bytes.
+		 */
 		std::size_t size() const { return size_impl_(); }
 
 		const Header& header() const { return header_impl_(); }
@@ -135,8 +168,14 @@ namespace deepstream
 		bool is_ack() const { return header().is_ack(); }
 
 		std::size_t num_arguments() const { return num_arguments_impl_(); }
+		/**
+		 * This operator returns the i-th argument of a message.
+		 */
 		Buffer operator[] (std::size_t) const;
 
+		/**
+		 * This method returns the assembled deepstream message.
+		 */
 		Buffer to_binary() const;
 
 

@@ -16,6 +16,12 @@
 #ifndef DEEPSTREAM_PARSER_H
 #define DEEPSTREAM_PARSER_H
 
+/**
+ * @file
+ *
+ * This C header file glues the C scanner code in with the C++ parser.
+ */
+
 #include <limits.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -28,8 +34,13 @@ extern "C" {
 struct deepstream_parser_state;
 
 
-// The use of UCHAR_MAX below is motivated by the functions in, e.g., ctype.h
-// which assume char values in the range 0-255.
+/**
+ * This enumeration contains all tokens that are recognized by the scanner.
+ *
+ * The use of `UCHAR_MAX` below is motivated by the functions in, e.g.,
+ * `ctype.h` which assume char values in the interval [0, 255]. GNU Bison uses
+ * a similar numbering scheme for its tokens.
+ */
 enum deepstream_token
 {
 	TOKEN_EOF = EOF,
@@ -62,11 +73,19 @@ enum deepstream_token
 bool is_header_token(enum deepstream_token);
 
 
+/**
+ * The callback handed to the scanner.
+ */
 int deepstream_parser_handle(
 	struct deepstream_parser_state*, enum deepstream_token,
 	const char*, size_t);
 
 
+/**
+ * This macro either
+ * - returns the last read token for testing purposes, or
+ * - executes the parser callback.
+ */
 #ifdef DEEPSTREAM_TEST_LEXER
 #define DS_PARSE(TOKEN) (TOKEN)
 #else

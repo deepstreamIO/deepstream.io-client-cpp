@@ -25,10 +25,16 @@
 
 namespace deepstream
 {
-	// A. Alexandrescu, P. Marginean:
-	// "Generic: Change the Way You Write Exception-Safe Code -- Forever"
-	// Dr. Dobbs Journal, 2000
-	// www.drdobbs.com/cpp/generic-change-the-way-you-write-excepti/184403758
+	/**
+	 * A helper class executing code when exiting the current scope.
+	 * It is recommended to use the macro below instead of using the class
+	 * directly.
+	 *
+	 * A. Alexandrescu, P. Marginean:
+	 * "Generic: Change the Way You Write Exception-Safe Code -- Forever"
+	 * Dr. Dobbs Journal, 2000
+	 * www.drdobbs.com/cpp/generic-change-the-way-you-write-excepti/184403758
+	 */
 	struct ScopeGuard
 	{
 		typedef std::function<void(void)> FunT;
