@@ -1,5 +1,8 @@
 # C++ Client Proposal
 
+This software uses [POCO C++ libraries](https://pocoproject.org).
+
+
 ## Requirements
 
 The deepstream C++ client shall
