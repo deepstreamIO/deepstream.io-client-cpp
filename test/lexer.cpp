@@ -71,9 +71,6 @@ struct State
 
 
 
-static_assert( EOF == TOKEN_EOF, "" );
-
-
 BOOST_AUTO_TEST_CASE(empty_string)
 {
 	State state("");
@@ -111,7 +108,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_header)
 	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, EOF );
+	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
 }
 
 
@@ -128,7 +125,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_payload)
 	BOOST_CHECK_EQUAL( "ERROR", yyget_text(state.scanner) );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, EOF );
+	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
 }
 
 
@@ -149,7 +146,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_recovery)
 	BOOST_CHECK_EQUAL( ret, TOKEN_MESSAGE_SEPARATOR );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, EOF );
+	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
 }
 
 
@@ -171,7 +168,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_recovery_MS_only)
 	BOOST_CHECK_EQUAL( ret, TOKEN_MESSAGE_SEPARATOR );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, EOF );
+	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
 }
 
 
@@ -185,7 +182,7 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_header)
 	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, EOF );
+	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
 }
 
 
@@ -200,7 +197,7 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_payload)
 	BOOST_CHECK_EQUAL( ret, TOKEN_PAYLOAD );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, EOF );
+	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
 }
 
 
@@ -212,7 +209,7 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_error)
 	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, EOF );
+	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
 }
 
 

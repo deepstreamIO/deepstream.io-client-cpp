@@ -43,7 +43,7 @@ struct deepstream_parser_state;
  */
 enum deepstream_token
 {
-	TOKEN_EOF = EOF,
+	TOKEN_EOF = INT_MIN,
 	TOKEN_UNKNOWN = UCHAR_MAX + 1,
 	TOKEN_PAYLOAD,
 	TOKEN_MESSAGE_SEPARATOR,
