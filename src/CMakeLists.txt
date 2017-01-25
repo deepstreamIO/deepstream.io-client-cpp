@@ -26,6 +26,7 @@ set_source_files_properties(
 add_library(
 	deepstream SHARED
 	client.cpp
+	error_handler.cpp
 	message.cpp
 	message_builder.cpp
 	message_proxy.cpp
