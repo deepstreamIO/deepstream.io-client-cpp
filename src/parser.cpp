@@ -276,7 +276,7 @@ void deepstream_parser_state::handle_header(
 			break;
 
 		case TOKEN_A_E_IAD:
-			DS_ADD_MSG(Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA, true);
+			DS_ADD_MSG(Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA);
 			break;
 
 		case TOKEN_A_E_IAM:
@@ -309,6 +309,7 @@ void deepstream_parser_state::handle_header(
 
 		case TOKEN_C_REJ:
 			DS_ADD_MSG(Topic::CONNECTION, Action::REJECT);
+			break;
 
 		case TOKEN_E_A_L:
 			DS_ADD_MSG(Topic::EVENT, Action::LISTEN, true);
