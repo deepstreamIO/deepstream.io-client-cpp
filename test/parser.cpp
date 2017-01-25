@@ -322,9 +322,18 @@ BOOST_AUTO_TEST_CASE(random_messages)
 		input.push_back( '\0' );
 
 		auto ret = execute( input.data(), input.size() );
-		const ErrorList& errors = ret.second;
 
+		const ErrorList& errors = ret.second;
 		BOOST_CHECK( errors.empty() );
+
+		const MessageList& messages = ret.first;
+
+		BOOST_REQUIRE_EQUAL( messages.size(), headers.size() );
+
+		auto i = headers.cbegin();
+		auto j = messages.cbegin();
+		for( ; i != headers.cend(); ++i, ++j )
+			BOOST_CHECK_EQUAL( *i, j->header() );
 	}
 }
 
