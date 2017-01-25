@@ -301,14 +301,14 @@ BOOST_AUTO_TEST_CASE(simple_integration)
 
 BOOST_AUTO_TEST_CASE(random_messages)
 {
-	for(std::size_t iteration = 0; iteration < 100; ++iteration)
+	for(std::size_t iteration = 0; iteration < 50; ++iteration)
 	{
 		random::Engine engine(iteration);
 
 		std::vector<Message::Header> headers;
 		Buffer input;
 
-		for(std::size_t i = 0; i < 100; ++i)
+		for(std::size_t i = 0; i < 20; ++i)
 		{
 			MessageBuilder message_builder = random::make_message(&engine);
 
