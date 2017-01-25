@@ -54,6 +54,18 @@ namespace deepstream
 
 
 		typedef deepstream_parser_state State;
+		typedef std::vector<deepstream::parser::MessageProxy> MessageList;
+		typedef std::vector<deepstream::parser::Error> ErrorList;
+
+
+		/**
+		 * This function returns the contents of a serialized deepstream
+		 * message.
+		 *
+		 * @param[in] p The last two characters must be zero
+		 * @param[in] sz The size of the array referenced by p
+		 */
+		std::pair<MessageList, ErrorList> execute(char* p, std::size_t sz);
 	}
 }
 
@@ -65,8 +77,8 @@ namespace deepstream
  */
 struct deepstream_parser_state
 {
-	typedef std::vector<deepstream::parser::MessageProxy> MessageList;
-	typedef std::vector<deepstream::parser::Error> ErrorList;
+	typedef deepstream::parser::MessageList MessageList;
+	typedef deepstream::parser::ErrorList ErrorList;
 
 	/**
 	 * @param[in] p A reference to an array of size sz

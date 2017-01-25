@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cerrno>
 #include <cstdlib>
 #include <cstring>
 
+#include <new>
 #include <ostream>
 
 #include <buffer.hpp>
@@ -24,6 +26,9 @@
 #include <parser.hpp>
 #include <scope_guard.hpp>
 #include <use.hpp>
+extern "C" {
+#include <lexer.h>
+}
 
 #include <cassert>
 
@@ -67,6 +72,44 @@ std::ostream& operator<< (std::ostream& os, const Error& e)
 {
 	os << e.location() << ": " << e.tag();
 	return os;
+}
+
+
+
+std::pair<MessageList, ErrorList> execute(char* p, std::size_t size)
+{
+	assert(p);
+	assert( p[size-2] == 0 );
+	assert( p[size-1] == 0 );
+
+	yyscan_t scanner = nullptr;
+	deepstream::parser::State parser(p, size-2);
+
+	if( yylex_init(&scanner) != 0 )
+	{
+		if( errno == ENOMEM )
+			throw std::bad_alloc();
+
+		assert( errno == EINVAL );
+		assert(0);
+		throw std::invalid_argument("nullptr given to yylex_init");
+	}
+
+	assert( scanner );
+	YY_BUFFER_STATE lexer_buffer = yy_scan_buffer(p, size, scanner);
+	assert( lexer_buffer );
+
+	yyset_extra( &parser, scanner );
+
+	DEEPSTREAM_ON_EXIT( [lexer_buffer, scanner] () {
+		yy_delete_buffer(lexer_buffer, scanner);
+		yylex_destroy(scanner);
+	} );
+
+	int ret = 0;
+	while( (ret = yylex(scanner)) != TOKEN_EOF );
+
+	return std::make_pair(parser.messages_, parser.errors_);
 }
 
 }
