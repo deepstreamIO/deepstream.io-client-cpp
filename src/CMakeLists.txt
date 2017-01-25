@@ -5,13 +5,13 @@ find_package(POCO REQUIRED)
 
 add_custom_command(
 	OUTPUT
-		"${CMAKE_CURRENT_BINARY_DIR}/lexer.c"
-		"${CMAKE_CURRENT_BINARY_DIR}/lexer.h"
+		${CMAKE_CURRENT_BINARY_DIR}/lexer.c
+		${CMAKE_BINARY_DIR}/include/lexer.h
 	DEPENDS lexer.l
 	COMMAND ${FLEX_EXECUTABLE}
-		--outfile=lexer.c
-		--header-file=lexer.h
-		-- "${CMAKE_CURRENT_SOURCE_DIR}/lexer.l"
+		--outfile=${CMAKE_CURRENT_BINARY_DIR}/lexer.c
+		--header-file=${CMAKE_BINARY_DIR}/include/lexer.h
+		-- ${CMAKE_CURRENT_SOURCE_DIR}/lexer.l
 	COMMENT "[FLEX][src] Building lexer with Flex ${FLEX_VERSION}"
 	VERBATIM
 )
@@ -30,9 +30,10 @@ add_library(
 	message_builder.cpp
 	message_proxy.cpp
 	parser.cpp
+	random.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
-target_include_directories(deepstream PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(deepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
 target_include_directories(deepstream PUBLIC ${Boost_INCLUDE_DIRS})
 
 

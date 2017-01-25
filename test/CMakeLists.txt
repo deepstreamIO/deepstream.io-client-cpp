@@ -40,19 +40,19 @@ function(add_boost_test FILENAME DEPENDENCY_LIB)
 endfunction()
 
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories("${CMAKE_BINARY_DIR}/include")
 
 
 # lexer testing
 add_custom_command(
 	OUTPUT
-	"${CMAKE_CURRENT_BINARY_DIR}/test_lexer.c"
-	"${CMAKE_CURRENT_BINARY_DIR}/test_lexer.h"
-	DEPENDS "${CMAKE_SOURCE_DIR}/src/lexer.l"
+	${CMAKE_CURRENT_BINARY_DIR}/test_lexer.c
+	${CMAKE_BINARY_DIR}/include/test_lexer.h
+	DEPENDS ${CMAKE_SOURCE_DIR}/src/lexer.l
 	COMMAND ${FLEX_EXECUTABLE}
-		--outfile=test_lexer.c
-		--header-file=test_lexer.h
-		-- "${CMAKE_SOURCE_DIR}/src/lexer.l"
+		--outfile=${CMAKE_CURRENT_BINARY_DIR}/test_lexer.c
+		--header-file=${CMAKE_BINARY_DIR}/include/test_lexer.h
+		-- ${CMAKE_SOURCE_DIR}/src/lexer.l
 	COMMENT "[FLEX][test] Building lexer with Flex ${FLEX_VERSION}"
 	VERBATIM
 )
