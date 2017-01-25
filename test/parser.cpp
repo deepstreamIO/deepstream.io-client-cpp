@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cstdio>
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
@@ -25,7 +24,9 @@
 
 #include <buffer.hpp>
 #include <message.hpp>
+#include <message_builder.hpp>
 #include <parser.hpp>
+#include <random.hpp>
 #include <scope_guard.hpp>
 
 extern "C" {
@@ -294,6 +295,37 @@ BOOST_AUTO_TEST_CASE(simple_integration)
 
 	const Error& error = parser.errors_.front();
 	BOOST_CHECK_EQUAL( error.tag(), Error::UNEXPECTED_TOKEN );
+}
+
+
+
+BOOST_AUTO_TEST_CASE(random_messages)
+{
+	for(std::size_t iteration = 0; iteration < 100; ++iteration)
+	{
+		random::Engine engine(iteration);
+
+		std::vector<Message::Header> headers;
+		Buffer input;
+
+		for(std::size_t i = 0; i < 100; ++i)
+		{
+			MessageBuilder message_builder = random::make_message(&engine);
+
+			Buffer bin = message_builder.to_binary();
+			input.insert( input.end(), bin.cbegin(), bin.cend() );
+
+			headers.push_back( message_builder.header() );
+		}
+
+		input.push_back( '\0' );
+		input.push_back( '\0' );
+
+		auto ret = execute( input.data(), input.size() );
+		const ErrorList& errors = ret.second;
+
+		BOOST_CHECK( errors.empty() );
+	}
 }
 
 }
