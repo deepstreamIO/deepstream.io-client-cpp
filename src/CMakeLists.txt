@@ -24,25 +24,19 @@ set_source_files_properties(
 )
 
 add_library(
-	deepstream_parser SHARED
+	deepstream SHARED
+	client.cpp
 	message.cpp
 	message_builder.cpp
 	message_proxy.cpp
 	parser.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
-target_include_directories(deepstream_parser PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-target_include_directories(deepstream_parser PUBLIC ${Boost_INCLUDE_DIRS})
-
-
-add_library(
-	deepstream_client SHARED
-	client.cpp)
-
-target_link_libraries(deepstream_client PUBLIC deepstream_parser)
+target_include_directories(deepstream PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(deepstream PUBLIC ${Boost_INCLUDE_DIRS})
 
 
 add_executable(ds-client executable.cpp)
 target_include_directories(ds-client PUBLIC ${POCO_INCLUDE_DIRS})
-target_link_libraries(ds-client PUBLIC deepstream_client)
+target_link_libraries(ds-client PUBLIC deepstream)
 target_link_libraries(ds-client PUBLIC ${POCO_LIBRARIES})

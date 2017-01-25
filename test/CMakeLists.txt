@@ -68,7 +68,8 @@ add_library(test_lexer test_lexer.c)
 target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)
 
 add_boost_test(lexer.cpp test_lexer)
-add_boost_test(message.cpp deepstream_parser)
-add_boost_test(message_builder.cpp deepstream_parser)
-add_boost_test(parser.cpp deepstream_parser)
-add_boost_test(client.cpp deepstream_client)
+
+add_boost_test(client.cpp deepstream)
+add_boost_test(message.cpp deepstream)
+add_boost_test(message_builder.cpp deepstream)
+add_boost_test(parser.cpp deepstream)
