@@ -38,7 +38,7 @@ target_include_directories(deepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
 target_include_directories(deepstream PUBLIC ${Boost_INCLUDE_DIRS})
 
 
-add_executable(ds-client executable.cpp)
+add_executable(ds-client ds-client.cpp)
 target_include_directories(ds-client PUBLIC ${POCO_INCLUDE_DIRS})
 target_link_libraries(ds-client PUBLIC deepstream)
 target_link_libraries(ds-client PUBLIC ${POCO_LIBRARIES})
