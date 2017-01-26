@@ -24,10 +24,17 @@
 #include <client.hpp>
 #include <error_handler.hpp>
 #include <message.hpp>
+#include <parser.hpp>
 
 
 namespace deepstream
 {
+
+void ErrorHandler::parser_error(const parser::Error& e)
+{
+	parser_error_impl(e);
+}
+
 
 void ErrorHandler::invalid_state_transition(client::State s, const Message& m)
 {
@@ -58,6 +65,16 @@ void ErrorHandler::sudden_disconnect(const std::string& uri)
 	sudden_disconnect_impl(uri);
 }
 
+
+
+void ErrorHandler::parser_error_impl(const parser::Error& e)
+{
+	std::ostringstream os;
+	os << e.tag();
+	std::string string = os.str();
+
+	std::fprintf( stderr, "Parser error [error=%s]\n", string.c_str() );
+}
 
 
 void ErrorHandler::invalid_state_transition_impl(
