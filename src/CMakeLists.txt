@@ -26,6 +26,7 @@ set_source_files_properties(
 add_library(
 	deepstream SHARED
 	client.cpp
+	deepstream.cpp
 	error_handler.cpp
 	message.cpp
 	message_builder.cpp
@@ -36,6 +37,8 @@ add_library(
 
 target_include_directories(deepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
 target_include_directories(deepstream PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(deepstream PUBLIC ${POCO_INCLUDE_DIRS})
+target_link_libraries(deepstream PUBLIC ${POCO_LIBRARIES})
 
 
 add_executable(ds-client ds-client.cpp)

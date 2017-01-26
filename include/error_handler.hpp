@@ -16,6 +16,7 @@
 #ifndef DEEPSTREAM_ERROR_HANDLER_HPP
 #define DEEPSTREAM_ERROR_HANDLER_HPP
 
+#include <stdexcept>
 #include <string>
 
 
@@ -43,20 +44,18 @@ namespace deepstream
 		virtual ~ErrorHandler() {};
 
 		void invalid_state_transition(client::State, const Message&);
-		void websocket_frame_too_big(const Buffer& buffer);
+		void system_error();
+		void websocket_exception(const std::exception&);
 		void invalid_websocket_frame_flags(int expected, int got);
 		void sudden_disconnect(const std::string& uri);
-		void timeout(Topic, Action);
-		void timeout(Topic, Action, const std::string&);
 
 	protected:
 		virtual void invalid_state_transition_impl(
 			client::State, const Message&);
-		virtual void websocket_frame_too_big_impl(const Buffer& buffer);
+		virtual void system_error_impl(int error);
+		virtual void websocket_exception_impl(const std::exception&);
 		virtual void invalid_websocket_frame_flags_impl(int, int);
 		virtual void sudden_disconnect_impl(const std::string& uri);
-		virtual void timeout_impl(Topic, Action);
-		virtual void timeout_impl(Topic, Action, const std::string&);
 	};
 }
 
