@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <arpa/inet.h>
+#include <cstdint>
+
 #include <stdexcept>
 
 #include <Poco/Exception.h>
@@ -28,6 +31,7 @@
 #include <deepstream.hpp>
 #include <error_handler.hpp>
 #include <message.hpp>
+#include <websockets.hpp>
 #include <use.hpp>
 
 #include <cassert>
@@ -82,7 +86,7 @@ void Client::close()
 
 
 
-Buffer Client::receive_()
+std::pair<Buffer, websockets::StatusCode> Client::receive_()
 {
 	const std::size_t MAX_PAYLOAD_SIZE = 4096;
 	const std::size_t MAX_BUFFER_SIZE = 1000 * MAX_PAYLOAD_SIZE;
@@ -96,6 +100,7 @@ Buffer Client::receive_()
 
 	Buffer buffer;
 	std::size_t num_bytes_read = 0;
+	websockets::StatusCode status_code = websockets::StatusCode::NONE;
 
 
 	while( num_bytes_read + MAX_PAYLOAD_SIZE <= MAX_BUFFER_SIZE )
@@ -120,7 +125,12 @@ Buffer Client::receive_()
 		}
 		catch(net::WebSocketException& e)
 		{
+			websocket_.shutdown();
+
+			status_code = websockets::StatusCode::ABNORMAL_CLOSE;
 			p_error_handler_->websocket_exception(e);
+
+			break;
 		}
 
 		if( ret < 0 )
@@ -131,30 +141,52 @@ Buffer Client::receive_()
 
 		if( ret == 0 )
 		{
-			p_error_handler_->sudden_disconnect( uri_.toString() );
 			websocket_.shutdown();
-			buffer.clear();
-			return buffer;
+
+			if( status_code != websockets::StatusCode::NORMAL_CLOSE )
+			{
+				status_code = websockets::StatusCode::ABNORMAL_CLOSE;
+				p_error_handler_->sudden_disconnect( uri_.toString() );
+			}
+
+			break;
 		}
 
 		if( !(flags == frame_flags) && !(flags == eof_flags && ret == 2) )
 		{
+			websocket_.shutdown();
+
+			status_code = websockets::StatusCode::ABNORMAL_CLOSE;
 			p_error_handler_->unexpected_websocket_frame_flags(flags);
-			continue;
+
+			break;
 		}
-
-
-		num_bytes_read += ret;
 
 		if( flags == eof_flags && ret == 2 )
 		{
-			websocket_.shutdown();
-			break;
+			union {
+				Buffer::value_type* p_data;
+				std::uint16_t* p_uint16_t;
+			} payload;
+
+			payload.p_data = &buffer[num_bytes_read];
+			std::uint16_t u16 = ntohs( payload.p_uint16_t[0] );
+
+			status_code = (u16 == 1000)
+				? websockets::StatusCode::NORMAL_CLOSE
+				: websockets::StatusCode::UNKNOWN;
+
+			continue;
 		}
+
+		assert( flags == frame_flags );
+
+		num_bytes_read += ret;
 	}
 
 	buffer.resize(num_bytes_read);
-	return buffer;
+
+	return std::make_pair(buffer, status_code);
 }
 
 

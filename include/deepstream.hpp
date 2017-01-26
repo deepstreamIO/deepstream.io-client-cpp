@@ -21,6 +21,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <utility>
 
 
 namespace Poco
@@ -44,6 +45,11 @@ namespace deepstream
 	namespace client
 	{
 		enum class State;
+	}
+
+	namespace websockets
+	{
+		enum class StatusCode;
 	}
 
 
@@ -151,7 +157,7 @@ namespace deepstream
 		client::State getConnectionState() { return state_; }
 
 
-		Buffer receive_();
+		std::pair<Buffer, websockets::StatusCode> receive_();
 		void send_(const Message&);
 
 
