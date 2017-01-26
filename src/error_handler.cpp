@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cerrno>
 #include <cstdio>
+#include <cstring>
 
+#include <algorithm>
 #include <sstream>
 
 #include <buffer.hpp>
@@ -32,9 +35,15 @@ void ErrorHandler::invalid_state_transition(client::State s, const Message& m)
 }
 
 
-void ErrorHandler::websocket_frame_too_big(const Buffer& buffer)
+void ErrorHandler::system_error()
 {
-	websocket_frame_too_big_impl(buffer);
+	system_error_impl( errno );
+}
+
+
+void ErrorHandler::websocket_exception(const std::exception& e)
+{
+	websocket_exception_impl(e);
 }
 
 
@@ -50,18 +59,6 @@ void ErrorHandler::sudden_disconnect(const std::string& uri)
 }
 
 
-void ErrorHandler::timeout(Topic topic, Action action)
-{
-	timeout_impl(topic, action);
-}
-
-
-void ErrorHandler::timeout(Topic topic, Action action, const std::string& name)
-{
-	timeout_impl(topic, action, name);
-}
-
-
 
 void ErrorHandler::invalid_state_transition_impl(
 	client::State s, const Message& msg)
@@ -74,10 +71,20 @@ void ErrorHandler::invalid_state_transition_impl(
 }
 
 
-void ErrorHandler::websocket_frame_too_big_impl(const Buffer& buffer)
+void ErrorHandler::system_error_impl(int error)
+{
+	char error_message[80];
+	std::fill_n( error_message, sizeof(error_message), 0 );
+	strerror_r( error, error_message, sizeof(error_message) );
+
+	std::fprintf( stderr, "Error: %s\n", error_message );
+}
+
+
+void ErrorHandler::websocket_exception_impl(const std::exception& e)
 {
 	std::fprintf(
-		stderr, "WebSocket frame too big [buffer size=%zu]\n", buffer.size()
+		stderr, "WebSocket exception [msg=%s]\n", e.what()
 	);
 }
 
@@ -97,27 +104,6 @@ void ErrorHandler::sudden_disconnect_impl(const std::string& uri)
 	std::fprintf(
 		stderr, "Sudden disconnect [uri=%s]\n", uri.c_str()
 	);
-}
-
-
-void ErrorHandler::timeout_impl(Topic topic, Action action)
-{
-	std::stringstream ss;
-	ss << "topic=" << topic << " action=" << action;
-	std::string string = ss.str();
-
-	std::fprintf( stderr, "Timeout [%s]\n", string.c_str() );
-}
-
-
-void ErrorHandler::timeout_impl(
-	Topic topic, Action action, const std::string& name)
-{
-	std::stringstream ss;
-	ss << "topic=" << topic << " action=" << action << " name='" << name << "'";
-	std::string string = ss.str();
-
-	std::fprintf( stderr, "Timeout [%s]\n", string.c_str() );
 }
 
 }
