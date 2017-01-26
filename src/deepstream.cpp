@@ -25,9 +25,9 @@
 
 #include <buffer.hpp>
 #include <client.hpp>
+#include <deepstream.hpp>
 #include <error_handler.hpp>
 #include <message.hpp>
-#include <deepstream.hpp>
 #include <use.hpp>
 
 #include <cassert>
@@ -84,47 +84,72 @@ void Client::close()
 
 Buffer Client::receive_()
 {
-	Buffer buffer(1024, 0);
-	int flags = 0;
-	int ret = 0;
+	const std::size_t MAX_PAYLOAD_SIZE = 4096;
+	const int frame_flags =
+		net::WebSocket::FRAME_FLAG_FIN | net::WebSocket::FRAME_OP_TEXT;
+	const int eof_flags =
+		net::WebSocket::FRAME_FLAG_FIN | net::WebSocket::FRAME_OP_CLOSE;
 
 	session_.setTimeout( 0 * Poco::Timespan::SECONDS );
 
-	try
+	Buffer buffer;
+	std::size_t num_bytes_read = 0;
+
+
+	while(true)
 	{
-		ret = websocket_.receiveFrame( buffer.data(), buffer.size()-2, flags );
-	}
-	catch(Poco::TimeoutException& e)
-	{
-		// do nothing
-	}
-	catch(net::WebSocketException& e)
-	{
-		p_error_handler_->websocket_exception(e);
-		buffer.resize(0);
-		return buffer;
+		assert( num_bytes_read <= buffer.size() );
+		buffer.resize( num_bytes_read + MAX_PAYLOAD_SIZE );
+
+		int flags = 0;
+		int ret = 0;
+
+		try
+		{
+			ret = websocket_.receiveFrame(
+				&buffer[num_bytes_read], buffer.size() - num_bytes_read, flags
+			);
+		}
+		catch(Poco::TimeoutException& e)
+		{
+			break;
+		}
+		catch(net::WebSocketException& e)
+		{
+			p_error_handler_->websocket_exception(e);
+		}
+
+		if( ret < 0 )
+		{
+			assert(0);
+			throw std::logic_error("receiveFrame() returned a negative value");
+		}
+
+		if( ret == 0 )
+		{
+			p_error_handler_->sudden_disconnect( uri_.toString() );
+			websocket_.shutdown();
+			buffer.clear();
+			return buffer;
+		}
+
+		if( !(flags == frame_flags) && !(flags == eof_flags && ret == 2) )
+		{
+			p_error_handler_->unexpected_websocket_frame_flags(flags);
+			continue;
+		}
+
+
+		num_bytes_read += ret;
+
+		if( flags == eof_flags && ret == 2 )
+		{
+			websocket_.shutdown();
+			break;
+		}
 	}
 
-	if( ret == 0 )
-	{
-		p_error_handler_->sudden_disconnect( uri_.toString() );
-		buffer.resize(0);
-		return buffer;
-	}
-
-	if( !(flags & net::WebSocket::FRAME_FLAG_FIN) ||
-		 (flags & net::WebSocket::FRAME_OP_CONT) ||
-		!(flags & net::WebSocket::FRAME_OP_TEXT) )
-	{
-		int expected =
-			net::WebSocket::FRAME_FLAG_FIN | net::WebSocket::FRAME_OP_TEXT;
-
-		p_error_handler_->invalid_websocket_frame_flags(expected, flags);
-
-		buffer.resize(0);
-		return buffer;
-	}
-
+	buffer.resize(num_bytes_read);
 	return buffer;
 }
 

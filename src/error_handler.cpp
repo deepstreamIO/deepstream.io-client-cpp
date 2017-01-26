@@ -47,9 +47,9 @@ void ErrorHandler::websocket_exception(const std::exception& e)
 }
 
 
-void ErrorHandler::invalid_websocket_frame_flags(int expected, int got)
+void ErrorHandler::unexpected_websocket_frame_flags(int flags)
 {
-	invalid_websocket_frame_flags_impl(expected, got);
+	unexpected_websocket_frame_flags_impl(flags);
 }
 
 
@@ -89,12 +89,10 @@ void ErrorHandler::websocket_exception_impl(const std::exception& e)
 }
 
 
-void ErrorHandler::invalid_websocket_frame_flags_impl(int expected, int got)
+void ErrorHandler::unexpected_websocket_frame_flags_impl(int flags)
 {
 	std::fprintf(
-		stderr,
-		"Invalid WebSocket frame flags [expected=%d, got=%d]\n",
-		expected, got
+		stderr, "Unexpected WebSocket frame flags [flags=%d]\n", flags
 	);
 }
 
