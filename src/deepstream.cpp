@@ -85,6 +85,8 @@ void Client::close()
 Buffer Client::receive_()
 {
 	const std::size_t MAX_PAYLOAD_SIZE = 4096;
+	const std::size_t MAX_BUFFER_SIZE = 1000 * MAX_PAYLOAD_SIZE;
+
 	const int frame_flags =
 		net::WebSocket::FRAME_FLAG_FIN | net::WebSocket::FRAME_OP_TEXT;
 	const int eof_flags =
@@ -96,7 +98,7 @@ Buffer Client::receive_()
 	std::size_t num_bytes_read = 0;
 
 
-	while(true)
+	while( num_bytes_read + MAX_PAYLOAD_SIZE <= MAX_BUFFER_SIZE )
 	{
 		assert( num_bytes_read <= buffer.size() );
 		buffer.resize( num_bytes_read + MAX_PAYLOAD_SIZE );
