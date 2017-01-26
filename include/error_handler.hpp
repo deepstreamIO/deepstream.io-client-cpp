@@ -46,7 +46,7 @@ namespace deepstream
 		void invalid_state_transition(client::State, const Message&);
 		void system_error();
 		void websocket_exception(const std::exception&);
-		void invalid_websocket_frame_flags(int expected, int got);
+		void unexpected_websocket_frame_flags(int got);
 		void sudden_disconnect(const std::string& uri);
 
 	protected:
@@ -54,7 +54,7 @@ namespace deepstream
 			client::State, const Message&);
 		virtual void system_error_impl(int error);
 		virtual void websocket_exception_impl(const std::exception&);
-		virtual void invalid_websocket_frame_flags_impl(int, int);
+		virtual void unexpected_websocket_frame_flags_impl(int);
 		virtual void sudden_disconnect_impl(const std::string& uri);
 	};
 }
