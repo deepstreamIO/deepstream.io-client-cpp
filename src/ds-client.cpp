@@ -35,9 +35,6 @@
 #include <message_builder.hpp>
 #include <parser.hpp>
 #include <scope_guard.hpp>
-extern "C" {
-#include <lexer.h>
-}
 
 #include <cassert>
 
@@ -104,27 +101,11 @@ try
 			return 1;
 		}
 
-		yyscan_t scanner;
-		deepstream::parser::State parser( buffer.data(), ret );
+		auto contents = deepstream::parser::execute( buffer.data(), ret + 2 );
+		const auto& messages = contents.first;
+		const auto& errors = contents.second;
 
-		if( yylex_init(&scanner) != 0 )
-		{
-			std::perror( "yylex_init" );
-			return 1;
-		}
-
-		YY_BUFFER_STATE lexer_buffer = yy_scan_buffer(&buffer[0], ret+2, scanner);
-		yyset_extra( &parser, scanner );
-
-		DEEPSTREAM_ON_EXIT( [lexer_buffer, scanner] () {
-			yy_delete_buffer(lexer_buffer, scanner);
-			yylex_destroy(scanner);
-		} );
-
-		while( (ret = yylex(scanner)) != TOKEN_EOF );
-
-
-		for(auto it = parser.errors_.begin(); it != parser.errors_.end(); ++it)
+		for(auto it = errors.cbegin(); it != errors.cend(); ++it)
 		{
 			std::stringstream ss;
 			ss << *it;
@@ -133,7 +114,7 @@ try
 			std::fprintf( stderr, "Parser error: %s\n", error_string.c_str() );
 		}
 
-		for(auto it = parser.messages_.begin(); it != parser.messages_.end(); ++it)
+		for(auto it = messages.cbegin(); it != messages.cend(); ++it)
 		{
 			ds::client::State new_state =
 				ds::client::transition(state, *it, ds::Sender::SERVER);
@@ -202,27 +183,11 @@ try
 			return 1;
 		}
 
-		yyscan_t scanner;
-		deepstream::parser::State parser( buffer.data(), ret );
+		auto contents = deepstream::parser::execute( buffer.data(), ret + 2 );
+		const auto& messages = contents.first;
+		const auto& errors = contents.second;
 
-		if( yylex_init(&scanner) != 0 )
-		{
-			std::perror( "yylex_init" );
-			return 1;
-		}
-
-		YY_BUFFER_STATE lexer_buffer = yy_scan_buffer(&buffer[0], ret+2, scanner);
-		yyset_extra( &parser, scanner );
-
-		DEEPSTREAM_ON_EXIT( [lexer_buffer, scanner] () {
-			yy_delete_buffer(lexer_buffer, scanner);
-			yylex_destroy(scanner);
-		} );
-
-		while( (ret = yylex(scanner)) != TOKEN_EOF );
-
-
-		for(auto it = parser.errors_.begin(); it != parser.errors_.end(); ++it)
+		for(auto it = errors.cbegin(); it != errors.cend(); ++it)
 		{
 			std::stringstream ss;
 			ss << *it;
@@ -231,7 +196,7 @@ try
 			std::fprintf( stderr, "Parser error: %s\n", error_string.c_str() );
 		}
 
-		for(auto it = parser.messages_.begin(); it != parser.messages_.end(); ++it)
+		for(auto it = messages.cbegin(); it != messages.cend(); ++it)
 		{
 			ds::client::State new_state =
 				ds::client::transition(state, *it, ds::Sender::SERVER);
@@ -300,27 +265,11 @@ try
 			return 1;
 		}
 
-		yyscan_t scanner;
-		deepstream::parser::State parser( buffer.data(), ret );
+		auto contents = deepstream::parser::execute( buffer.data(), ret + 2 );
+		const auto& messages = contents.first;
+		const auto& errors = contents.second;
 
-		if( yylex_init(&scanner) != 0 )
-		{
-			std::perror( "yylex_init" );
-			return 1;
-		}
-
-		YY_BUFFER_STATE lexer_buffer = yy_scan_buffer(&buffer[0], ret+2, scanner);
-		yyset_extra( &parser, scanner );
-
-		DEEPSTREAM_ON_EXIT( [lexer_buffer, scanner] () {
-			yy_delete_buffer(lexer_buffer, scanner);
-			yylex_destroy(scanner);
-		} );
-
-		while( (ret = yylex(scanner)) != TOKEN_EOF );
-
-
-		for(auto it = parser.errors_.begin(); it != parser.errors_.end(); ++it)
+		for(auto it = errors.cbegin(); it != errors.cend(); ++it)
 		{
 			std::stringstream ss;
 			ss << *it;
@@ -329,7 +278,7 @@ try
 			std::fprintf( stderr, "Parser error: %s\n", error_string.c_str() );
 		}
 
-		for(auto it = parser.messages_.begin(); it != parser.messages_.end(); ++it)
+		for(auto it = messages.cbegin(); it != messages.cend(); ++it)
 		{
 			ds::client::State new_state =
 				ds::client::transition(state, *it, ds::Sender::SERVER);
