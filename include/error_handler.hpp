@@ -33,6 +33,11 @@ namespace deepstream
 		enum class State;
 	}
 
+	namespace parser
+	{
+		struct Error;
+	}
+
 	namespace websockets
 	{
 		struct Frame;
@@ -43,6 +48,7 @@ namespace deepstream
 	{
 		virtual ~ErrorHandler() {};
 
+		void parser_error(const parser::Error&);
 		void invalid_state_transition(client::State, const Message&);
 		void system_error();
 		void websocket_exception(const std::exception&);
@@ -50,6 +56,7 @@ namespace deepstream
 		void sudden_disconnect(const std::string& uri);
 
 	protected:
+		virtual void parser_error_impl(const parser::Error&);
 		virtual void invalid_state_transition_impl(
 			client::State, const Message&);
 		virtual void system_error_impl(int error);
