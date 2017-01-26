@@ -108,8 +108,10 @@ Buffer Client::receive_()
 
 		try
 		{
+			assert( buffer.size() - num_bytes_read >= MAX_PAYLOAD_SIZE );
+
 			ret = websocket_.receiveFrame(
-				&buffer[num_bytes_read], buffer.size() - num_bytes_read, flags
+				&buffer[num_bytes_read], MAX_PAYLOAD_SIZE, flags
 			);
 		}
 		catch(Poco::TimeoutException& e)
