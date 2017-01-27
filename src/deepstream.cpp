@@ -88,23 +88,25 @@ void Client::close()
 
 
 
-std::pair<Buffer, parser::MessageList> Client::receive_messages_()
+websockets::StatusCode Client::receive_messages_(
+	Buffer* p_buffer, parser::MessageList* p_messages)
 {
+	assert( p_buffer );
+	assert( p_messages );
+
 	using StatusCode = websockets::StatusCode;
 
-	auto receive_ret = receive_();
-	Buffer& buffer = receive_ret.first;
-	StatusCode status_code = receive_ret.second;
+	StatusCode status_code = receive_(p_buffer);
+	Buffer& buffer = *p_buffer;
 
 	if( status_code == StatusCode::ABNORMAL_CLOSE )
-		return std::make_pair(buffer, parser::MessageList());
+		return status_code;
 
 	if( buffer.empty() )
-		return std::make_pair(buffer, parser::MessageList());
+		return status_code;
 
 
-	// messages reference `buffer.data()` so past this point, `buffer` must be
-	// returned using move semantics
+	// the messages reference `buffer.data()`
 	auto parser_ret = parser::execute( buffer.data(), buffer.size() );
 	const parser::ErrorList& errors = parser_ret.second;
 
@@ -115,14 +117,16 @@ std::pair<Buffer, parser::MessageList> Client::receive_messages_()
 		}
 	);
 
-	parser::MessageList& messages = parser_ret.first;
+	*p_messages = std::move(parser_ret.first);
 
-	return std::make_pair( std::move(buffer), messages );
+	return status_code;
 }
 
 
-std::pair<Buffer, websockets::StatusCode> Client::receive_()
+websockets::StatusCode Client::receive_(Buffer* p_buffer)
 {
+	assert( p_buffer );
+
 	using StatusCode = websockets::StatusCode;
 
 	const int frame_flags =
@@ -134,12 +138,13 @@ std::pair<Buffer, websockets::StatusCode> Client::receive_()
 	std::size_t num_bytes_available = websocket_.available();
 	std::size_t buffer_size = std::min( MAX_BUFFER_SIZE, num_bytes_available );
 
-	Buffer buffer(buffer_size, 0);
+	Buffer& buffer = *p_buffer;
+	buffer.resize(buffer_size);
 	std::size_t num_bytes_read = 0;
 
-	auto make_retval( [&num_bytes_read, &buffer] (StatusCode sc) {
+	auto do_return( [&num_bytes_read, &buffer] (StatusCode sc) {
 		buffer.resize(num_bytes_read);
-		return std::make_pair( buffer, sc );
+		return sc;
 	} );
 
 
@@ -158,14 +163,14 @@ std::pair<Buffer, websockets::StatusCode> Client::receive_()
 		}
 		catch(Poco::TimeoutException& e)
 		{
-			return make_retval(StatusCode::NORMAL_CLOSE);
+			return do_return(StatusCode::NORMAL_CLOSE);
 		}
 		catch(net::WebSocketException& e)
 		{
 			websocket_.shutdown();
 			p_error_handler_->websocket_exception(e);
 
-			return make_retval(StatusCode::ABNORMAL_CLOSE);
+			return do_return(StatusCode::ABNORMAL_CLOSE);
 		}
 
 		if( ret < 0 )
@@ -179,7 +184,7 @@ std::pair<Buffer, websockets::StatusCode> Client::receive_()
 			websocket_.shutdown();
 			p_error_handler_->sudden_disconnect( uri_.toString() );
 
-			return make_retval(StatusCode::ABNORMAL_CLOSE);
+			return do_return(StatusCode::ABNORMAL_CLOSE);
 		}
 
 		if( !(flags == frame_flags) && !(flags == eof_flags && ret == 2) )
@@ -187,7 +192,7 @@ std::pair<Buffer, websockets::StatusCode> Client::receive_()
 			websocket_.shutdown();
 			p_error_handler_->unexpected_websocket_frame_flags(flags);
 
-			return make_retval(StatusCode::ABNORMAL_CLOSE);
+			return do_return(StatusCode::ABNORMAL_CLOSE);
 		}
 
 		if( flags == eof_flags && ret == 2 )
@@ -206,7 +211,7 @@ std::pair<Buffer, websockets::StatusCode> Client::receive_()
 				? StatusCode::NORMAL_CLOSE
 				: StatusCode::UNKNOWN;
 
-			return make_retval(status_code);
+			return do_return(status_code);
 		}
 
 		assert( flags == frame_flags );
@@ -214,7 +219,7 @@ std::pair<Buffer, websockets::StatusCode> Client::receive_()
 		num_bytes_read += ret;
 	}
 
-	return make_retval(StatusCode::NONE);
+	return do_return(StatusCode::NONE);
 }
 
 
