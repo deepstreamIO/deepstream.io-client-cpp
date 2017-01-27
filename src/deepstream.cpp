@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #include <cstdint>
 
+#include <algorithm>
 #include <stdexcept>
 
 #include <Poco/Exception.h>
@@ -31,6 +32,7 @@
 #include <deepstream.hpp>
 #include <error_handler.hpp>
 #include <message.hpp>
+#include <scope_guard.hpp>
 #include <websockets.hpp>
 #include <use.hpp>
 
@@ -88,49 +90,49 @@ void Client::close()
 
 std::pair<Buffer, websockets::StatusCode> Client::receive_()
 {
-	const std::size_t MAX_PAYLOAD_SIZE = 4096;
-	const std::size_t MAX_BUFFER_SIZE = 1000 * MAX_PAYLOAD_SIZE;
+	using StatusCode = websockets::StatusCode;
 
 	const int frame_flags =
 		net::WebSocket::FRAME_FLAG_FIN | net::WebSocket::FRAME_OP_TEXT;
 	const int eof_flags =
 		net::WebSocket::FRAME_FLAG_FIN | net::WebSocket::FRAME_OP_CLOSE;
 
+	const std::size_t MAX_BUFFER_SIZE = 1u << 20;
+	std::size_t num_bytes_available = websocket_.available();
+	std::size_t buffer_size = std::min( MAX_BUFFER_SIZE, num_bytes_available );
+
+	Buffer buffer(buffer_size, 0);
+	std::size_t num_bytes_read = 0;
+
+	auto make_retval( [&num_bytes_read, &buffer] (StatusCode sc) {
+		buffer.resize(num_bytes_read);
+		return std::make_pair( buffer, sc );
+	} );
+
+
 	session_.setTimeout( 0 * Poco::Timespan::SECONDS );
 
-	Buffer buffer;
-	std::size_t num_bytes_read = 0;
-	websockets::StatusCode status_code = websockets::StatusCode::NONE;
-
-
-	while( num_bytes_read + MAX_PAYLOAD_SIZE <= MAX_BUFFER_SIZE )
+	while( num_bytes_read < buffer.size() )
 	{
-		assert( num_bytes_read <= buffer.size() );
-		buffer.resize( num_bytes_read + MAX_PAYLOAD_SIZE );
-
 		int flags = 0;
 		int ret = 0;
 
 		try
 		{
-			assert( buffer.size() - num_bytes_read >= MAX_PAYLOAD_SIZE );
-
 			ret = websocket_.receiveFrame(
-				&buffer[num_bytes_read], MAX_PAYLOAD_SIZE, flags
+				&buffer[num_bytes_read], buffer.size()-num_bytes_read, flags
 			);
 		}
 		catch(Poco::TimeoutException& e)
 		{
-			break;
+			return make_retval(StatusCode::NORMAL_CLOSE);
 		}
 		catch(net::WebSocketException& e)
 		{
 			websocket_.shutdown();
-
-			status_code = websockets::StatusCode::ABNORMAL_CLOSE;
 			p_error_handler_->websocket_exception(e);
 
-			break;
+			return make_retval(StatusCode::ABNORMAL_CLOSE);
 		}
 
 		if( ret < 0 )
@@ -142,28 +144,23 @@ std::pair<Buffer, websockets::StatusCode> Client::receive_()
 		if( ret == 0 )
 		{
 			websocket_.shutdown();
+			p_error_handler_->sudden_disconnect( uri_.toString() );
 
-			if( status_code != websockets::StatusCode::NORMAL_CLOSE )
-			{
-				status_code = websockets::StatusCode::ABNORMAL_CLOSE;
-				p_error_handler_->sudden_disconnect( uri_.toString() );
-			}
-
-			break;
+			return make_retval(StatusCode::ABNORMAL_CLOSE);
 		}
 
 		if( !(flags == frame_flags) && !(flags == eof_flags && ret == 2) )
 		{
 			websocket_.shutdown();
-
-			status_code = websockets::StatusCode::ABNORMAL_CLOSE;
 			p_error_handler_->unexpected_websocket_frame_flags(flags);
 
-			break;
+			return make_retval(StatusCode::ABNORMAL_CLOSE);
 		}
 
 		if( flags == eof_flags && ret == 2 )
 		{
+			websocket_.shutdown();
+
 			union {
 				Buffer::value_type* p_data;
 				std::uint16_t* p_uint16_t;
@@ -172,11 +169,11 @@ std::pair<Buffer, websockets::StatusCode> Client::receive_()
 			payload.p_data = &buffer[num_bytes_read];
 			std::uint16_t u16 = ntohs( payload.p_uint16_t[0] );
 
-			status_code = (u16 == 1000)
-				? websockets::StatusCode::NORMAL_CLOSE
-				: websockets::StatusCode::UNKNOWN;
+			StatusCode status_code = (u16 == 1000)
+				? StatusCode::NORMAL_CLOSE
+				: StatusCode::UNKNOWN;
 
-			continue;
+			return make_retval(status_code);
 		}
 
 		assert( flags == frame_flags );
@@ -184,9 +181,7 @@ std::pair<Buffer, websockets::StatusCode> Client::receive_()
 		num_bytes_read += ret;
 	}
 
-	buffer.resize(num_bytes_read);
-
-	return std::make_pair(buffer, status_code);
+	return make_retval(StatusCode::NONE);
 }
 
 
