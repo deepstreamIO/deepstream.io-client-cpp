@@ -23,6 +23,11 @@
 #include <string>
 #include <utility>
 
+// 201701227:
+// we have to include `parser.hpp` because `parser::MessageList`,
+// `parser::ErrorList` are `typedef`s and cannot be forward declared.
+#include <parser.hpp>
+
 
 namespace Poco
 {
@@ -157,6 +162,7 @@ namespace deepstream
 		client::State getConnectionState() { return state_; }
 
 
+		std::pair<Buffer, parser::MessageList> receive_messages_();
 		std::pair<Buffer, websockets::StatusCode> receive_();
 		void send_(const Message&);
 
