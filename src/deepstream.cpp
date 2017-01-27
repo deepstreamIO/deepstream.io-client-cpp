@@ -88,6 +88,39 @@ void Client::close()
 
 
 
+std::pair<Buffer, parser::MessageList> Client::receive_messages_()
+{
+	using StatusCode = websockets::StatusCode;
+
+	auto receive_ret = receive_();
+	Buffer& buffer = receive_ret.first;
+	StatusCode status_code = receive_ret.second;
+
+	if( status_code == StatusCode::ABNORMAL_CLOSE )
+		return std::make_pair(buffer, parser::MessageList());
+
+	if( buffer.empty() )
+		return std::make_pair(buffer, parser::MessageList());
+
+
+	// messages reference `buffer.data()` so past this point, `buffer` must be
+	// returned using move semantics
+	auto parser_ret = parser::execute( buffer.data(), buffer.size() );
+	const parser::ErrorList& errors = parser_ret.second;
+
+	std::for_each(
+		errors.cbegin(), errors.cend(),
+		[this] (const parser::Error& e) {
+			this->p_error_handler_->parser_error(e);
+		}
+	);
+
+	parser::MessageList& messages = parser_ret.first;
+
+	return std::make_pair( std::move(buffer), messages );
+}
+
+
 std::pair<Buffer, websockets::StatusCode> Client::receive_()
 {
 	using StatusCode = websockets::StatusCode;
