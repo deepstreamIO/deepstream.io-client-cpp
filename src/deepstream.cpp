@@ -64,7 +64,7 @@ std::unique_ptr<Client> Client::make(
 	StatusCode sc = p->receive_messages_(&buffer, &messages);
 
 	if( sc != StatusCode::NONE )
-		return nullptr;
+		return p;
 
 	for(const Message& msg : messages)
 	{
@@ -74,7 +74,7 @@ std::unique_ptr<Client> Client::make(
 		{
 			p->close();
 			p->p_error_handler_->invalid_state_transition(state, msg);
-			return nullptr;
+			return p;
 		}
 	}
 
@@ -94,7 +94,7 @@ std::unique_ptr<Client> Client::make(
 	sc = p->receive_messages_(&buffer, &messages);
 
 	if( sc != StatusCode::NONE )
-		return nullptr;
+		return p;
 
 	for(const Message& msg : messages)
 	{
@@ -104,12 +104,9 @@ std::unique_ptr<Client> Client::make(
 		{
 			p->close();
 			p->p_error_handler_->invalid_state_transition(state, msg);
-			return nullptr;
+			return p;
 		}
 	}
-
-	if( state != client::State::AWAIT_AUTHENTICATION )
-		return nullptr;
 
 	return p;
 }
