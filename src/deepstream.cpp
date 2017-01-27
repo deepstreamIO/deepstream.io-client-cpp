@@ -105,8 +105,8 @@ websockets::StatusCode Client::receive_messages_(
 	if( buffer.empty() )
 		return status_code;
 
-
-	// the messages reference `buffer.data()`
+	buffer.push_back(0);
+	buffer.push_back(0);
 	auto parser_ret = parser::execute( buffer.data(), buffer.size() );
 	const parser::ErrorList& errors = parser_ret.second;
 
