@@ -139,6 +139,7 @@ Buffer Client::login(const std::string& auth)
 
 void Client::close()
 {
+	state_ = client::State::DISCONNECTED;
 	websocket_.shutdown();
 }
 
@@ -223,7 +224,7 @@ websockets::StatusCode Client::receive_(Buffer* p_buffer)
 		}
 		catch(net::WebSocketException& e)
 		{
-			websocket_.shutdown();
+			close();
 			p_error_handler_->websocket_exception(e);
 
 			return do_return(StatusCode::ABNORMAL_CLOSE);
@@ -237,7 +238,7 @@ websockets::StatusCode Client::receive_(Buffer* p_buffer)
 
 		if( ret == 0 )
 		{
-			websocket_.shutdown();
+			close();
 			p_error_handler_->sudden_disconnect( uri_.toString() );
 
 			return do_return(StatusCode::ABNORMAL_CLOSE);
@@ -245,7 +246,7 @@ websockets::StatusCode Client::receive_(Buffer* p_buffer)
 
 		if( !(flags == frame_flags) && !(flags == eof_flags && ret == 2) )
 		{
-			websocket_.shutdown();
+			close();
 			p_error_handler_->unexpected_websocket_frame_flags(flags);
 
 			return do_return(StatusCode::ABNORMAL_CLOSE);
@@ -253,7 +254,7 @@ websockets::StatusCode Client::receive_(Buffer* p_buffer)
 
 		if( flags == eof_flags && ret == 2 )
 		{
-			websocket_.shutdown();
+			close();
 
 			union {
 				Buffer::value_type* p_data;
