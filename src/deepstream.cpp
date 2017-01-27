@@ -32,6 +32,7 @@
 #include <deepstream.hpp>
 #include <error_handler.hpp>
 #include <message.hpp>
+#include <message_builder.hpp>
 #include <scope_guard.hpp>
 #include <websockets.hpp>
 #include <use.hpp>
@@ -49,11 +50,66 @@ std::unique_ptr<Client> Client::make(
 	const std::string& uri,
 	std::unique_ptr<ErrorHandler> p_error_handler)
 {
+	using StatusCode = websockets::StatusCode;
+
 	assert( p_error_handler );
 
 	std::unique_ptr<Client> p( new Client(uri, std::move(p_error_handler)) );
 
 	p->session_.setTimeout( Poco::Timespan::SECONDS );
+
+	Buffer buffer;
+	parser::MessageList messages;
+	client::State& state = p->state_;
+	StatusCode sc = p->receive_messages_(&buffer, &messages);
+
+	if( sc != StatusCode::NONE )
+		return nullptr;
+
+	for(const Message& msg : messages)
+	{
+		state = client::transition(state, msg, Sender::SERVER);
+
+		if( state == client::State::ERROR )
+		{
+			p->close();
+			p->p_error_handler_->invalid_state_transition(state, msg);
+			return nullptr;
+		}
+	}
+
+	assert( messages.size() == 1 );
+	assert( state == client::State::CHALLENGING );
+
+	{
+		MessageBuilder chr(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
+		chr.add_argument( Buffer(uri.cbegin(), uri.cend()) );
+
+		state = client::transition(state, chr, Sender::CLIENT);
+		assert( state == client::State::CHALLENGING_WAIT );
+
+		p->send_(chr);
+	}
+
+	sc = p->receive_messages_(&buffer, &messages);
+
+	if( sc != StatusCode::NONE )
+		return nullptr;
+
+	for(const Message& msg : messages)
+	{
+		state = client::transition(state, msg, Sender::SERVER);
+
+		if( state == client::State::ERROR )
+		{
+			p->close();
+			p->p_error_handler_->invalid_state_transition(state, msg);
+			return nullptr;
+		}
+	}
+
+	if( state != client::State::AWAIT_AUTHENTICATION )
+		return nullptr;
 
 	return p;
 }
