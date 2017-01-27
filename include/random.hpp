@@ -23,8 +23,8 @@
 
 namespace deepstream
 {
-	class Buffer;
-	class MessageBuilder;
+	struct Buffer;
+	struct MessageBuilder;
 
 	namespace random
 	{
