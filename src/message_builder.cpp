@@ -50,6 +50,13 @@ void MessageBuilder::add_argument(const Argument& arg)
 
 
 
+void MessageBuilder::add_argument(const std::string& string)
+{
+	add_argument( Buffer(string.cbegin(), string.cend()) );
+}
+
+
+
 std::size_t MessageBuilder::size_impl_() const
 {
 	std::size_t size =
