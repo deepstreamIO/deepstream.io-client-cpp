@@ -16,6 +16,7 @@
 #ifndef DEEPSTREAM_MESSAGE_BUILDER_HPP
 #define DEEPSTREAM_MESSAGE_BUILDER_HPP
 
+#include <string>
 #include <vector>
 
 #include <message.hpp>
@@ -36,6 +37,7 @@ namespace deepstream
 		explicit MessageBuilder(Topic topic, Action action, bool is_ack=false);
 
 		void add_argument(const Argument& arg);
+		void add_argument(const std::string&);
 
 		virtual std::size_t size_impl_() const;
 
