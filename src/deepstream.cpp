@@ -127,10 +127,48 @@ Client::Client(
 }
 
 
-Buffer Client::login(const std::string& auth)
+client::State Client::login(
+	const std::string& auth, Buffer* p_user_data)
 {
-	(void)auth;
-	return Buffer();
+	if( state_ != client::State::AWAIT_AUTHENTICATION )
+		throw std::logic_error("Cannot login() in current state");
+
+	MessageBuilder areq(Topic::AUTH, Action::REQUEST);
+	areq.add_argument(auth);
+
+	send_(areq);
+
+	Buffer buffer;
+	parser::MessageList messages;
+	websockets::StatusCode sc = receive_messages_(&buffer, &messages);
+
+	if( sc != websockets::StatusCode::NONE )
+		return state_;
+
+	for(const Message& msg : messages)
+	{
+		state_ = client::transition(state_, msg, Sender::SERVER);
+
+		if( state_ == client::State::ERROR )
+		{
+			close();
+			p_error_handler_->invalid_state_transition(state_, msg);
+			return state_;
+		}
+	}
+
+	assert( messages.size() == 1 );
+
+	if( !p_user_data )
+		return state_;
+
+	const Message& message = messages.front();
+	assert( message.num_arguments() >= 0 );
+	assert( message.num_arguments() <= 1 );
+
+	*p_user_data = message[0];
+
+	return state_;
 }
 
 

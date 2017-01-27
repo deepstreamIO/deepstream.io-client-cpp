@@ -155,7 +155,7 @@ namespace deepstream
 		explicit Client(const std::string& uri, std::unique_ptr<ErrorHandler>);
 
 	public:
-		Buffer login(const std::string& auth);
+		client::State login(const std::string& auth, Buffer* p_user_data);
 		void close();
 
 		client::State getConnectionState() { return state_; }
