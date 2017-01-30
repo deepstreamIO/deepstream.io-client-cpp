@@ -50,7 +50,10 @@ namespace deepstream
 
 		void parser_error(const parser::Error&);
 		void invalid_state_transition(client::State, const Message&);
-		void system_error();
+
+		void system_error(int error);
+
+		void invalid_close_frame_size(const websockets::Frame&);
 		void websocket_exception(const std::exception&);
 		void unexpected_websocket_frame_flags(int got);
 		void sudden_disconnect(const std::string& uri);
@@ -59,7 +62,10 @@ namespace deepstream
 		virtual void parser_error_impl(const parser::Error&);
 		virtual void invalid_state_transition_impl(
 			client::State, const Message&);
+
 		virtual void system_error_impl(int error);
+
+		virtual void invalid_close_frame_size_impl(const websockets::Frame&);
 		virtual void websocket_exception_impl(const std::exception&);
 		virtual void unexpected_websocket_frame_flags_impl(int);
 		virtual void sudden_disconnect_impl(const std::string& uri);

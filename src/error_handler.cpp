@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cerrno>
 #include <cstdio>
 #include <cstring>
 
@@ -25,6 +24,7 @@
 #include <error_handler.hpp>
 #include <message.hpp>
 #include <parser.hpp>
+#include <websockets.hpp>
 
 
 namespace deepstream
@@ -42,9 +42,17 @@ void ErrorHandler::invalid_state_transition(client::State s, const Message& m)
 }
 
 
-void ErrorHandler::system_error()
+void ErrorHandler::system_error(int error)
 {
-	system_error_impl( errno );
+	system_error_impl(error);
+}
+
+
+void ErrorHandler::invalid_close_frame_size(const websockets::Frame& frame)
+{
+	assert( frame.payload().size() != 2 );
+
+	invalid_close_frame_size_impl(frame);
 }
 
 
@@ -95,6 +103,16 @@ void ErrorHandler::system_error_impl(int error)
 	strerror_r( error, error_message, sizeof(error_message) );
 
 	std::fprintf( stderr, "Error: %s\n", error_message );
+}
+
+
+void ErrorHandler::invalid_close_frame_size_impl(const websockets::Frame& frame)
+{
+	std::fprintf(
+		stderr,
+		"Invalid payload size in close frame [expected=2, got=%zu]\n",
+		frame.payload().size()
+	);
 }
 
 
