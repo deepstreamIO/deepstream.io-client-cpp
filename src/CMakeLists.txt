@@ -34,6 +34,7 @@ add_library(
 	message_proxy.cpp
 	parser.cpp
 	random.cpp
+	websockets.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
 target_include_directories(deepstream PUBLIC "${CMAKE_BINARY_DIR}/include")

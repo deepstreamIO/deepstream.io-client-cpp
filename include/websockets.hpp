@@ -16,13 +16,21 @@
 #ifndef DEEPSTREAM_WEBSOCKETS_HPP
 #define DEEPSTREAM_WEBSOCKETS_HPP
 
+#include <memory>
+#include <utility>
+
+#include <buffer.hpp>
+#include <time.hpp>
+
 
 namespace deepstream
 {
+	struct Buffer;
+
 	namespace websockets
 	{
 		/**
-		 * This structure contains the WebSocket frame flags.
+		 * This structure stores as WebSockets frame.
 		 *
 		 * To have the WebSocket data match the values in these enums, the
 		 * first eight bits of a frame must be interpreted in MSB order (most
@@ -34,7 +42,9 @@ namespace deepstream
 		 */
 		struct Frame
 		{
-			struct Flag
+			typedef int Flags;
+
+			struct Bit
 			{
 				enum
 				{
@@ -57,6 +67,16 @@ namespace deepstream
 					PONG_FRAME = 10
 				};
 			};
+
+
+			explicit Frame(Flags, const char*, std::size_t);
+
+			Flags flags() const { return flags_; }
+			const Buffer& payload() const { return payload_; }
+
+
+			Flags flags_;
+			Buffer payload_;
 		};
 
 
@@ -66,6 +86,44 @@ namespace deepstream
 			NONE,
 			NORMAL_CLOSE = 1000,
 			ABNORMAL_CLOSE = 1006
+		};
+
+
+
+		struct Client
+		{
+			virtual ~Client() {}
+
+			std::size_t num_bytes_available();
+
+			time::Duration get_receive_timeout();
+			void set_receive_timeout(time::Duration);
+
+			/*
+			 * received no data: returns    (StatusCode::NONE, nullptr)
+			 * receive data: returns        (StatusCode::NONE, frame)
+			 * received close frame: return (StatusCode::NORMAL_CLOSE, frame)
+			 * received EOF: return       (StatusCode::ABNORMAL_CLOSE, nullptr)
+			 */
+			std::pair<StatusCode, std::unique_ptr<Frame> > receive_frame();
+
+			int send_frame(const Buffer&);
+			int send_frame(const Buffer&, Frame::Flags);
+
+			void close();
+
+
+		protected:
+			virtual std::size_t num_bytes_available_impl() = 0;
+
+			virtual time::Duration get_receive_timeout_impl() = 0;
+			virtual void set_receive_timeout_impl(time::Duration) = 0;
+
+			virtual std::pair<StatusCode, std::unique_ptr<Frame> >
+				receive_frame_impl() = 0;
+			virtual int send_frame_impl(const Buffer& buffer, Frame::Flags) = 0;
+
+			virtual void close_impl() = 0;
 		};
 	}
 }
