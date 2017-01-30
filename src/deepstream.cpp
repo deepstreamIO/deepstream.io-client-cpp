@@ -62,18 +62,6 @@ std::unique_ptr<Client> Client::make(
 	if( p->receive_(&buffer, &messages) != websockets::State::OPEN )
 		return p;
 
-	for(const Message& msg : messages)
-	{
-		state = client::transition(state, msg, Sender::SERVER);
-
-		if( state == client::State::ERROR )
-		{
-			p->close();
-			p->p_error_handler_->invalid_state_transition(state, msg);
-			return p;
-		}
-	}
-
 	assert( messages.size() == 1 );
 	assert( state == client::State::CHALLENGING );
 
@@ -90,18 +78,6 @@ std::unique_ptr<Client> Client::make(
 
 	if( p->receive_(&buffer, &messages) != websockets::State::OPEN )
 		return p;
-
-	for(const Message& msg : messages)
-	{
-		state = client::transition(state, msg, Sender::SERVER);
-
-		if( state == client::State::ERROR )
-		{
-			p->close();
-			p->p_error_handler_->invalid_state_transition(state, msg);
-			return p;
-		}
-	}
 
 	return p;
 }
@@ -137,28 +113,19 @@ client::State Client::login(
 	if( receive_(&buffer, &messages) != websockets::State::OPEN )
 		return state_;
 
-	for(const Message& msg : messages)
-	{
-		state_ = client::transition(state_, msg, Sender::SERVER);
-
-		if( state_ == client::State::ERROR )
-		{
-			close();
-			p_error_handler_->invalid_state_transition(state_, msg);
-			return state_;
-		}
-	}
-
 	assert( messages.size() == 1 );
 
-	if( !p_user_data )
-		return state_;
+	const Message& aa_msg = messages.front();
+	assert( aa_msg.topic() == Topic::AUTH );
+	assert( aa_msg.action() == Action::REQUEST );
+	assert( aa_msg.is_ack() );
+	assert( aa_msg.num_arguments() >= 0 );
+	assert( aa_msg.num_arguments() <= 1 );
 
-	const Message& message = messages.front();
-	assert( message.num_arguments() >= 0 );
-	assert( message.num_arguments() <= 1 );
-
-	*p_user_data = message[0];
+	if( aa_msg.num_arguments() == 0 && p_user_data )
+		p_user_data->clear();
+	else if( aa_msg.num_arguments() == 1 && p_user_data )
+		*p_user_data = aa_msg[0];
 
 	return state_;
 }
@@ -178,28 +145,28 @@ websockets::State Client::receive_(
 	assert( p_messages );
 
 	auto receive_ret = p_websocket_->receive_frame();
-	websockets::State state = receive_ret.first;
+	websockets::State ws_state = receive_ret.first;
 	std::unique_ptr<websockets::Frame> p_frame = std::move(receive_ret.second);
 
-	if( state == websockets::State::OPEN && !p_frame )
+	if( ws_state == websockets::State::OPEN && !p_frame )
 	{
 		p_buffer->clear();
 		p_messages->clear();
 
-		return state;
+		return ws_state;
 	}
 
-	if( state == websockets::State::CLOSED && p_frame )
+	if( ws_state == websockets::State::CLOSED && p_frame )
 	{
 		p_buffer->clear();
 		p_messages->clear();
 
 		close();
 
-		return state;
+		return ws_state;
 	}
 
-	if( state == websockets::State::CLOSED && !p_frame )
+	if( ws_state == websockets::State::CLOSED && !p_frame )
 	{
 		p_buffer->clear();
 		p_messages->clear();
@@ -207,20 +174,20 @@ websockets::State Client::receive_(
 		close();
 		p_error_handler_->sudden_disconnect( p_websocket_->uri() );
 
-		return state;
+		return ws_state;
 	}
 
-	if( state == websockets::State::ERROR )
+	if( ws_state == websockets::State::ERROR )
 	{
 		assert( p_frame );
 
 		close();
 		p_error_handler_->invalid_close_frame_size(*p_frame);
 
-		return state;
+		return ws_state;
 	}
 
-	assert( state == websockets::State::OPEN );
+	assert( ws_state == websockets::State::OPEN );
 	assert( p_frame );
 
 	const Buffer& payload = p_frame->payload();
@@ -250,7 +217,25 @@ websockets::State Client::receive_(
 
 	*p_messages = std::move(parser_ret.first);
 
-	return state;
+	for(auto it = p_messages->cbegin(); it != p_messages->cend(); ++it)
+	{
+		const Message& msg = *it;
+
+		client::State state = client::transition(state_, msg, Sender::SERVER);
+		assert( state != client::State::DISCONNECTED );
+
+		if( state == client::State::ERROR )
+		{
+			close();
+			p_error_handler_->invalid_state_transition(state, msg);
+
+			return websockets::State::ERROR;
+		}
+
+		state_ = state;
+	}
+
+	return ws_state;
 }
 
 
@@ -258,8 +243,10 @@ websockets::State Client::send_(const Message& message)
 {
 	client::State new_state =
 		client::transition(state_, message, Sender::CLIENT);
-	use( new_state );
 	assert( new_state != client::State::ERROR );
+
+	if( new_state == client::State::ERROR )
+		throw std::logic_error( "Invalid client state transition" );
 
 	try
 	{
