@@ -28,17 +28,6 @@
 #include <parser.hpp>
 
 
-namespace Poco
-{
-	class URI;
-
-	namespace Net
-	{
-		class WebSocket;
-	}
-}
-
-
 namespace deepstream
 {
 	struct Buffer;
@@ -54,6 +43,8 @@ namespace deepstream
 	namespace websockets
 	{
 		enum class StatusCode;
+		enum class State;
+		struct Client;
 	}
 
 
@@ -152,7 +143,9 @@ namespace deepstream
 
 
 	protected:
-		explicit Client(const std::string& uri, std::unique_ptr<ErrorHandler>);
+		explicit Client(
+			std::unique_ptr<websockets::Client> p_websocket,
+			std::unique_ptr<ErrorHandler>);
 
 	public:
 		client::State login(const std::string& auth, Buffer* p_user_data);
@@ -161,21 +154,16 @@ namespace deepstream
 		client::State getConnectionState() { return state_; }
 
 
-		websockets::StatusCode receive_messages_(
-			Buffer* p_buffer, parser::MessageList* p_messages);
-		websockets::StatusCode receive_(Buffer* p_buffer);
-
-		void send_(const Message&);
+		websockets::State receive_(
+			Buffer* p_buffer, parser::MessageList* p_messages
+		);
+		websockets::State send_(const Message&);
 
 
 		client::State state_;
-		std::unique_ptr<ErrorHandler> p_error_handler_;
+		std::unique_ptr<websockets::Client> p_websocket_;
 
-		Poco::URI uri_;
-		Poco::Net::HTTPClientSession session_;
-		Poco::Net::HTTPRequest request_;
-		Poco::Net::HTTPResponse response_;
-		Poco::Net::WebSocket websocket_;
+		std::unique_ptr<ErrorHandler> p_error_handler_;
 	};
 }
 

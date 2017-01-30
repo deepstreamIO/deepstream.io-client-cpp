@@ -13,34 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <arpa/inet.h>
 #include <cstdint>
 
 #include <algorithm>
+#include <chrono>
 #include <stdexcept>
-
-#include <Poco/Exception.h>
-#include <Poco/URI.h>
-#include <Poco/Net/HTTPRequest.h>
-#include <Poco/Net/HTTPResponse.h>
-#include <Poco/Net/HTTPClientSession.h>
-#include <Poco/Net/NetException.h>
-#include <Poco/Net/WebSocket.h>
 
 #include <buffer.hpp>
 #include <client.hpp>
 #include <deepstream.hpp>
 #include <error_handler.hpp>
+#include <exception.hpp>
 #include <message.hpp>
 #include <message_builder.hpp>
 #include <scope_guard.hpp>
 #include <websockets.hpp>
+#include <websockets/poco.hpp>
 #include <use.hpp>
 
 #include <cassert>
-
-
-namespace net = Poco::Net;
 
 
 namespace deepstream
@@ -50,20 +41,25 @@ std::unique_ptr<Client> Client::make(
 	const std::string& uri,
 	std::unique_ptr<ErrorHandler> p_error_handler)
 {
-	using StatusCode = websockets::StatusCode;
-
 	assert( p_error_handler );
 
-	std::unique_ptr<Client> p( new Client(uri, std::move(p_error_handler)) );
+	std::unique_ptr<websockets::Client> p_websocket(
+		new websockets::poco::Client(uri)
+	);
 
-	p->session_.setTimeout( Poco::Timespan::SECONDS );
+	p_websocket->set_receive_timeout( std::chrono::seconds(1) );
+
+	std::unique_ptr<Client> p(
+		new Client(
+			std::move(p_websocket),
+			std::move(p_error_handler)
+		)
+	);
 
 	Buffer buffer;
 	parser::MessageList messages;
 	client::State& state = p->state_;
-	StatusCode sc = p->receive_messages_(&buffer, &messages);
-
-	if( sc != StatusCode::NONE )
+	if( p->receive_(&buffer, &messages) != websockets::State::OPEN )
 		return p;
 
 	for(const Message& msg : messages)
@@ -88,12 +84,11 @@ std::unique_ptr<Client> Client::make(
 		state = client::transition(state, chr, Sender::CLIENT);
 		assert( state == client::State::CHALLENGING_WAIT );
 
-		p->send_(chr);
+		if( p->send_(chr) != websockets::State::OPEN )
+			return p;
 	}
 
-	sc = p->receive_messages_(&buffer, &messages);
-
-	if( sc != StatusCode::NONE )
+	if( p->receive_(&buffer, &messages) != websockets::State::OPEN )
 		return p;
 
 	for(const Message& msg : messages)
@@ -113,16 +108,13 @@ std::unique_ptr<Client> Client::make(
 
 
 Client::Client(
-	const std::string& uri_string,
+	std::unique_ptr<websockets::Client> p_websocket,
 	std::unique_ptr<ErrorHandler> p_error_handler
 ) :
-	state_( client::State::AWAIT_CONNECTION ),
-	p_error_handler_( std::move(p_error_handler) ),
-	uri_( uri_string ),
-	session_( uri_.getHost(), uri_.getPort() ),
-	request_(net::HTTPRequest::HTTP_GET, uri_string,net::HTTPRequest::HTTP_1_1),
-	websocket_(session_, request_, response_)
+	p_websocket_( std::move(p_websocket) ),
+	p_error_handler_( std::move(p_error_handler) )
 {
+	assert( p_websocket_ );
 	assert( p_error_handler_ );
 }
 
@@ -136,13 +128,13 @@ client::State Client::login(
 	MessageBuilder areq(Topic::AUTH, Action::REQUEST);
 	areq.add_argument(auth);
 
-	send_(areq);
+	if( send_(areq) != websockets::State::OPEN )
+		return state_;
 
 	Buffer buffer;
 	parser::MessageList messages;
-	websockets::StatusCode sc = receive_messages_(&buffer, &messages);
 
-	if( sc != websockets::StatusCode::NONE )
+	if( receive_(&buffer, &messages) != websockets::State::OPEN )
 		return state_;
 
 	for(const Message& msg : messages)
@@ -175,31 +167,68 @@ client::State Client::login(
 void Client::close()
 {
 	state_ = client::State::DISCONNECTED;
-	websocket_.shutdown();
+	p_websocket_->close();
 }
 
 
-
-websockets::StatusCode Client::receive_messages_(
+websockets::State Client::receive_(
 	Buffer* p_buffer, parser::MessageList* p_messages)
 {
 	assert( p_buffer );
 	assert( p_messages );
 
-	using StatusCode = websockets::StatusCode;
+	auto receive_ret = p_websocket_->receive_frame();
+	websockets::State state = receive_ret.first;
+	std::unique_ptr<websockets::Frame> p_frame = std::move(receive_ret.second);
 
-	StatusCode status_code = receive_(p_buffer);
-	Buffer& buffer = *p_buffer;
+	if( state == websockets::State::OPEN && !p_frame )
+	{
+		p_buffer->clear();
+		p_messages->clear();
 
-	if( status_code == StatusCode::ABNORMAL_CLOSE )
-		return status_code;
+		return state;
+	}
 
-	if( buffer.empty() )
-		return status_code;
+	if( state == websockets::State::CLOSED && p_frame )
+	{
+		p_buffer->clear();
+		p_messages->clear();
 
-	buffer.push_back(0);
-	buffer.push_back(0);
-	auto parser_ret = parser::execute( buffer.data(), buffer.size() );
+		close();
+
+		return state;
+	}
+
+	if( state == websockets::State::CLOSED && !p_frame )
+	{
+		p_buffer->clear();
+		p_messages->clear();
+
+		close();
+		p_error_handler_->sudden_disconnect( p_websocket_->uri() );
+
+		return state;
+	}
+
+	if( state == websockets::State::ERROR )
+	{
+		assert( p_frame );
+
+		close();
+		p_error_handler_->invalid_close_frame_size(*p_frame);
+
+		return state;
+	}
+
+	assert( state == websockets::State::OPEN );
+	assert( p_frame );
+
+	const Buffer& payload = p_frame->payload();
+	p_buffer->assign( payload.cbegin(), payload.cend() );
+	p_buffer->push_back(0);
+	p_buffer->push_back(0);
+
+	auto parser_ret = parser::execute( p_buffer->data(), p_buffer->size() );
 	const parser::ErrorList& errors = parser_ret.second;
 
 	std::for_each(
@@ -209,133 +238,52 @@ websockets::StatusCode Client::receive_messages_(
 		}
 	);
 
-	*p_messages = std::move(parser_ret.first);
-
-	return status_code;
-}
-
-
-websockets::StatusCode Client::receive_(Buffer* p_buffer)
-{
-	assert( p_buffer );
-
-	using StatusCode = websockets::StatusCode;
-
-	const int frame_flags =
-		net::WebSocket::FRAME_FLAG_FIN | net::WebSocket::FRAME_OP_TEXT;
-	const int eof_flags =
-		net::WebSocket::FRAME_FLAG_FIN | net::WebSocket::FRAME_OP_CLOSE;
-
-	const std::size_t MAX_BUFFER_SIZE = 1u << 20;
-	std::size_t num_bytes_available = websocket_.available();
-	std::size_t buffer_size = std::min( MAX_BUFFER_SIZE, num_bytes_available );
-
-	Buffer& buffer = *p_buffer;
-	buffer.resize(buffer_size);
-	std::size_t num_bytes_read = 0;
-
-	auto do_return( [&num_bytes_read, &buffer] (StatusCode sc) {
-		buffer.resize(num_bytes_read);
-		return sc;
-	} );
-
-
-	session_.setTimeout( 0 * Poco::Timespan::SECONDS );
-
-	while( num_bytes_read < buffer.size() )
+	if( !errors.empty() )
 	{
-		int flags = 0;
-		int ret = 0;
+		p_buffer->clear();
+		p_messages->clear();
 
-		try
-		{
-			ret = websocket_.receiveFrame(
-				&buffer[num_bytes_read], buffer.size()-num_bytes_read, flags
-			);
-		}
-		catch(Poco::TimeoutException& e)
-		{
-			return do_return(StatusCode::NORMAL_CLOSE);
-		}
-		catch(net::WebSocketException& e)
-		{
-			close();
-			p_error_handler_->websocket_exception(e);
-
-			return do_return(StatusCode::ABNORMAL_CLOSE);
-		}
-
-		if( ret < 0 )
-		{
-			assert(0);
-			throw std::logic_error("receiveFrame() returned a negative value");
-		}
-
-		if( ret == 0 )
-		{
-			close();
-			p_error_handler_->sudden_disconnect( uri_.toString() );
-
-			return do_return(StatusCode::ABNORMAL_CLOSE);
-		}
-
-		if( !(flags == frame_flags) && !(flags == eof_flags && ret == 2) )
-		{
-			close();
-			p_error_handler_->unexpected_websocket_frame_flags(flags);
-
-			return do_return(StatusCode::ABNORMAL_CLOSE);
-		}
-
-		if( flags == eof_flags && ret == 2 )
-		{
-			close();
-
-			union {
-				Buffer::value_type* p_data;
-				std::uint16_t* p_uint16_t;
-			} payload;
-
-			payload.p_data = &buffer[num_bytes_read];
-			std::uint16_t u16 = ntohs( payload.p_uint16_t[0] );
-
-			StatusCode status_code = (u16 == 1000)
-				? StatusCode::NORMAL_CLOSE
-				: StatusCode::UNKNOWN;
-
-			return do_return(status_code);
-		}
-
-		assert( flags == frame_flags );
-
-		num_bytes_read += ret;
+		close();
+		return websockets::State::ERROR;
 	}
 
-	return do_return(StatusCode::NONE);
+
+	*p_messages = std::move(parser_ret.first);
+
+	return state;
 }
 
 
-void Client::send_(const Message& message)
+websockets::State Client::send_(const Message& message)
 {
 	client::State new_state =
 		client::transition(state_, message, Sender::CLIENT);
 	use( new_state );
 	assert( new_state != client::State::ERROR );
 
-	Buffer buffer = message.to_binary();
-	int ret = websocket_.sendFrame( buffer.data(), buffer.size() );
-
-	if( ret == 0 )
-		p_error_handler_->sudden_disconnect( uri_.toString() );
-
-	if( ret < 0 )
-		p_error_handler_->system_error();
-
-	if( ret > 0 && std::size_t(ret) < buffer.size() )
+	try
 	{
-		assert(0);
-		throw std::runtime_error("Incomplete message sent");
+		websockets::State state = p_websocket_->send_frame(message.to_binary());
+
+		if( state != websockets::State::OPEN )
+		{
+			p_websocket_->close();
+			p_error_handler_->sudden_disconnect( p_websocket_->uri() );
+
+			return websockets::State::CLOSED;
+		}
 	}
+	catch(SystemError& e)
+	{
+		p_error_handler_->system_error( e.error() );
+	}
+	catch(std::exception& e)
+	{
+		p_error_handler_->websocket_exception(e);
+	}
+
+	close();
+	return websockets::State::ERROR;
 }
 
 }
