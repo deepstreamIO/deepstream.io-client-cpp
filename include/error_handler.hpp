@@ -16,7 +16,7 @@
 #ifndef DEEPSTREAM_ERROR_HANDLER_HPP
 #define DEEPSTREAM_ERROR_HANDLER_HPP
 
-#include <stdexcept>
+#include <exception>
 #include <string>
 
 
