@@ -48,6 +48,11 @@ Client::Client(const std::string& uri_string) :
 }
 
 
+std::string Client::uri_impl() const
+{
+	return uri_.toString();
+}
+
 
 std::size_t Client::num_bytes_available_impl()
 {
