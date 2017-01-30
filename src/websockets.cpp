@@ -33,6 +33,15 @@ Frame::Frame(Flags flags, const char* payload, std::size_t size) :
 
 
 
+std::string Client::uri() const
+{
+	std::string ret = uri_impl();
+	assert( !ret.empty() );
+
+	return ret;
+}
+
+
 std::size_t Client::num_bytes_available()
 {
 	return num_bytes_available_impl();

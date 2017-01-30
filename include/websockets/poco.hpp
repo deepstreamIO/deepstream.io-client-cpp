@@ -45,6 +45,8 @@ namespace deepstream
 				explicit Client(const std::string& uri);
 
 
+				virtual std::string uri_impl() const override;
+
 				virtual std::size_t num_bytes_available_impl() override;
 
 				virtual time::Duration get_receive_timeout_impl() override;
