@@ -80,7 +80,7 @@ void Client::set_receive_timeout_impl(time::Duration t)
 }
 
 
-std::pair<StatusCode, std::unique_ptr<Frame> > Client::receive_frame_impl()
+std::pair<State, std::unique_ptr<Frame> > Client::receive_frame_impl()
 {
 	typedef std::unique_ptr<Frame> FramePtr;
 
@@ -99,7 +99,7 @@ std::pair<StatusCode, std::unique_ptr<Frame> > Client::receive_frame_impl()
 	}
 	catch(Poco::TimeoutException& e)
 	{
-		return std::make_pair(StatusCode::NONE, nullptr);
+		return std::make_pair(State::OPEN, nullptr);
 	}
 	catch(net::WebSocketException& e)
 	{
@@ -114,42 +114,38 @@ std::pair<StatusCode, std::unique_ptr<Frame> > Client::receive_frame_impl()
 
 	if( ret == 0 )
 	{
-		return std::make_pair(StatusCode::ABNORMAL_CLOSE, nullptr);
+		return std::make_pair(State::CLOSED, nullptr);
 	}
 
-	if( flags == eof_flags && ret == 2 )
+	if( flags == eof_flags && ret != 2 )
 	{
-		union {
-			Buffer::value_type* p_data;
-			std::uint16_t* p_uint16_t;
-		} payload;
-
-		payload.p_data = buffer.data();
-		std::uint16_t u16 = ntohs( payload.p_uint16_t[0] );
-
-		StatusCode status_code = (u16 == 1000)
-			? StatusCode::NORMAL_CLOSE
-			: StatusCode::UNKNOWN;
-
 		return std::make_pair(
-				status_code,
-				FramePtr(new Frame(flags, buffer.data(), ret))
+			State::ERROR,
+			FramePtr(new Frame(flags, buffer.data(), ret))
+		);
+	}
+
+	if( flags == eof_flags && ret == 2)
+	{
+		return std::make_pair(
+			State::CLOSED,
+			FramePtr(new Frame(flags, buffer.data(), ret))
 		);
 	}
 
 	return std::make_pair(
-		StatusCode::NONE,
+		State::OPEN,
 		FramePtr(new Frame(flags, buffer.data(), ret))
 	);
 }
 
 
-int Client::send_frame_impl(const Buffer& buffer, Frame::Flags flags)
+State Client::send_frame_impl(const Buffer& buffer, Frame::Flags flags)
 {
 	int ret = websocket_.sendFrame( buffer.data(), buffer.size(), flags );
 
 	if( ret == 0 )
-		return ret;
+		return State::CLOSED;
 
 	if( ret < 0 )
 		throw SystemError(errno);
@@ -160,7 +156,7 @@ int Client::send_frame_impl(const Buffer& buffer, Frame::Flags flags)
 		throw Exception("Incomplete message sent");
 	}
 
-	return ret;
+	return State::OPEN;
 }
 
 
