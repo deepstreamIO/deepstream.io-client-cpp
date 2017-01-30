@@ -52,9 +52,9 @@ namespace deepstream
 				virtual time::Duration get_receive_timeout_impl() override;
 				virtual void set_receive_timeout_impl(time::Duration) override;
 
-				virtual std::pair<StatusCode, std::unique_ptr<Frame> >
+				virtual std::pair<State, std::unique_ptr<Frame> >
 					receive_frame_impl() override;
-				virtual int send_frame_impl(
+				virtual State send_frame_impl(
 					const Buffer& buffer, Frame::Flags
 				) override;
 

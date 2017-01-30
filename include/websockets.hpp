@@ -89,6 +89,14 @@ namespace deepstream
 		};
 
 
+		enum class State
+		{
+			ERROR,
+			OPEN,
+			CLOSED
+		};
+
+
 
 		struct Client
 		{
@@ -103,15 +111,20 @@ namespace deepstream
 			void set_receive_timeout(time::Duration);
 
 			/*
-			 * received no data: returns    (StatusCode::NONE, nullptr)
-			 * receive data: returns        (StatusCode::NONE, frame)
-			 * received close frame: return (StatusCode::NORMAL_CLOSE, frame)
-			 * received EOF: return       (StatusCode::ABNORMAL_CLOSE, nullptr)
+			 * received no data: returns    (Status::OPEN, nullptr)
+			 * receive data: returns        (Status::OPEN, frame)
+			 * received close frame: return (Status::CLOSED, frame)
+			 * received EOF: return         (Status::CLOSED, nullptr)
+			 * received close frame with payload too long/too short:
+			 *  return (Status::ERROR, frame)
 			 */
-			std::pair<StatusCode, std::unique_ptr<Frame> > receive_frame();
+			std::pair<State, std::unique_ptr<Frame> > receive_frame();
 
-			int send_frame(const Buffer&);
-			int send_frame(const Buffer&, Frame::Flags);
+			/**
+			 * @return 0 on connection close the number of bytes sent otherwise
+			 */
+			State send_frame(const Buffer&);
+			State send_frame(const Buffer&, Frame::Flags);
 
 			void close();
 
@@ -124,9 +137,9 @@ namespace deepstream
 			virtual time::Duration get_receive_timeout_impl() = 0;
 			virtual void set_receive_timeout_impl(time::Duration) = 0;
 
-			virtual std::pair<StatusCode, std::unique_ptr<Frame> >
+			virtual std::pair<State, std::unique_ptr<Frame> >
 				receive_frame_impl() = 0;
-			virtual int send_frame_impl(const Buffer& buffer, Frame::Flags) = 0;
+			virtual State send_frame_impl(const Buffer& buffer, Frame::Flags)=0;
 
 			virtual void close_impl() = 0;
 		};

@@ -60,24 +60,23 @@ time::Duration Client::get_receive_timeout()
 }
 
 
-std::pair<StatusCode, std::unique_ptr<Frame> > Client::receive_frame()
+std::pair<State, std::unique_ptr<Frame> > Client::receive_frame()
 {
 	return receive_frame_impl();
 }
 
 
-int Client::send_frame(const Buffer& buffer)
+State Client::send_frame(const Buffer& buffer)
 {
 	Frame::Flags f = Frame::Bit::FIN | Frame::Opcode::TEXT_FRAME;
 	return send_frame(buffer, f);
 }
 
-int Client::send_frame(const Buffer& buffer, Frame::Flags flags)
+State Client::send_frame(const Buffer& buffer, Frame::Flags flags)
 {
-	int ret = send_frame_impl(buffer, flags);
-	assert( ret >= 0 );
+	assert( !buffer.empty() );
 
-	return ret;
+	return send_frame_impl(buffer, flags);
 }
 
 
