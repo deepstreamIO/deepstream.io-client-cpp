@@ -69,9 +69,6 @@ std::unique_ptr<Client> Client::make(
 		MessageBuilder chr(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
 		chr.add_argument( Buffer(uri.cbegin(), uri.cend()) );
 
-		state = client::transition(state, chr, Sender::CLIENT);
-		assert( state == client::State::CHALLENGING_WAIT );
-
 		if( p->send_(chr) != websockets::State::OPEN )
 			return p;
 	}
