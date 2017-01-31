@@ -134,10 +134,9 @@ namespace deepstream
 		static std::string getUid();
 
 		static std::unique_ptr<Client> make(
-			const std::string& uri,
+			std::unique_ptr<websockets::Client>,
 			std::unique_ptr<ErrorHandler>
 		);
-
 		static std::unique_ptr<Client> make(const std::string& uri);
 
 
