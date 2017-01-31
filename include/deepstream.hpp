@@ -138,6 +138,8 @@ namespace deepstream
 			std::unique_ptr<ErrorHandler>
 		);
 
+		static std::unique_ptr<Client> make(const std::string& uri);
+
 
 	protected:
 		explicit Client(

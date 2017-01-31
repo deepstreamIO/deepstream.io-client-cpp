@@ -83,6 +83,16 @@ std::unique_ptr<Client> Client::make(
 }
 
 
+std::unique_ptr<Client> Client::make(const std::string& uri)
+{
+	return Client::make(
+		uri,
+		std::unique_ptr<ErrorHandler>(new ErrorHandler())
+	);
+}
+
+
+
 Client::Client(
 	std::unique_ptr<websockets::Client> p_websocket,
 	std::unique_ptr<ErrorHandler> p_error_handler
