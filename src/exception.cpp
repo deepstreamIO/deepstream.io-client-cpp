@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include <cstdio>
+#include <cstring>
 #include <strings.h>
 
 #include <exception.hpp>
