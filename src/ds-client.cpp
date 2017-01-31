@@ -63,12 +63,12 @@ catch(Poco::Net::WebSocketException& e)
 }
 catch(Poco::Exception& e)
 {
-	const std::string& msg = e.message();
+	const std::string& text = e.displayText();
 
 	fprintf(
 		stderr,
 		"poco exception: '%s' (code=%d)\n",
-		msg.c_str(), e.code()
+		text.c_str(), e.code()
 	);
 	return 1;
 }

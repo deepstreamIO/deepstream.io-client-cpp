@@ -114,7 +114,7 @@ std::pair<State, std::unique_ptr<Frame> > Client::receive_frame_impl()
 	}
 	catch(net::WebSocketException& e)
 	{
-		throw Exception( e.message() );
+		throw Exception( e.displayText() );
 	}
 
 	if( ret < 0 )
