@@ -64,10 +64,7 @@ namespace deepstream
 		);
 
 		template<typename T>
-		void emit(const Buffer&, const T& t)
-		{
-			Buffer s = serialize(t);
-		}
+		void emit(const Buffer&, const T& t);
 
 		void listen(
 			const std::string& pattern,
