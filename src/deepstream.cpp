@@ -252,6 +252,8 @@ websockets::State Client::send_(const Message& message)
 	if( new_state == client::State::ERROR )
 		throw std::logic_error( "Invalid client state transition" );
 
+	state_ = new_state;
+
 	try
 	{
 		websockets::State state = p_websocket_->send_frame(message.to_binary());
