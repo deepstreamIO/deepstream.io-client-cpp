@@ -104,14 +104,14 @@ const char* HEADER_TO_STRING[] = {
 
 const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
 	std::pair<std::size_t, std::size_t>(0, 0),
-	std::pair<std::size_t, std::size_t>(0, 0),
 	std::pair<std::size_t, std::size_t>(1, 1),
-	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(1, 1),
 
 	std::pair<std::size_t, std::size_t>(0, 0),
 	std::pair<std::size_t, std::size_t>(0, 0),
-	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(0, 1),
 
