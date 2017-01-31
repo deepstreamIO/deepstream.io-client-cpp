@@ -105,8 +105,6 @@ namespace deepstream
 
 			std::string uri() const;
 
-			std::size_t num_bytes_available();
-
 			time::Duration get_receive_timeout();
 			void set_receive_timeout(time::Duration);
 
@@ -131,8 +129,6 @@ namespace deepstream
 
 		protected:
 			virtual std::string uri_impl() const = 0;
-
-			virtual std::size_t num_bytes_available_impl() = 0;
 
 			virtual time::Duration get_receive_timeout_impl() = 0;
 			virtual void set_receive_timeout_impl(time::Duration) = 0;

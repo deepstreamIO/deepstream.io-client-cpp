@@ -42,12 +42,6 @@ std::string Client::uri() const
 }
 
 
-std::size_t Client::num_bytes_available()
-{
-	return num_bytes_available_impl();
-}
-
-
 void Client::set_receive_timeout(time::Duration t)
 {
 	set_receive_timeout_impl(t);

@@ -58,18 +58,18 @@ catch(Poco::Exception& e)
 }
 
 
-std::string Client::uri_impl() const
-{
-	return uri_.toString();
-}
-
-
-std::size_t Client::num_bytes_available_impl()
+std::size_t Client::num_bytes_available()
 {
 	int num_bytes = websocket_.available();
 	assert( num_bytes >= 0 );
 
 	return num_bytes;
+}
+
+
+std::string Client::uri_impl() const
+{
+	return uri_.toString();
 }
 
 
