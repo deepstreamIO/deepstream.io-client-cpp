@@ -222,18 +222,20 @@ websockets::State Client::receive_(
 	{
 		const Message& msg = *it;
 
-		client::State state = client::transition(state_, msg, Sender::SERVER);
-		assert( state != client::State::DISCONNECTED );
+		client::State old_state = state_;
+		client::State new_state =
+			client::transition(old_state, msg, Sender::SERVER);
+		assert( new_state != client::State::DISCONNECTED );
 
-		if( state == client::State::ERROR )
+		if( new_state == client::State::ERROR )
 		{
 			close();
-			p_error_handler_->invalid_state_transition(state, msg);
+			p_error_handler_->invalid_state_transition(old_state, msg);
 
 			return websockets::State::ERROR;
 		}
 
-		state_ = state;
+		state_ = new_state;
 	}
 
 	return ws_state;
