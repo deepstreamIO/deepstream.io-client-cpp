@@ -40,7 +40,8 @@ namespace poco
 {
 
 
-Client::Client(const std::string& uri_string) :
+Client::Client(const std::string& uri_string)
+try :
 	uri_( uri_string ),
 	session_( uri_.getHost(), uri_.getPort() ),
 	request_(
@@ -50,6 +51,10 @@ Client::Client(const std::string& uri_string) :
 	),
 	websocket_(session_, request_, response_)
 {
+}
+catch(Poco::Exception& e)
+{
+	throw Exception( e.displayText() );
 }
 
 
