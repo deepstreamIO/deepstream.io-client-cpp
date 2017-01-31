@@ -36,6 +36,7 @@ add_library(
 	random.cpp
 	websockets.cpp
 	websockets/poco.cpp
+	websockets/pseudo.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
 target_include_directories(deepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
