@@ -133,6 +133,17 @@ State transition(State state, const Message& message, Sender sender)
 		return State::AWAIT_AUTHENTICATION;
 	}
 
+	if( state == State::AUTHENTICATING &&
+		topic == Topic::AUTH &&
+		action == Action::ERROR_INVALID_AUTH_MSG &&
+		sender == Sender::SERVER )
+	{
+		assert( !is_ack );
+		assert( num_args == 1 );
+
+		return State::DISCONNECTED;
+	}
+
 	return State::ERROR;
 }
 
