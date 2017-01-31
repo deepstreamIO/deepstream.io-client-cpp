@@ -76,6 +76,9 @@ std::unique_ptr<Client> Client::make(
 	if( p->receive_(&buffer, &messages) != websockets::State::OPEN )
 		return p;
 
+	assert( messages.size() == 1 );
+	assert( state == client::State::AWAIT_AUTHENTICATION );
+
 	return p;
 }
 
@@ -112,6 +115,7 @@ client::State Client::login(
 		return state_;
 
 	assert( messages.size() == 1 );
+	assert( state_ == client::State::CONNECTED );
 
 	const Message& aa_msg = messages.front();
 	assert( aa_msg.topic() == Topic::AUTH );
