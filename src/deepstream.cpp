@@ -87,6 +87,7 @@ Client::Client(
 	std::unique_ptr<websockets::Client> p_websocket,
 	std::unique_ptr<ErrorHandler> p_error_handler
 ) :
+	state_(client::State::AWAIT_CONNECTION),
 	p_websocket_( std::move(p_websocket) ),
 	p_error_handler_( std::move(p_error_handler) )
 {
