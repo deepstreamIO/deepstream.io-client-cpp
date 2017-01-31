@@ -35,11 +35,7 @@ namespace ds = deepstream;
 int main()
 try
 {
-	std::unique_ptr<ds::ErrorHandler> p_eh( new ds::ErrorHandler() );
-	auto p_client = ds::Client::make(
-		"ws://localhost:6020/deepstream",
-		std::move(p_eh)
-	);
+	auto p_client = ds::Client::make("ws://localhost:6020/deepstream");
 
 
 	const char AUTH[] =
