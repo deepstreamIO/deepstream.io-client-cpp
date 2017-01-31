@@ -74,6 +74,20 @@ void ErrorHandler::sudden_disconnect(const std::string& uri)
 }
 
 
+void ErrorHandler::authentication_error(const Message& message)
+{
+	assert( message.topic() == Topic::AUTH );
+	assert(
+		message.action() == Action::ERROR_INVALID_AUTH_DATA ||
+		message.action() == Action::ERROR_INVALID_AUTH_MSG ||
+		message.action() == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS
+	);
+	assert( message.num_arguments() == 1 );
+
+	authentication_error_impl(message);
+}
+
+
 
 void ErrorHandler::parser_error_impl(const parser::Error& e)
 {
@@ -136,6 +150,17 @@ void ErrorHandler::sudden_disconnect_impl(const std::string& uri)
 {
 	std::fprintf(
 		stderr, "Sudden disconnect [uri=%s]\n", uri.c_str()
+	);
+}
+
+
+void ErrorHandler::authentication_error_impl(const Message& msg)
+{
+	const Buffer& reason = msg[0];
+	std::string str( reason.cbegin(), reason.cend() );
+
+	std::fprintf(
+		stderr, "Authentication error: '%s'\n", str.c_str()
 	);
 }
 
