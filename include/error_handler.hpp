@@ -58,6 +58,8 @@ namespace deepstream
 		void unexpected_websocket_frame_flags(int got);
 		void sudden_disconnect(const std::string& uri);
 
+		void authentication_error(const Message& msg);
+
 	protected:
 		virtual void parser_error_impl(const parser::Error&);
 		virtual void invalid_state_transition_impl(
@@ -69,6 +71,9 @@ namespace deepstream
 		virtual void websocket_exception_impl(const std::exception&);
 		virtual void unexpected_websocket_frame_flags_impl(int);
 		virtual void sudden_disconnect_impl(const std::string& uri);
+
+		virtual void authentication_error_impl(const Message& msg);
+
 	};
 }
 

@@ -147,12 +147,14 @@ client::State Client::login(
 	{
 		assert( state_ == client::State::AWAIT_AUTHENTICATION );
 
+		p_error_handler_->authentication_error(msg);
 		return state_;
 	}
 
 	if( msg.topic() == Topic::AUTH &&
 		msg.action() == Action::ERROR_INVALID_AUTH_MSG )
 	{
+		p_error_handler_->authentication_error(msg);
 		close();
 		return state_;
 	}
@@ -160,6 +162,7 @@ client::State Client::login(
 	if( msg.topic() == Topic::AUTH &&
 		msg.action() == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS )
 	{
+		p_error_handler_->authentication_error(msg);
 		close();
 		return state_;
 	}
