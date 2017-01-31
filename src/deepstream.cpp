@@ -263,6 +263,8 @@ websockets::State Client::send_(const Message& message)
 
 			return websockets::State::CLOSED;
 		}
+
+		return state;
 	}
 	catch(SystemError& e)
 	{
