@@ -257,7 +257,7 @@ websockets::State Client::send_(const Message& message)
 
 		if( state != websockets::State::OPEN )
 		{
-			p_websocket_->close();
+			close();
 			p_error_handler_->sudden_disconnect( p_websocket_->uri() );
 
 			return websockets::State::CLOSED;
