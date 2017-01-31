@@ -18,6 +18,7 @@
 
 #include <client.hpp>
 #include <message.hpp>
+#include <use.hpp>
 
 #include <cassert>
 
@@ -42,7 +43,13 @@ State transition(State state, const Message& message, Sender sender)
 	const Topic topic = message.topic();
 	const Action action = message.action();
 	const bool is_ack = message.is_ack();
+
+	const auto expected_num_args = Message::num_arguments( message.header() );
 	const std::size_t& num_args = message.num_arguments();
+
+	use(expected_num_args);
+	assert( num_args >= expected_num_args.first );
+	assert( num_args <= expected_num_args.second );
 
 
 	if( state == State::AWAIT_CONNECTION &&
@@ -51,7 +58,6 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::SERVER )
 	{
 		assert( !is_ack );
-		assert( num_args == 0 );
 
 		return State::CHALLENGING;
 	}
@@ -62,7 +68,6 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::CLIENT )
 	{
 		assert( !is_ack );
-		assert( num_args == 1 );
 
 		return State::CHALLENGING_WAIT;
 	}
@@ -73,7 +78,6 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::SERVER )
 	{
 		assert( is_ack );
-		assert( num_args == 0 );
 
 		return State::AWAIT_AUTHENTICATION;
 	}
@@ -84,7 +88,6 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::SERVER )
 	{
 		assert( !is_ack );
-		assert( num_args == 0 || num_args == 1 );
 
 		return State::DISCONNECTED;
 	}
@@ -95,7 +98,6 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::CLIENT )
 	{
 		assert( !is_ack );
-		assert( num_args == 1 );
 
 		return State::AUTHENTICATING;
 	}
@@ -106,7 +108,6 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::SERVER )
 	{
 		assert( is_ack );
-		assert( num_args == 0 );
 
 		return State::CONNECTED;
 	}
@@ -117,7 +118,6 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::SERVER )
 	{
 		assert( !is_ack );
-		assert( num_args == 0 );
 
 		return State::DISCONNECTED;
 	}
@@ -128,7 +128,6 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::SERVER )
 	{
 		assert( !is_ack );
-		assert( num_args == 0 );
 
 		return State::AWAIT_AUTHENTICATION;
 	}
@@ -139,7 +138,6 @@ State transition(State state, const Message& message, Sender sender)
 		sender == Sender::SERVER )
 	{
 		assert( !is_ack );
-		assert( num_args == 1 );
 
 		return State::DISCONNECTED;
 	}
