@@ -277,10 +277,7 @@ websockets::State Client::receive_(
 		}
 
 		if( new_state == client::State::DISCONNECTED )
-		{
-			close();
-			return websockets::State::CLOSED;
-		}
+			return websockets::State::OPEN;
 
 		state_ = new_state;
 	}
