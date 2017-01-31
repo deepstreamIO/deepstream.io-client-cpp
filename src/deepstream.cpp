@@ -38,16 +38,15 @@ namespace deepstream
 {
 
 std::unique_ptr<Client> Client::make(
-	const std::string& uri,
+	std::unique_ptr<websockets::Client> p_websocket,
 	std::unique_ptr<ErrorHandler> p_error_handler)
 {
+	assert( p_websocket );
 	assert( p_error_handler );
 
-	std::unique_ptr<websockets::Client> p_websocket(
-		new websockets::poco::Client(uri)
-	);
-
 	p_websocket->set_receive_timeout( std::chrono::seconds(1) );
+
+	const std::string uri = p_websocket->uri();
 
 	std::unique_ptr<Client> p(
 		new Client(
@@ -67,7 +66,7 @@ std::unique_ptr<Client> Client::make(
 
 	{
 		MessageBuilder chr(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
-		chr.add_argument( Buffer(uri.cbegin(), uri.cend()) );
+		chr.add_argument(uri);
 
 		if( p->send_(chr) != websockets::State::OPEN )
 			return p;
@@ -86,7 +85,7 @@ std::unique_ptr<Client> Client::make(
 std::unique_ptr<Client> Client::make(const std::string& uri)
 {
 	return Client::make(
-		uri,
+		std::unique_ptr<websockets::Client>(new websockets::poco::Client(uri)),
 		std::unique_ptr<ErrorHandler>(new ErrorHandler())
 	);
 }
