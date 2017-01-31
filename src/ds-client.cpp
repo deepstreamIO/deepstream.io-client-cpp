@@ -20,6 +20,7 @@
 #include <Poco/Exception.h>
 #include <Poco/Net/NetException.h>
 
+#include <client.hpp>
 #include <deepstream.hpp>
 #include <websockets.hpp>
 #include <error_handler.hpp>
@@ -39,6 +40,19 @@ try
 		"ws://localhost:6020/deepstream",
 		std::move(p_eh)
 	);
+
+
+	const char AUTH[] =
+		"{\"username\": \"user\", \"password\": \"pwd\"}";
+
+	deepstream::Buffer user_data;
+	while(true)
+	{
+		deepstream::client::State state = p_client->login( AUTH, &user_data );
+
+		if( state == deepstream::client::State::CONNECTED )
+			break;
+	}
 }
 catch(Poco::Net::WebSocketException& e)
 {
