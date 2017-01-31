@@ -115,21 +115,49 @@ client::State Client::login(
 		return state_;
 
 	assert( messages.size() == 1 );
-	assert( state_ == client::State::CONNECTED );
 
-	const Message& aa_msg = messages.front();
-	assert( aa_msg.topic() == Topic::AUTH );
-	assert( aa_msg.action() == Action::REQUEST );
-	assert( aa_msg.is_ack() );
-	assert( aa_msg.num_arguments() >= 0 );
-	assert( aa_msg.num_arguments() <= 1 );
+	const Message& msg = messages.front();
 
-	if( aa_msg.num_arguments() == 0 && p_user_data )
-		p_user_data->clear();
-	else if( aa_msg.num_arguments() == 1 && p_user_data )
-		*p_user_data = aa_msg[0];
+	if( msg.topic() == Topic::AUTH &&
+		msg.action() == Action::REQUEST &&
+		msg.is_ack() )
+	{
+		assert( state_ == client::State::CONNECTED );
 
-	return state_;
+		if( msg.num_arguments() == 0 && p_user_data )
+			p_user_data->clear();
+		else if( msg.num_arguments() == 1 && p_user_data )
+			*p_user_data = msg[0];
+
+		return state_;
+	}
+
+	if( msg.topic() == Topic::AUTH &&
+		msg.action() == Action::ERROR_INVALID_AUTH_DATA )
+	{
+		assert( state_ == client::State::AWAIT_AUTHENTICATION );
+
+		return state_;
+	}
+
+	if( msg.topic() == Topic::AUTH &&
+		msg.action() == Action::ERROR_INVALID_AUTH_MSG )
+	{
+		close();
+		return state_;
+	}
+
+	if( msg.topic() == Topic::AUTH &&
+		msg.action() == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS )
+	{
+		close();
+		return state_;
+	}
+
+
+	assert(0);
+	close();
+	return client::State::ERROR;
 }
 
 
@@ -226,7 +254,6 @@ websockets::State Client::receive_(
 		client::State old_state = state_;
 		client::State new_state =
 			client::transition(old_state, msg, Sender::SERVER);
-		assert( new_state != client::State::DISCONNECTED );
 
 		if( new_state == client::State::ERROR )
 		{
@@ -234,6 +261,12 @@ websockets::State Client::receive_(
 			p_error_handler_->invalid_state_transition(old_state, msg);
 
 			return websockets::State::ERROR;
+		}
+
+		if( new_state == client::State::DISCONNECTED )
+		{
+			close();
+			return websockets::State::CLOSED;
 		}
 
 		state_ = new_state;
