@@ -16,6 +16,8 @@
 #include <cerrno>
 #include <cstdint>
 
+#include <algorithm>
+
 #include <Poco/Exception.h>
 #include <Poco/Timespan.h>
 #include <Poco/Net/NetException.h>
@@ -93,7 +95,8 @@ std::pair<State, std::unique_ptr<Frame> > Client::receive_frame_impl()
 	int ret = 0;
 	int flags = 0;
 
-	std::size_t buffer_size = num_bytes_available();
+	const std::size_t min_buffer_size = 256;
+	std::size_t buffer_size = std::max( num_bytes_available(),min_buffer_size );
 	Buffer buffer(buffer_size, 0);
 
 	try
