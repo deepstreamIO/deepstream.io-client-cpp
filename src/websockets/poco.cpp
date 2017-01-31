@@ -41,7 +41,11 @@ namespace poco
 Client::Client(const std::string& uri_string) :
 	uri_( uri_string ),
 	session_( uri_.getHost(), uri_.getPort() ),
-	request_(net::HTTPRequest::HTTP_GET, uri_string,net::HTTPRequest::HTTP_1_1),
+	request_(
+		net::HTTPRequest::HTTP_GET,
+		uri_.getPath(),
+		net::HTTPRequest::HTTP_1_1
+	),
 	websocket_(session_, request_, response_)
 {
 }
