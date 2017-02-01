@@ -341,8 +341,8 @@ struct RedirectionClient : public websockets::pseudo::Client
 	std::string uri_;
 };
 
-const char RedirectionClient::DEFAULT_URI[];
-const char RedirectionClient::REDIRECTION_URI[];
+constexpr const char RedirectionClient::DEFAULT_URI[];
+constexpr const char RedirectionClient::REDIRECTION_URI[];
 
 
 BOOST_AUTO_TEST_CASE(redirections)
