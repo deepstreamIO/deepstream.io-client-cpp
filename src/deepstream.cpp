@@ -44,39 +44,62 @@ Client Client::make(
 	assert( p_websocket );
 	assert( p_error_handler );
 
-	p_websocket->set_receive_timeout( std::chrono::seconds(1) );
+	const unsigned MAX_NUM_REDIRECTIONS = 3;
 
-	const std::string uri = p_websocket->uri();
-
-	Client c(
-		std::move(p_websocket),
-		std::move(p_error_handler)
-	);
-
-	Buffer buffer;
-	parser::MessageList messages;
-	client::State& state = c.state_;
-	if( c.receive_(&buffer, &messages) != websockets::State::OPEN )
-		return c;
-
-	assert( messages.size() == 1 );
-	assert( state == client::State::CHALLENGING );
-
+	for(unsigned num_redirections = 0;
+		num_redirections < MAX_NUM_REDIRECTIONS;
+		++num_redirections)
 	{
-		MessageBuilder chr(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
-		chr.add_argument(uri);
+		p_websocket->set_receive_timeout( std::chrono::seconds(1) );
 
-		if( c.send_(chr) != websockets::State::OPEN )
+		const std::string uri = p_websocket->uri();
+
+		Client c(
+			std::move(p_websocket),
+			std::move(p_error_handler)
+		);
+
+		Buffer buffer;
+		parser::MessageList messages;
+		client::State& state = c.state_;
+
+		if( c.receive_(&buffer, &messages) != websockets::State::OPEN )
 			return c;
+
+		assert( messages.size() == 1 );
+		assert( state == client::State::CHALLENGING );
+
+		{
+			MessageBuilder chr(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
+			chr.add_argument(uri);
+
+			if( c.send_(chr) != websockets::State::OPEN )
+				return c;
+		}
+
+		if( c.receive_(&buffer, &messages) != websockets::State::OPEN )
+			return c;
+
+		assert( messages.size() == 1 );
+
+		if( state == client::State::AWAIT_AUTHENTICATION )
+			return c;
+
+
+		const Message& redirect_msg = messages.front();
+		assert( redirect_msg.num_arguments() == 1 );
+
+		const Buffer& uri_buffer = redirect_msg[0];
+		std::string new_uri( uri_buffer.cbegin(), uri_buffer.cend() );
+
+		p_websocket = c.p_websocket_->construct(new_uri);
+		p_error_handler = std::move(c.p_error_handler_);
 	}
 
-	if( c.receive_(&buffer, &messages) != websockets::State::OPEN )
-		return c;
+	assert( p_error_handler );
+	p_error_handler->too_many_redirections(MAX_NUM_REDIRECTIONS);
 
-	assert( messages.size() == 1 );
-	assert( state == client::State::AWAIT_AUTHENTICATION );
-
-	return c;
+	return Client( nullptr, std::move(p_error_handler) );
 }
 
 
@@ -94,11 +117,14 @@ Client::Client(
 	std::unique_ptr<websockets::Client> p_websocket,
 	std::unique_ptr<ErrorHandler> p_error_handler
 ) :
-	state_(client::State::AWAIT_CONNECTION),
+	state_(
+		p_websocket
+		? client::State::AWAIT_CONNECTION
+		: client::State::ERROR
+	),
 	p_websocket_( std::move(p_websocket) ),
 	p_error_handler_( std::move(p_error_handler) )
 {
-	assert( p_websocket_ );
 	assert( p_error_handler_ );
 }
 
@@ -106,6 +132,9 @@ Client::Client(
 client::State Client::login(
 	const std::string& auth, Buffer* p_user_data)
 {
+	if( !p_websocket_ )
+		return client::State::ERROR;
+
 	if( state_ != client::State::AWAIT_AUTHENTICATION )
 		throw std::logic_error("Cannot login() in current state");
 
@@ -173,8 +202,14 @@ client::State Client::login(
 
 void Client::close()
 {
+	assert( p_websocket_ || state_ == client::State::ERROR );
+
+	if( !p_websocket_ )
+		return;
+
 	state_ = client::State::DISCONNECTED;
-	p_websocket_->close();
+
+		p_websocket_->close();
 }
 
 
@@ -183,6 +218,9 @@ websockets::State Client::receive_(
 {
 	assert( p_buffer );
 	assert( p_messages );
+
+	if( !p_websocket_ )
+		return websockets::State::ERROR;
 
 	auto receive_ret = p_websocket_->receive_frame();
 	websockets::State ws_state = receive_ret.first;
@@ -285,6 +323,9 @@ websockets::State Client::receive_(
 
 websockets::State Client::send_(const Message& message)
 {
+	if( !p_websocket_ )
+		return websockets::State::ERROR;
+
 	client::State new_state =
 		client::transition(state_, message, Sender::CLIENT);
 	assert( new_state != client::State::ERROR );

@@ -42,6 +42,14 @@ void ErrorHandler::invalid_state_transition(client::State s, const Message& m)
 }
 
 
+void ErrorHandler::too_many_redirections(unsigned max_num_redirections)
+{
+	assert( max_num_redirections > 0 );
+
+	too_many_redirections_impl(max_num_redirections);
+}
+
+
 void ErrorHandler::system_error(int error)
 {
 	system_error_impl(error);
@@ -107,6 +115,16 @@ void ErrorHandler::invalid_state_transition_impl(
 	std::string string = ss.str();
 
 	std::fprintf( stderr, "Invalid state transition [%s]\n", string.c_str() );
+}
+
+
+void ErrorHandler::too_many_redirections_impl(unsigned max_num_redirections)
+{
+	std::fprintf(
+		stderr,
+		"Too many redirections (%u redirections)\n",
+		max_num_redirections
+	);
 }
 
 
