@@ -35,7 +35,7 @@ namespace ds = deepstream;
 int main()
 try
 {
-	auto p_client = ds::Client::make("ws://localhost:6020/deepstream");
+	ds::Client client = ds::Client::make("ws://localhost:6020/deepstream");
 
 
 	const char AUTH[] =
@@ -44,7 +44,7 @@ try
 	deepstream::Buffer user_data;
 	while(true)
 	{
-		deepstream::client::State state = p_client->login( AUTH, &user_data );
+		deepstream::client::State state = client.login( AUTH, &user_data );
 
 		if( state == deepstream::client::State::CONNECTED )
 			break;
