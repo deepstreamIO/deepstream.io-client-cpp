@@ -24,7 +24,7 @@ set_source_files_properties(
 )
 
 add_library(
-	deepstream SHARED
+	libdeepstream SHARED
 	client.cpp
 	deepstream.cpp
 	error_handler.cpp
@@ -39,13 +39,14 @@ add_library(
 	websockets/pseudo.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
-target_include_directories(deepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
-target_include_directories(deepstream PUBLIC ${Boost_INCLUDE_DIRS})
-target_include_directories(deepstream PUBLIC ${POCO_INCLUDE_DIRS})
-target_link_libraries(deepstream PUBLIC ${POCO_LIBRARIES})
+set_target_properties(libdeepstream PROPERTIES OUTPUT_NAME deepstream)
+target_include_directories(libdeepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
+target_include_directories(libdeepstream PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(libdeepstream PUBLIC ${POCO_INCLUDE_DIRS})
+target_link_libraries(libdeepstream PUBLIC ${POCO_LIBRARIES})
 
 
 add_executable(ds-client ds-client.cpp)
 target_include_directories(ds-client PUBLIC ${POCO_INCLUDE_DIRS})
-target_link_libraries(ds-client PUBLIC deepstream)
+target_link_libraries(ds-client PUBLIC libdeepstream)
 target_link_libraries(ds-client PUBLIC ${POCO_LIBRARIES})
