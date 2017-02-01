@@ -37,8 +37,6 @@ namespace deepstream
 		{
 			struct Client : public ::deepstream::websockets::Client
 			{
-				typedef std::unique_ptr<Frame> FramePtr;
-
 				explicit Client();
 
 
