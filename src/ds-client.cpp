@@ -17,9 +17,6 @@
 
 #include <exception>
 
-#include <Poco/Exception.h>
-#include <Poco/Net/NetException.h>
-
 #include <client.hpp>
 #include <deepstream.hpp>
 #include <websockets.hpp>
@@ -49,28 +46,6 @@ try
 		if( state == deepstream::client::State::CONNECTED )
 			break;
 	}
-}
-catch(Poco::Net::WebSocketException& e)
-{
-	const std::string& msg = e.message();
-
-	fprintf(
-		stderr,
-		"poco websocket exception: '%s' (code=%d)\n",
-		msg.c_str(), e.code()
-	);
-	return 1;
-}
-catch(Poco::Exception& e)
-{
-	const std::string& text = e.displayText();
-
-	fprintf(
-		stderr,
-		"poco exception: '%s' (code=%d)\n",
-		text.c_str(), e.code()
-	);
-	return 1;
 }
 catch(std::exception& e)
 {
