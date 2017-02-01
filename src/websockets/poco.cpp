@@ -67,6 +67,13 @@ std::size_t Client::num_bytes_available()
 }
 
 
+std::unique_ptr<websockets::Client> Client::construct_impl(
+	const std::string& uri) const
+{
+	return std::unique_ptr<websockets::Client>( new Client(uri) );
+}
+
+
 std::string Client::uri_impl() const
 {
 	return uri_.toString();

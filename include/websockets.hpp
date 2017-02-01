@@ -103,6 +103,13 @@ namespace deepstream
 			virtual ~Client() = default;
 
 
+			/**
+			 * This method returns a new object of the concrete class
+			 * implementing this interface with the new object being connected
+			 * to the given URI.
+			 */
+			std::unique_ptr<Client> construct(const std::string& uri) const;
+
 			std::string uri() const;
 
 			time::Duration get_receive_timeout();
@@ -128,6 +135,10 @@ namespace deepstream
 
 
 		protected:
+			virtual std::unique_ptr<websockets::Client> construct_impl(
+				const std::string&
+			) const = 0;
+
 			virtual std::string uri_impl() const = 0;
 
 			virtual time::Duration get_receive_timeout_impl() = 0;

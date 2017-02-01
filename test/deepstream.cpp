@@ -103,6 +103,16 @@ struct SimpleClient : public websockets::pseudo::Client
 	SimpleClient() : state_(client::State::AWAIT_CONNECTION) {}
 
 
+
+	virtual std::unique_ptr<websockets::Client> construct_impl(
+		const std::string&
+	) const override
+	{
+		BOOST_FAIL( "This method should not be called" );
+		return nullptr;
+	}
+
+
 	std::pair<websockets::State, FramePtr> f(Topic t, Action a, bool ack=false)
 	{
 		Message::Header header(t, a, ack);

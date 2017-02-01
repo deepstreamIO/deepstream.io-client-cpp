@@ -48,6 +48,10 @@ namespace deepstream
 				std::size_t num_bytes_available();
 
 
+				virtual std::unique_ptr<websockets::Client> construct_impl(
+					const std::string&
+				) const override;
+
 				virtual std::string uri_impl() const override;
 
 				virtual time::Duration get_receive_timeout_impl() override;
