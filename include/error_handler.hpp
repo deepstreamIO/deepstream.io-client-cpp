@@ -50,6 +50,7 @@ namespace deepstream
 
 		void parser_error(const parser::Error&);
 		void invalid_state_transition(client::State, const Message&);
+		void too_many_redirections(unsigned);
 
 		void system_error(int error);
 
@@ -64,6 +65,7 @@ namespace deepstream
 		virtual void parser_error_impl(const parser::Error&);
 		virtual void invalid_state_transition_impl(
 			client::State, const Message&);
+		virtual void too_many_redirections_impl(unsigned);
 
 		virtual void system_error_impl(int error);
 
