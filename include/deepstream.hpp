@@ -31,7 +31,6 @@
 namespace deepstream
 {
 	struct Buffer;
-	struct Client;
 	struct Message;
 	struct ErrorHandler;
 
@@ -42,91 +41,9 @@ namespace deepstream
 
 	namespace websockets
 	{
-		enum class StatusCode;
 		enum class State;
 		struct Client;
 	}
-
-
-	struct Event
-	{
-		explicit Event(Client* p_impl);
-
-		void subscribe(
-			const Buffer&,
-			const std::function<void(const Buffer&, const Buffer&)>
-		);
-
-		void unsubscribe(const Buffer&);
-		void unsubscribe(
-			const Buffer&,
-			const std::function<void(const Buffer&, const Buffer&)>
-		);
-
-		template<typename T>
-		void emit(const Buffer&, const T& t);
-
-		void listen(
-			const std::string& pattern,
-			std::function<void(const std::string&, bool, const Buffer&)>
-		);
-
-		void unlisten(const std::string& pattern);
-
-
-		Client* p_impl_;
-	};
-
-
-	struct Presence
-	{
-		explicit Presence(Client* p_impl);
-
-		void subscribe(std::function<void(const std::string&, bool)>);
-		void unsubscribe(std::function<void(const std::string&, bool)>);
-
-		void getAll(std::function<void(const std::vector<Buffer>&)>);
-
-
-		Client* p_impl_;
-	};
-
-
-	struct RecordFactory
-	{
-	};
-
-
-	struct RemoteProcedureCall
-	{
-		enum class Error;
-
-		struct Response
-		{
-			explicit Response(Client* p_impl);
-
-			void send(const Buffer&);
-			void reject();
-			void error(const std::string&);
-			void ack();
-		};
-
-
-		explicit RemoteProcedureCall(Client* p_impl);
-
-		void provide(
-			const std::string&,
-			std::function<void(const Buffer& data, Response&)>
-		);
-
-		void unprovide(const std::string&);
-
-		void make(
-			const std::string&,
-			const Buffer&,
-			std::function<void(Error, const Message&)>
-		);
-	};
 
 
 	struct Client
