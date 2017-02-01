@@ -84,6 +84,16 @@ State transition(State state, const Message& message, Sender sender)
 
 	if( state == State::CHALLENGING_WAIT &&
 		topic == Topic::CONNECTION &&
+		action == Action::REDIRECT &&
+		sender == Sender::SERVER )
+	{
+		assert( !is_ack );
+
+		return State::AWAIT_CONNECTION;
+	}
+
+	if( state == State::CHALLENGING_WAIT &&
+		topic == Topic::CONNECTION &&
 		action == Action::REJECT &&
 		sender == Sender::SERVER )
 	{
