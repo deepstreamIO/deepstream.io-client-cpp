@@ -133,12 +133,17 @@ namespace deepstream
 	{
 		static std::string getUid();
 
-		static std::unique_ptr<Client> make(
+
+		static Client make(
 			std::unique_ptr<websockets::Client>,
 			std::unique_ptr<ErrorHandler>
 		);
-		static std::unique_ptr<Client> make(const std::string& uri);
+		static Client make(const std::string& uri);
 
+
+		Client() = delete;
+		Client(const Client&) = delete;
+		Client(Client&&) = default;
 
 	protected:
 		explicit Client(

@@ -37,7 +37,7 @@
 namespace deepstream
 {
 
-std::unique_ptr<Client> Client::make(
+Client Client::make(
 	std::unique_ptr<websockets::Client> p_websocket,
 	std::unique_ptr<ErrorHandler> p_error_handler)
 {
@@ -48,18 +48,16 @@ std::unique_ptr<Client> Client::make(
 
 	const std::string uri = p_websocket->uri();
 
-	std::unique_ptr<Client> p(
-		new Client(
-			std::move(p_websocket),
-			std::move(p_error_handler)
-		)
+	Client c(
+		std::move(p_websocket),
+		std::move(p_error_handler)
 	);
 
 	Buffer buffer;
 	parser::MessageList messages;
-	client::State& state = p->state_;
-	if( p->receive_(&buffer, &messages) != websockets::State::OPEN )
-		return p;
+	client::State& state = c.state_;
+	if( c.receive_(&buffer, &messages) != websockets::State::OPEN )
+		return c;
 
 	assert( messages.size() == 1 );
 	assert( state == client::State::CHALLENGING );
@@ -68,21 +66,21 @@ std::unique_ptr<Client> Client::make(
 		MessageBuilder chr(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
 		chr.add_argument(uri);
 
-		if( p->send_(chr) != websockets::State::OPEN )
-			return p;
+		if( c.send_(chr) != websockets::State::OPEN )
+			return c;
 	}
 
-	if( p->receive_(&buffer, &messages) != websockets::State::OPEN )
-		return p;
+	if( c.receive_(&buffer, &messages) != websockets::State::OPEN )
+		return c;
 
 	assert( messages.size() == 1 );
 	assert( state == client::State::AWAIT_AUTHENTICATION );
 
-	return p;
+	return c;
 }
 
 
-std::unique_ptr<Client> Client::make(const std::string& uri)
+Client Client::make(const std::string& uri)
 {
 	return Client::make(
 		std::unique_ptr<websockets::Client>(new websockets::poco::Client(uri)),

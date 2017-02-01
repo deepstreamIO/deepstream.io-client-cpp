@@ -194,14 +194,14 @@ struct SimpleClient : public websockets::pseudo::Client
 
 BOOST_AUTO_TEST_CASE(simple)
 {
-	std::unique_ptr<Client> p_client = Client::make(
+	Client c = Client::make(
 		std::unique_ptr<websockets::Client>( new SimpleClient ),
 		std::unique_ptr<ErrorHandler>( new FailHandler )
 	);
 
-	p_client->login("auth", nullptr);
+	c.login("auth", nullptr);
 
-	BOOST_CHECK_EQUAL(p_client->getConnectionState(), client::State::CONNECTED);
+	BOOST_CHECK_EQUAL( c.getConnectionState(), client::State::CONNECTED );
 }
 
 }
