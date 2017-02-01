@@ -33,6 +33,17 @@ Frame::Frame(Flags flags, const char* payload, std::size_t size) :
 
 
 
+std::unique_ptr<Client> Client::construct(const std::string& uri) const
+{
+	assert( !uri.empty() );
+
+	auto p = construct_impl(uri);
+	assert(p);
+
+	return p;
+}
+
+
 std::string Client::uri() const
 {
 	std::string ret = uri_impl();
