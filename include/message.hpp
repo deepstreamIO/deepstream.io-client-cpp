@@ -155,7 +155,7 @@ namespace deepstream
 		static std::pair<std::size_t,std::size_t> num_arguments(const Header&);
 
 
-		virtual ~Message() {}
+		virtual ~Message() = default;
 
 		/**
 		 * This method returns the size of the message in bytes.

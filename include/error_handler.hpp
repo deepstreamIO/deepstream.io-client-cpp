@@ -46,7 +46,7 @@ namespace deepstream
 
 	struct ErrorHandler
 	{
-		virtual ~ErrorHandler() {}
+		virtual ~ErrorHandler() = default;
 
 		void parser_error(const parser::Error&);
 		void invalid_state_transition(client::State, const Message&);

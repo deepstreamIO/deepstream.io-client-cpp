@@ -100,7 +100,7 @@ namespace deepstream
 
 		struct Client
 		{
-			virtual ~Client() {}
+			virtual ~Client() = default;
 
 
 			std::string uri() const;
