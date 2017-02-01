@@ -70,6 +70,7 @@ target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)
 add_boost_test(lexer.cpp test_lexer)
 
 add_boost_test(client.cpp libdeepstream)
+add_boost_test(deepstream.cpp libdeepstream)
 add_boost_test(message.cpp libdeepstream)
 add_boost_test(message_builder.cpp libdeepstream)
 add_boost_test(parser.cpp libdeepstream)
