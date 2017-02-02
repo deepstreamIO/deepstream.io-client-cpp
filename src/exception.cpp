@@ -13,10 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cstdio>
-#include <cstring>
-#include <strings.h>
-
 #include <exception.hpp>
 
 
@@ -25,25 +21,6 @@ namespace deepstream
 
 Exception::Exception(const std::string& msg) :
 	std::runtime_error(msg)
-{
-}
-
-
-
-std::string SystemError::from_strerror(int error)
-{
-	char buffer[80];
-	bzero( buffer, sizeof(buffer) );
-
-	strerror_r( error, buffer, sizeof(buffer)-1 );
-
-	return std::string(buffer);
-}
-
-
-SystemError::SystemError(int error) :
-	Exception( from_strerror(error) ),
-	error_(error)
 {
 }
 

@@ -50,9 +50,9 @@ void ErrorHandler::too_many_redirections(unsigned max_num_redirections)
 }
 
 
-void ErrorHandler::system_error(int error)
+void ErrorHandler::system_error(const std::system_error& e)
 {
-	system_error_impl(error);
+	system_error_impl(e);
 }
 
 
@@ -128,13 +128,13 @@ void ErrorHandler::too_many_redirections_impl(unsigned max_num_redirections)
 }
 
 
-void ErrorHandler::system_error_impl(int error)
+void ErrorHandler::system_error_impl(const std::system_error& e)
 {
-	char error_message[80];
-	std::fill_n( error_message, sizeof(error_message), 0 );
-	strerror_r( error, error_message, sizeof(error_message) );
-
-	std::fprintf( stderr, "Error: %s\n", error_message );
+	std::fprintf(
+		stderr,
+		"System error: %s [code=%d]\n",
+		e.what(), e.code().value()
+	);
 }
 
 

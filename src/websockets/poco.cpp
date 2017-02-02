@@ -17,6 +17,7 @@
 #include <cstdint>
 
 #include <algorithm>
+#include <system_error>
 
 #include <Poco/Exception.h>
 #include <Poco/Timespan.h>
@@ -166,7 +167,7 @@ State Client::send_frame_impl(const Buffer& buffer, Frame::Flags flags)
 		return State::CLOSED;
 
 	if( ret < 0 )
-		throw SystemError(errno);
+		throw std::system_error( errno, std::system_category() );
 
 	if( ret > 0 && std::size_t(ret) < buffer.size() )
 	{

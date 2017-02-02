@@ -23,7 +23,6 @@
 #include <client.hpp>
 #include <deepstream.hpp>
 #include <error_handler.hpp>
-#include <exception.hpp>
 #include <message.hpp>
 #include <message_builder.hpp>
 #include <scope_guard.hpp>
@@ -349,9 +348,9 @@ websockets::State Client::send_(const Message& message)
 
 		return state;
 	}
-	catch(SystemError& e)
+	catch(std::system_error& e)
 	{
-		p_error_handler_->system_error( e.error() );
+		p_error_handler_->system_error(e);
 	}
 	catch(std::exception& e)
 	{
