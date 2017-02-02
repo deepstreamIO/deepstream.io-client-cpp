@@ -79,6 +79,9 @@ namespace deepstream
 		);
 		websockets::State send_(const Message&);
 
+		websockets::State send_frame_(const Buffer&);
+		websockets::State send_frame_(const Buffer&, int);
+
 
 		client::State state_;
 		std::unique_ptr<websockets::Client> p_websocket_;
