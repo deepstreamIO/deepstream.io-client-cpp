@@ -16,7 +16,7 @@
 #ifndef DEEPSTREAM_ERROR_HANDLER_HPP
 #define DEEPSTREAM_ERROR_HANDLER_HPP
 
-#include <exception>
+#include <system_error>
 #include <string>
 
 
@@ -52,7 +52,7 @@ namespace deepstream
 		void invalid_state_transition(client::State, const Message&);
 		void too_many_redirections(unsigned);
 
-		void system_error(int error);
+		void system_error(const std::system_error&);
 
 		void invalid_close_frame_size(const websockets::Frame&);
 		void websocket_exception(const std::exception&);
@@ -67,7 +67,7 @@ namespace deepstream
 			client::State, const Message&);
 		virtual void too_many_redirections_impl(unsigned);
 
-		virtual void system_error_impl(int error);
+		virtual void system_error_impl(const std::system_error&);
 
 		virtual void invalid_close_frame_size_impl(const websockets::Frame&);
 		virtual void websocket_exception_impl(const std::exception&);

@@ -26,20 +26,6 @@ namespace deepstream
 	{
 		explicit Exception(const std::string&);
 	};
-
-
-	struct SystemError : public Exception
-	{
-		static std::string from_strerror(int);
-
-
-		explicit SystemError(int error);
-
-		int error() const { return error_; }
-
-
-		int error_;
-	};
 }
 
 #endif

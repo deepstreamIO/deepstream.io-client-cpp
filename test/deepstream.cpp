@@ -49,7 +49,7 @@ struct FailHandler : public ErrorHandler
 		BOOST_FAIL( "There should be no errors" );
 	}
 
-	virtual void system_error_impl(int) override
+	virtual void system_error_impl(const std::system_error&) override
 	{
 		BOOST_FAIL( "There should be no errors" );
 	}
