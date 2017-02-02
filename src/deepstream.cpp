@@ -66,8 +66,11 @@ Client Client::make(
 		if( c.receive_(&flags, &buffer, &messages) != websockets::State::OPEN )
 			return c;
 
-		assert( messages.size() == 1 );
-		assert( state == client::State::CHALLENGING );
+		if( messages.size() != 1 || state != client::State::CHALLENGING )
+		{
+			c.close();
+			return c;
+		}
 
 		{
 			MessageBuilder chr(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
@@ -80,20 +83,31 @@ Client Client::make(
 		if( c.receive_(&flags, &buffer, &messages) != websockets::State::OPEN )
 			return c;
 
-		assert( messages.size() == 1 );
+		if( messages.size() != 1 )
+		{
+			c.close();
+			return c;
+		}
 
 		if( state == client::State::AWAIT_AUTHENTICATION )
 			return c;
 
+		if( state == client::State::AWAIT_CONNECTION )
+		{
+			const Message& redirect_msg = messages.front();
+			assert( redirect_msg.num_arguments() == 1 );
 
-		const Message& redirect_msg = messages.front();
-		assert( redirect_msg.num_arguments() == 1 );
+			const Buffer& uri_buffer = redirect_msg[0];
+			std::string new_uri( uri_buffer.cbegin(), uri_buffer.cend() );
 
-		const Buffer& uri_buffer = redirect_msg[0];
-		std::string new_uri( uri_buffer.cbegin(), uri_buffer.cend() );
+			p_websocket = c.p_websocket_->construct(new_uri);
+			p_error_handler = std::move(c.p_error_handler_);
 
-		p_websocket = c.p_websocket_->construct(new_uri);
-		p_error_handler = std::move(c.p_error_handler_);
+			continue;
+		}
+
+		c.close();
+		return c;
 	}
 
 	assert( p_error_handler );
@@ -151,7 +165,11 @@ client::State Client::login(
 	if( receive_(&flags, &buffer, &messages) != websockets::State::OPEN )
 		return state_;
 
-	assert( messages.size() == 1 );
+	if( messages.size() != 1 )
+	{
+		close();
+		return client::State::ERROR;
+	}
 
 	const Message& msg = messages.front();
 
@@ -195,7 +213,6 @@ client::State Client::login(
 	}
 
 
-	assert(0);
 	close();
 	return client::State::ERROR;
 }
