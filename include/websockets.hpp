@@ -17,6 +17,7 @@
 #define DEEPSTREAM_WEBSOCKETS_HPP
 
 #include <memory>
+#include <string>
 #include <utility>
 
 #include <buffer.hpp>
