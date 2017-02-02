@@ -56,7 +56,7 @@ void Event::subscribe(const Name& name, const SubscribeFnRef& p_f)
 
 		// avoid inserting duplicates
 		SubscriberList& subscribers = first->second;
-		assert(  !subscribers.empty() );
+		assert( !subscribers.empty() );
 
 		SubscriberList::const_iterator it =
 			std::find( subscribers.cbegin(), subscribers.cend(), p_f );
@@ -98,7 +98,7 @@ void Event::unsubscribe(const Name& name, const SubscribeFnRef& p_f)
 		return;
 
 
-	SubscriberList subscribers = it->second;
+	SubscriberList& subscribers = it->second;
 	SubscriberList::iterator ju =
 		std::find( subscribers.begin(), subscribers.end(), p_f );
 
