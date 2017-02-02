@@ -334,9 +334,30 @@ websockets::State Client::send_(const Message& message)
 
 	state_ = new_state;
 
+	return send_frame_( message.to_binary() );
+}
+
+
+
+websockets::State Client::send_frame_(const Buffer& buffer)
+{
+	return send_frame_(
+		buffer,
+		websockets::Frame::Bit::FIN | websockets::Frame::Opcode::TEXT_FRAME
+	);
+}
+
+
+websockets::State Client::send_frame_(
+	const Buffer& buffer,
+	websockets::Frame::Flags flags)
+{
+	if( !p_websocket_ )
+		return websockets::State::ERROR;
+
 	try
 	{
-		websockets::State state = p_websocket_->send_frame(message.to_binary());
+		websockets::State state = p_websocket_->send_frame(buffer, flags);
 
 		if( state != websockets::State::OPEN )
 		{
