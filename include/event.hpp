@@ -26,7 +26,6 @@
 namespace deepstream
 {
 	struct Buffer;
-	struct Client;
 	struct Message;
 
 
@@ -43,8 +42,14 @@ namespace deepstream
 		typedef std::shared_ptr<ListenFn> ListenFnRef;
 		typedef std::map<Name, ListenFnRef> ListenerMap;
 
+		/**
+		 * Function matching this signature are expected to return `true` if the
+		 * message was sent successfully, `false` otherwise.
+		 */
+		typedef std::function<bool(const Message&)> SendFn;
 
-		explicit Event(Client*);
+
+		explicit Event(const SendFn&);
 
 
 		void subscribe(const Name&, const SubscribeFnRef&);
@@ -58,7 +63,7 @@ namespace deepstream
 		void notify_(const Message&);
 
 
-		Client* p_client_;
+		SendFn send_;
 		SubscriberMap subscriber_map_;
 		ListenerMap listener_map_;
 	};
