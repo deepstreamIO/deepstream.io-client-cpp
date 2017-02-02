@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cstdio>
+
 #include <algorithm>
 #include <stdexcept>
 #include <iterator>
@@ -140,6 +142,61 @@ void Event::unlisten(const std::string& pattern)
 	MessageBuilder message(Topic::EVENT, Action::UNLISTEN);
 	message.add_argument(pattern);
 	send_(message);
+}
+
+
+
+void Event::notify_(const Message& message)
+{
+	assert( message.topic() == Topic::EVENT );
+
+	switch( message.action() )
+	{
+		case Action::EVENT:
+			assert( message.num_arguments() == 2 );
+			notify_subscribers_(
+				Name( message[0].cbegin(), message[0].cend() ),
+				message[1]
+			);
+			break;
+
+		default:
+			assert(0);
+	}
+}
+
+
+void Event::notify_subscribers_(const Name& name, const Buffer& data)
+{
+	SubscriberMap::iterator it = subscriber_map_.find(name);
+
+	if( it == subscriber_map_.end() )
+	{
+		std::fprintf(
+			stderr, "E|EVT: no subscriber named '%s'\n", name.c_str()
+		);
+		return;
+	}
+
+	assert( it->first == name );
+
+	// Copying the list of subscribers is a necessity here because the callbacks
+	// may unsubscribe during their execution and modifications of a subscriber
+	// list may invalidate iterations and ranges. Also, copying the smart
+	// pointer pointer here is a necessity because the referenced function may
+	// decide to unsubscribe and in this case, the std::function object must not
+	// be destructed. Copying ensures a non-zero reference count until `*p_f`
+	// returns.
+	// Finally, the iterator `it` may be invalid after executing a callback
+	// because the list of subscribers for this `name` may have been erased.
+	SubscriberList subscribers = it->second;
+	it = subscriber_map_.end();
+
+	for(const SubscribeFnRef& p_f : subscribers)
+	{
+		auto f = *p_f;
+		f(data);
+	}
 }
 
 }

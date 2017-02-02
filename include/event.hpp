@@ -61,6 +61,7 @@ namespace deepstream
 
 
 		void notify_(const Message&);
+		void notify_subscribers_(const Name&, const Buffer&);
 
 
 		SendFn send_;
