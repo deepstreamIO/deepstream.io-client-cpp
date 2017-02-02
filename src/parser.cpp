@@ -323,6 +323,10 @@ void deepstream_parser_state::handle_header(
 			DS_ADD_MSG(Topic::EVENT, Action::UNSUBSCRIBE, true);
 			break;
 
+		case TOKEN_E_EVT:
+			DS_ADD_MSG(Topic::EVENT, Action::EVENT);
+			break;
+
 		case TOKEN_E_L:
 			DS_ADD_MSG(Topic::EVENT, Action::LISTEN);
 			break;
