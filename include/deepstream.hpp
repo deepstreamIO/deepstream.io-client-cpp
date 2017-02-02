@@ -22,6 +22,7 @@
 #include <memory>
 #include <string>
 
+#include <event.hpp>
 // 201701227:
 // we have to include `parser.hpp` because `parser::MessageList`,
 // `parser::ErrorList` are `typedef`s and cannot be forward declared.
@@ -72,6 +73,13 @@ namespace deepstream
 		void close();
 
 		client::State getConnectionState() { return state_; }
+
+
+		void process_messages();
+
+
+		Event event;
+
 
 		/**
 		 * This method reads the next frame from the websocket and extracts its
