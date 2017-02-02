@@ -18,7 +18,6 @@
 #include <iterator>
 
 #include <buffer.hpp>
-#include <deepstream.hpp>
 #include <event.hpp>
 #include <message_builder.hpp>
 
@@ -29,10 +28,10 @@ namespace deepstream
 {
 
 
-Event::Event(Client* p_client) :
-	p_client_( p_client )
+Event::Event(const SendFn& send) :
+	send_(send)
 {
-	assert( p_client );
+	assert( send_ );
 }
 
 
@@ -72,7 +71,7 @@ void Event::subscribe(const Name& name, const SubscribeFnRef& p_f)
 
 	MessageBuilder message(Topic::EVENT, Action::SUBSCRIBE);
 	message.add_argument( name );
-	p_client_->send(message);
+	send_(message);
 }
 
 
@@ -87,7 +86,7 @@ void Event::unsubscribe(const Name& name)
 
 	MessageBuilder message(Topic::EVENT, Action::UNSUBSCRIBE);
 	message.add_argument(name);
-	p_client_->send(message);
+	send_(message);
 }
 
 
@@ -125,7 +124,7 @@ void Event::listen(const std::string& pattern, const ListenFnRef& p_f)
 
 	MessageBuilder message(Topic::EVENT, Action::LISTEN);
 	message.add_argument(pattern);
-	p_client_->send(message);
+	send_(message);
 }
 
 
@@ -140,7 +139,7 @@ void Event::unlisten(const std::string& pattern)
 
 	MessageBuilder message(Topic::EVENT, Action::UNLISTEN);
 	message.add_argument(pattern);
-	p_client_->send(message);
+	send_(message);
 }
 
 }
