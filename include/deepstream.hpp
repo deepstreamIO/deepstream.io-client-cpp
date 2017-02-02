@@ -73,10 +73,19 @@ namespace deepstream
 
 		client::State getConnectionState() { return state_; }
 
-
-		websockets::State receive_(
-			Buffer* p_buffer, parser::MessageList* p_messages
-		);
+		/**
+		 * This method reads the next frame from the websocket and extracts its
+		 * contents.
+		 *
+		 * @post One of the following conditions may occur:
+		 * - the connection was closed
+		 *   (buffer empty, messages empty),
+		 * - messages were received
+		 *   (text frame flags, buffer non-empty, messages non-empty),
+		 * - a PING was received
+		 *   (PING flags, buffer may be non-empty, messages is empty).
+		 */
+		websockets::State receive_(int*, Buffer*, parser::MessageList*);
 		websockets::State send_(const Message&);
 
 		websockets::State send_frame_(const Buffer&);
