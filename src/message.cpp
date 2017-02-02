@@ -74,6 +74,7 @@ const Message::Header HEADERS[] = {
 	Message::Header( Topic::EVENT, Action::LISTEN, true ),
 	Message::Header( Topic::EVENT, Action::SUBSCRIBE, true ),
 	Message::Header( Topic::EVENT, Action::UNSUBSCRIBE, true ),
+	Message::Header( Topic::EVENT, Action::EVENT ),
 	Message::Header( Topic::EVENT, Action::LISTEN ),
 	Message::Header( Topic::EVENT, Action::SUBSCRIBE ),
 	Message::Header( Topic::EVENT, Action::UNSUBSCRIBE )
@@ -97,6 +98,7 @@ const char* HEADER_TO_STRING[] = {
 	"E|A|L",
 	"E|A|S",
 	"E|A|US",
+	"E|EVT",
 	"E|L",
 	"E|S",
 	"E|US"
@@ -118,6 +120,7 @@ const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
 	std::pair<std::size_t, std::size_t>(2, 2),
 	std::pair<std::size_t, std::size_t>(2, 2),
 	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(2, 2),
 	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(2, 2)
