@@ -20,6 +20,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 
 namespace deepstream
@@ -35,7 +36,8 @@ namespace deepstream
 
 		typedef std::function<void(const Buffer&)> SubscribeFn;
 		typedef std::shared_ptr<SubscribeFn> SubscribeFnRef;
-		typedef std::multimap<Name, SubscribeFnRef> SubscriberMap;
+		typedef std::vector<SubscribeFnRef> SubscriberList;
+		typedef std::map<Name, SubscriberList> SubscriberMap;
 
 		typedef std::function<void(const Name&, const Buffer&)> ListenFn;
 		typedef std::shared_ptr<ListenFn> ListenFnRef;
@@ -45,34 +47,10 @@ namespace deepstream
 		explicit Event(Client*);
 
 
-		void subscribe(const Name&, const SubscribeFn&);
 		void subscribe(const Name&, const SubscribeFnRef&);
-
-		/**
-		 * @return `true` if there were subscriptions with the given name,
-		 * `false` otherwise.
-		 */
 		void unsubscribe(const Name&);
-		/**
-		 * @return `true` if the given subscription existed, `false` otherwise.
-		 */
 		void unsubscribe(const Name&, const SubscribeFnRef&);
 
-		/**
-		 * This method registers a callback that is executed whenever a client
-		 * subscribes to event whose name matches the given pattern.
-		 *
-		 * Listeners are useful to create active data providers: processes that
-		 * only send events if clients are actually interested in them
-		 *
-		 * There can be only one listener for a given pattern.
-		 *
-		 * @post `fn` is the listener for the given pattern, overwriting the
-		 * previous listener if necessary.
-		 *
-		 * @return false if there was already a listener, true otherwise.
-		 */
-		void listen(const std::string& pattern, const ListenFn& fn);
 		void listen(const std::string& pattern, const ListenFnRef&);
 		void unlisten(const std::string& pattern);
 

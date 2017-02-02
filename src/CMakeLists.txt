@@ -28,6 +28,7 @@ add_library(
 	client.cpp
 	deepstream.cpp
 	error_handler.cpp
+	event.cpp
 	exception.cpp
 	message.cpp
 	message_builder.cpp

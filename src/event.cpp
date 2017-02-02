@@ -37,12 +37,6 @@ Event::Event(Client* p_client) :
 
 
 
-void Event::subscribe(const Name& name, const SubscribeFn& f)
-{
-	subscribe( name, SubscribeFnRef(new SubscribeFn(f)) );
-}
-
-
 void Event::subscribe(const Name& name, const SubscribeFnRef& p_f)
 {
 	assert( p_f );
@@ -55,36 +49,41 @@ void Event::subscribe(const Name& name, const SubscribeFnRef& p_f)
 	SubscriberMap::iterator first = ret.first;
 	SubscriberMap::iterator last = ret.second;
 
-	// avoid inserting duplicates in this branch
 	if( first != last )
 	{
-		SubscriberMap::value_type value(name, p_f);
-		SubscriberMap::iterator it = std::find(	first, last, value );
+		assert( first != subscriber_map_.end() );
+		assert( first->first == name );
+		assert( std::distance(first, last) == 1 );
 
-		if( it == last )
-			subscriber_map_.emplace_hint( it, value );
+		// avoid inserting duplicates
+		SubscriberList& subscribers = first->second;
+		assert(  !subscribers.empty() );
+
+		SubscriberList::const_iterator it =
+			std::find( subscribers.cbegin(), subscribers.cend(), p_f );
+
+		if( it == subscribers.cend() )
+			subscribers.push_back(p_f);
 
 		return;
 	}
 
-
-	subscriber_map_.emplace_hint( first, name, p_f );
+	subscriber_map_[name].push_back(p_f);
 
 	MessageBuilder message(Topic::EVENT, Action::SUBSCRIBE);
 	message.add_argument( name );
-
 	p_client_->send(message);
 }
 
 
 void Event::unsubscribe(const Name& name)
 {
-	auto ret = subscriber_map_.equal_range(name);
+	SubscriberMap::iterator it = subscriber_map_.find(name);
 
-	if( ret.first == ret.second )
+	if( it == subscriber_map_.end() )
 		return;
 
-	subscriber_map_.erase( ret.first, ret.second );
+	subscriber_map_.erase(it);
 
 	MessageBuilder message(Topic::EVENT, Action::UNSUBSCRIBE);
 	message.add_argument(name);
@@ -94,35 +93,25 @@ void Event::unsubscribe(const Name& name)
 
 void Event::unsubscribe(const Name& name, const SubscribeFnRef& p_f)
 {
-	auto ret = subscriber_map_.equal_range(name);
-	SubscriberMap::iterator first = ret.first;
-	SubscriberMap::iterator last = ret.second;
+	SubscriberMap::iterator it = subscriber_map_.find(name);
 
-	if( first == last )
+	if( it == subscriber_map_.end() )
 		return;
 
 
-	SubscriberMap::iterator it = std::find_if(
-		first,
-		last,
-		[name, p_f] (const SubscriberMap::value_type& kv) {
-			assert( kv.first == name );
-			return kv.second == p_f;
-		}
-	);
+	SubscriberList subscribers = it->second;
+	SubscriberList::iterator ju =
+		std::find( subscribers.begin(), subscribers.end(), p_f );
 
-	if( std::next(first) == last )
+	if( ju == subscribers.end() )
+		return;
+
+	subscribers.erase(ju);
+
+	if( subscribers.empty() )
 		unsubscribe(name);
-
-	if( it != last )
-		subscriber_map_.erase(it);
 }
 
-
-void Event::listen(const std::string& pattern, const ListenFn& f)
-{
-	listen( pattern, ListenFnRef(new ListenFn(f)) );
-}
 
 
 void Event::listen(const std::string& pattern, const ListenFnRef& p_f)
@@ -132,7 +121,7 @@ void Event::listen(const std::string& pattern, const ListenFnRef& p_f)
 	if( it != listener_map_.end() )
 		return;
 
-	listener_map_.emplace( std::make_pair(pattern, p_f) );
+	listener_map_[pattern] = p_f;
 
 	MessageBuilder message(Topic::EVENT, Action::LISTEN);
 	message.add_argument(pattern);
