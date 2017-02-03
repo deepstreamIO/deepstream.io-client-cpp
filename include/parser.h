@@ -47,11 +47,13 @@ enum deepstream_token
 	TOKEN_UNKNOWN = UCHAR_MAX + 1,
 	TOKEN_PAYLOAD,
 	TOKEN_MESSAGE_SEPARATOR,
+
 	TOKEN_A_A,
 	TOKEN_A_E_IAM, // A|E|INVALID_AUTH_MSG
 	TOKEN_A_E_IAD, // A|E|INVALID_AUTH_DATA
 	TOKEN_A_E_TMAA, // A|E|TOO_MANY_AUTH_ATTEMPTS
 	TOKEN_A_REQ,
+
 	TOKEN_C_A,
 	TOKEN_C_CH,
 	TOKEN_C_CHR,
@@ -59,6 +61,7 @@ enum deepstream_token
 	TOKEN_C_PO,
 	TOKEN_C_RED,
 	TOKEN_C_REJ,
+
 	TOKEN_E_A_L,
 	TOKEN_E_A_S,
 	TOKEN_E_A_US,
@@ -68,6 +71,13 @@ enum deepstream_token
 	TOKEN_E_SP,
 	TOKEN_E_SR,
 	TOKEN_E_US,
+
+	TOKEN_U_A_S,
+	TOKEN_U_A_US,
+	TOKEN_U_PNJ,
+	TOKEN_U_PNL,
+	TOKEN_U_S,
+	TOKEN_U_US,
 	/**
 	 * The following token is a dummy value for development purposes, e.g.,
 	 * the number of valid tokens is TOKENS_MAXVAL - TOKEN_UNKNOWN + 1.

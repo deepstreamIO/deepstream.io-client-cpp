@@ -196,6 +196,24 @@ State transition(State state, const Message& message, Sender sender)
 		}
 	}
 
+
+	if( state == State::CONNECTED && topic == Topic::PRESENCE )
+	{
+		if( action == Action::SUBSCRIBE ||
+			action == Action::UNSUBSCRIBE )
+		{
+			if( (sender == Sender::CLIENT && !is_ack) ||
+				(sender == Sender::SERVER && is_ack) )
+				return state;
+		}
+		if( action == Action::PRESENCE_JOIN ||
+			action == Action::PRESENCE_LEAVE )
+		{
+			if( sender == Sender::SERVER )
+				return state;
+		}
+	}
+
 	return State::ERROR;
 }
 

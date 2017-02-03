@@ -81,7 +81,14 @@ const Message::Header HEADERS[] = {
 	Message::Header( Topic::EVENT, Action::SUBSCRIBE ),
 	Message::Header( Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_FOUND ),
 	Message::Header( Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_REMOVED ),
-	Message::Header( Topic::EVENT, Action::UNSUBSCRIBE )
+	Message::Header( Topic::EVENT, Action::UNSUBSCRIBE ),
+
+	Message::Header( Topic::PRESENCE, Action::SUBSCRIBE, true ),
+	Message::Header( Topic::PRESENCE, Action::UNSUBSCRIBE, true ),
+	Message::Header( Topic::PRESENCE, Action::PRESENCE_JOIN ),
+	Message::Header( Topic::PRESENCE, Action::PRESENCE_LEAVE ),
+	Message::Header( Topic::PRESENCE, Action::SUBSCRIBE ),
+	Message::Header( Topic::PRESENCE, Action::UNSUBSCRIBE )
 };
 
 const std::size_t NUM_HEADERS = sizeof(HEADERS) / sizeof(HEADERS[0]);
@@ -109,7 +116,14 @@ const char* HEADER_TO_STRING[] = {
 	"E|S",
 	"E|SP",
 	"E|SR",
-	"E|US"
+	"E|US",
+
+	"U|A|S",
+	"U|A|US",
+	"U|PNJ",
+	"U|PNL",
+	"U|S|S",
+	"U|US|US"
 };
 
 const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
@@ -135,7 +149,14 @@ const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
 	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(2, 2),
 	std::pair<std::size_t, std::size_t>(2, 2),
-	std::pair<std::size_t, std::size_t>(1, 1)
+	std::pair<std::size_t, std::size_t>(1, 1),
+
+	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(0, 0)
 };
 
 

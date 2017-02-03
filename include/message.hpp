@@ -37,6 +37,7 @@ namespace deepstream
 		CONNECTION,
 		ERROR,
 		EVENT,
+		PRESENCE,
 		RECORD,
 		RPC
 	};
@@ -53,6 +54,8 @@ namespace deepstream
 		LISTEN,
 		PING,
 		PONG,
+		PRESENCE_JOIN,
+		PRESENCE_LEAVE,
 		QUERY,
 		REDIRECT,
 		REJECT,
