@@ -173,6 +173,23 @@ State transition(State state, const Message& message, Sender sender)
 		return State::DISCONNECTED;
 	}
 
+
+	if( state == State::CONNECTED &&
+		topic == Topic::EVENT )
+	{
+		if( action == Action::LISTEN ||
+			action == Action::SUBSCRIBE ||
+			action == Action::UNLISTEN ||
+			action == Action::UNSUBSCRIBE )
+		{
+			if( (sender == Sender::CLIENT && !is_ack) ||
+				(sender == Sender::SERVER && is_ack) )
+				return state;
+		}
+		else if( action == Action::EVENT )
+			return state;
+	}
+
 	return State::ERROR;
 }
 
