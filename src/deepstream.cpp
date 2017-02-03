@@ -248,6 +248,9 @@ void Client::process_messages()
 
 	while( receive_(&buffer, &messages) == websockets::State::OPEN )
 	{
+		if( messages.empty() )
+			break;
+
 		for(const Message& message : messages)
 		{
 			if( message.topic() == Topic::CONNECTION &&
