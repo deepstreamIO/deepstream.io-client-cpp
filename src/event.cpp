@@ -49,10 +49,10 @@ Event::SubscribeFnPtr Event::subscribe(const Name& name, const SubscribeFn& f)
 
 void Event::subscribe(const Name& name, const SubscribeFnPtr& p_f)
 {
-	assert( p_f );
-
 	if( name.empty() )
 		throw std::invalid_argument( "Empty event subscription pattern" );
+	if( !p_f )
+		throw std::invalid_argument( "Subscribe function pointer is NULL" );
 
 
 	auto ret = subscriber_map_.equal_range(name);
@@ -126,6 +126,11 @@ void Event::unsubscribe(const Name& name, const SubscribeFnPtr& p_f)
 
 void Event::listen(const std::string& pattern, const ListenFnPtr& p_f)
 {
+	if( pattern.empty() )
+		throw std::invalid_argument( "Cannot listen for empty patterns" );
+	if( !p_f )
+		throw std::invalid_argument( "Listen function pointer is NULL" );
+
 	ListenerMap::iterator it = listener_map_.find(pattern);
 
 	if( it != listener_map_.end() )
