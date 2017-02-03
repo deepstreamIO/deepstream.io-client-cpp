@@ -343,6 +343,14 @@ void deepstream_parser_state::handle_header(
 			DS_ADD_MSG(Topic::EVENT, Action::SUBSCRIBE);
 			break;
 
+		case TOKEN_E_SP:
+			DS_ADD_MSG(Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_FOUND);
+			break;
+
+		case TOKEN_E_SR:
+			DS_ADD_MSG(Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_REMOVED);
+			break;
+
 		case TOKEN_E_US:
 			DS_ADD_MSG(Topic::EVENT, Action::UNSUBSCRIBE);
 			break;
