@@ -76,11 +76,20 @@ Buffer make_argument(
 }
 
 
+
 MessageBuilder make_message(Engine* p_engine)
 {
 	assert( p_engine );
 
 	const Message::Header& header = make_header(p_engine);
+
+	return make_message(p_engine, header);
+}
+
+
+MessageBuilder make_message(Engine* p_engine, const Message::Header& header)
+{
+	assert( p_engine );
 
 	auto expected_num_arguments = Message::num_arguments(header);
 	std::size_t min_num_args = expected_num_arguments.first;
@@ -98,6 +107,8 @@ MessageBuilder make_message(Engine* p_engine)
 
 	return builder;
 }
+
+
 
 }
 }
