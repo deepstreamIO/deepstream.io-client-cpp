@@ -34,6 +34,7 @@ namespace deepstream
 		Buffer make_argument(
 			Engine*, std::size_t min_size=1, std::size_t max_size=100);
 		MessageBuilder make_message(Engine*);
+		MessageBuilder make_message(Engine*, const Message::Header&);
 	}
 }
 
