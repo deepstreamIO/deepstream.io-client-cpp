@@ -303,6 +303,14 @@ void deepstream_parser_state::handle_header(
 			DS_ADD_MSG(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
 			break;
 
+		case TOKEN_C_PI:
+			DS_ADD_MSG(Topic::CONNECTION, Action::PING);
+			break;
+
+		case TOKEN_C_PO:
+			DS_ADD_MSG(Topic::CONNECTION, Action::PONG);
+			break;
+
 		case TOKEN_C_RED:
 			DS_ADD_MSG(Topic::CONNECTION, Action::REDIRECT);
 			break;

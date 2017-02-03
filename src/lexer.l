@@ -67,6 +67,8 @@ NS  [^\x1e\x1f]
 	C{MPS}A        { BEGIN(yypayload); return DS_PARSE(TOKEN_C_A); }
 	C{MPS}CH       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_CH); }
 	C{MPS}CHR      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_CHR); }
+	C{MPS}PI       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_PI); }
+	C{MPS}PO       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_PO); }
 	C{MPS}RED      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_RED); }
 	C{MPS}REJ      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_REJ); }
 

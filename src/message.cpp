@@ -68,6 +68,8 @@ const Message::Header HEADERS[] = {
 	Message::Header( Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true ),
 	Message::Header( Topic::CONNECTION, Action::CHALLENGE ),
 	Message::Header( Topic::CONNECTION, Action::CHALLENGE_RESPONSE ),
+	Message::Header( Topic::CONNECTION, Action::PING ),
+	Message::Header( Topic::CONNECTION, Action::PONG ),
 	Message::Header( Topic::CONNECTION, Action::REDIRECT ),
 	Message::Header( Topic::CONNECTION, Action::REJECT ),
 
@@ -92,6 +94,8 @@ const char* HEADER_TO_STRING[] = {
 	"C|A",
 	"C|CH",
 	"C|CHR",
+	"C|PI",
+	"C|PO",
 	"C|RED",
 	"C|REJ",
 
@@ -114,6 +118,8 @@ const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
 	std::pair<std::size_t, std::size_t>(0, 0),
 	std::pair<std::size_t, std::size_t>(0, 0),
 	std::pair<std::size_t, std::size_t>(1, 1),
+	std::pair<std::size_t, std::size_t>(0, 0),
+	std::pair<std::size_t, std::size_t>(0, 0),
 	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(0, 1),
 

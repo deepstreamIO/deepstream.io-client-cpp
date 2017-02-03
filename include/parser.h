@@ -55,6 +55,8 @@ enum deepstream_token
 	TOKEN_C_A,
 	TOKEN_C_CH,
 	TOKEN_C_CHR,
+	TOKEN_C_PI,
+	TOKEN_C_PO,
 	TOKEN_C_RED,
 	TOKEN_C_REJ,
 	TOKEN_E_A_L,

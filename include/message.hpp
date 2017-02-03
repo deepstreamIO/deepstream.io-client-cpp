@@ -51,6 +51,8 @@ namespace deepstream
 		ERROR_TOO_MANY_AUTH_ATTEMPTS,
 		EVENT,
 		LISTEN,
+		PING,
+		PONG,
 		QUERY,
 		REDIRECT,
 		REJECT,
