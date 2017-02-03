@@ -57,6 +57,7 @@ namespace deepstream
 		void unsubscribe(const Name&);
 		void unsubscribe(const Name&, const SubscribeFnPtr&);
 
+		ListenFnPtr listen(const std::string&, const ListenFn&);
 		void listen(const std::string& pattern, const ListenFnPtr&);
 		void unlisten(const std::string& pattern);
 
