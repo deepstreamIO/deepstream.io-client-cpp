@@ -253,4 +253,81 @@ BOOST_AUTO_TEST_CASE(subscriber_notification)
 	BOOST_CHECK( !is_subscribed );
 }
 
+
+
+BOOST_AUTO_TEST_CASE(listener_notification)
+{
+	typedef Event::Name Name;
+
+	const Name pattern(".*");
+	const Name match("match");
+
+
+	bool is_listening = false;
+	auto send = [pattern, &is_listening] (const Message& message) {
+		BOOST_CHECK_EQUAL( message.topic(), Topic::EVENT );
+		BOOST_CHECK( !message.is_ack() );
+		BOOST_CHECK_EQUAL( message.num_arguments(), 1 );
+
+		Buffer b( pattern.cbegin(), pattern.cend() );
+		BOOST_REQUIRE_EQUAL( pattern.size(), message[0].size() );
+		BOOST_CHECK(
+			std::equal( b.cbegin(), b.cend(), message[0].cbegin() )
+		);
+
+		if( message.action() == Action::LISTEN )
+			is_listening = true;
+		else if( message.action() == Action::UNLISTEN )
+			is_listening = false;
+		else
+			BOOST_FAIL( "This branch should not be taken" );
+
+		return true;
+	};
+
+	bool has_subscriber = false;
+	Event::ListenFn f =
+		[pattern, match, &has_subscriber]
+		(const Name& my_pattern, bool b, const Name& my_match) {
+			BOOST_CHECK_EQUAL( pattern, my_pattern );
+			BOOST_CHECK_EQUAL( match, my_match );
+			has_subscriber = b;
+		};
+
+	Event event(send);
+	Event::ListenFnPtr p_f = event.listen(pattern, f);
+
+	BOOST_CHECK( is_listening );
+	BOOST_CHECK( p_f );
+	BOOST_CHECK_EQUAL( event.listener_map_.size(), 1 );
+	BOOST_CHECK_EQUAL( event.listener_map_[pattern], p_f );
+
+
+	// E|SP
+	MessageBuilder sp(Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_FOUND);
+	sp.add_argument(pattern);
+	sp.add_argument(match);
+
+	BOOST_CHECK( !has_subscriber );
+	event.notify_(sp);
+	BOOST_CHECK( has_subscriber );
+
+
+	// E|SR
+	MessageBuilder sr(Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_REMOVED);
+	sr.add_argument(pattern);
+	sr.add_argument(match);
+
+	event.notify_(sr);
+
+	BOOST_CHECK( !has_subscriber );
+
+
+	// unlisten
+	event.unlisten(pattern);
+
+	BOOST_CHECK( !is_listening );
+	BOOST_CHECK( event.listener_map_.empty() );
+}
+
 }
