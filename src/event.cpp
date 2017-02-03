@@ -38,16 +38,16 @@ Event::Event(const SendFn& send) :
 
 
 
-Event::SubscribeFnRef Event::subscribe(const Name& name, const SubscribeFn& f)
+Event::SubscribeFnPtr Event::subscribe(const Name& name, const SubscribeFn& f)
 {
-	SubscribeFnRef p_f( new SubscribeFn(f) );
+	SubscribeFnPtr p_f( new SubscribeFn(f) );
 	subscribe(name, p_f);
 
 	return p_f;
 }
 
 
-void Event::subscribe(const Name& name, const SubscribeFnRef& p_f)
+void Event::subscribe(const Name& name, const SubscribeFnPtr& p_f)
 {
 	assert( p_f );
 
@@ -101,7 +101,7 @@ void Event::unsubscribe(const Name& name)
 }
 
 
-void Event::unsubscribe(const Name& name, const SubscribeFnRef& p_f)
+void Event::unsubscribe(const Name& name, const SubscribeFnPtr& p_f)
 {
 	SubscriberMap::iterator it = subscriber_map_.find(name);
 
@@ -124,7 +124,7 @@ void Event::unsubscribe(const Name& name, const SubscribeFnRef& p_f)
 
 
 
-void Event::listen(const std::string& pattern, const ListenFnRef& p_f)
+void Event::listen(const std::string& pattern, const ListenFnPtr& p_f)
 {
 	ListenerMap::iterator it = listener_map_.find(pattern);
 
@@ -201,7 +201,7 @@ void Event::notify_subscribers_(const Name& name, const Buffer& data)
 	SubscriberList subscribers = it->second;
 	it = subscriber_map_.end();
 
-	for(const SubscribeFnRef& p_f : subscribers)
+	for(const SubscribeFnPtr& p_f : subscribers)
 	{
 		auto f = *p_f;
 		f(data);

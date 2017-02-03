@@ -34,13 +34,13 @@ namespace deepstream
 		typedef std::string Name;
 
 		typedef std::function<void(const Buffer&)> SubscribeFn;
-		typedef std::shared_ptr<SubscribeFn> SubscribeFnRef;
-		typedef std::vector<SubscribeFnRef> SubscriberList;
+		typedef std::shared_ptr<SubscribeFn> SubscribeFnPtr;
+		typedef std::vector<SubscribeFnPtr> SubscriberList;
 		typedef std::map<Name, SubscriberList> SubscriberMap;
 
 		typedef std::function<void(const Name&, const Buffer&)> ListenFn;
-		typedef std::shared_ptr<ListenFn> ListenFnRef;
-		typedef std::map<Name, ListenFnRef> ListenerMap;
+		typedef std::shared_ptr<ListenFn> ListenFnPtr;
+		typedef std::map<Name, ListenFnPtr> ListenerMap;
 
 		/**
 		 * Function matching this signature are expected to return `true` if the
@@ -52,12 +52,12 @@ namespace deepstream
 		explicit Event(const SendFn&);
 
 
-		SubscribeFnRef subscribe(const Name&, const SubscribeFn&);
-		void subscribe(const Name&, const SubscribeFnRef&);
+		SubscribeFnPtr subscribe(const Name&, const SubscribeFn&);
+		void subscribe(const Name&, const SubscribeFnPtr&);
 		void unsubscribe(const Name&);
-		void unsubscribe(const Name&, const SubscribeFnRef&);
+		void unsubscribe(const Name&, const SubscribeFnPtr&);
 
-		void listen(const std::string& pattern, const ListenFnRef&);
+		void listen(const std::string& pattern, const ListenFnPtr&);
 		void unlisten(const std::string& pattern);
 
 

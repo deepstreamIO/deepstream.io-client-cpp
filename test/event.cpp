@@ -107,8 +107,8 @@ BOOST_AUTO_TEST_CASE(simple)
 	Event event(send);
 
 	Event::SubscribeFn f = [] (const Buffer&) {};
-	Event::SubscribeFnRef p1( new Event::SubscribeFn(f) );
-	Event::SubscribeFnRef p2( new Event::SubscribeFn(f) );
+	Event::SubscribeFnPtr p1( new Event::SubscribeFn(f) );
+	Event::SubscribeFnPtr p2( new Event::SubscribeFn(f) );
 
 	state = 0;
 	event.subscribe(name, p1);
@@ -140,8 +140,8 @@ BOOST_AUTO_TEST_CASE(simple)
 
 
 	Event::ListenFn g = [] (const Event::Name&, const Buffer&) {};
-	Event::ListenFnRef q1( new Event::ListenFn(g) );
-	Event::ListenFnRef q2( new Event::ListenFn(g) );
+	Event::ListenFnPtr q1( new Event::ListenFn(g) );
+	Event::ListenFnPtr q2( new Event::ListenFn(g) );
 
 	state = 1;
 	event.listen(pattern, q1);
