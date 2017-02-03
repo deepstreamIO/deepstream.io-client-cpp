@@ -124,6 +124,15 @@ void Event::unsubscribe(const Name& name, const SubscribeFnPtr& p_f)
 
 
 
+Event::ListenFnPtr Event::listen(const std::string& pattern, const ListenFn& f)
+{
+	ListenFnPtr p_f( new ListenFn(f) );
+	listen(pattern, p_f);
+
+	return p_f;
+}
+
+
 void Event::listen(const std::string& pattern, const ListenFnPtr& p_f)
 {
 	if( pattern.empty() )
