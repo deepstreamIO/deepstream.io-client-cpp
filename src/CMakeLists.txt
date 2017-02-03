@@ -34,6 +34,7 @@ add_library(
 	message_builder.cpp
 	message_proxy.cpp
 	parser.cpp
+	presence.cpp
 	random.cpp
 	websockets.cpp
 	websockets/poco.cpp
