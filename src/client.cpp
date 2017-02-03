@@ -86,20 +86,18 @@ State transition(State state, const Message& message, Sender sender)
 	if( state == State::CHALLENGING &&
 		topic == Topic::CONNECTION &&
 		action == Action::CHALLENGE_RESPONSE &&
+		!is_ack &&
 		sender == Sender::CLIENT )
 	{
-		assert( !is_ack );
-
 		return State::CHALLENGING_WAIT;
 	}
 
 	if( state == State::CHALLENGING_WAIT &&
 		topic == Topic::CONNECTION &&
 		action == Action::CHALLENGE_RESPONSE &&
+		is_ack &&
 		sender == Sender::SERVER )
 	{
-		assert( is_ack );
-
 		return State::AWAIT_AUTHENTICATION;
 	}
 
@@ -126,20 +124,18 @@ State transition(State state, const Message& message, Sender sender)
 	if( state == State::AWAIT_AUTHENTICATION &&
 		topic == Topic::AUTH &&
 		action == Action::REQUEST &&
+		!is_ack &&
 		sender == Sender::CLIENT )
 	{
-		assert( !is_ack );
-
 		return State::AUTHENTICATING;
 	}
 
 	if( state == State::AUTHENTICATING &&
 		topic == Topic::AUTH &&
 		action == Action::REQUEST &&
+		is_ack &&
 		sender == Sender::SERVER )
 	{
-		assert( is_ack );
-
 		return State::CONNECTED;
 	}
 
