@@ -183,7 +183,17 @@ State transition(State state, const Message& message, Sender sender)
 				return state;
 		}
 		else if( action == Action::EVENT )
+		{
 			return state;
+		}
+		else if( action == Action::SUBSCRIPTION_FOR_PATTERN_FOUND ||
+				 action == Action::SUBSCRIPTION_FOR_PATTERN_REMOVED )
+		{
+			assert( !is_ack );
+
+			if( sender == Sender::SERVER )
+				return state;
+		}
 	}
 
 	return State::ERROR;

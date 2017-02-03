@@ -65,6 +65,8 @@ enum deepstream_token
 	TOKEN_E_EVT,
 	TOKEN_E_L,
 	TOKEN_E_S,
+	TOKEN_E_SP,
+	TOKEN_E_SR,
 	TOKEN_E_US,
 	/**
 	 * The following token is a dummy value for development purposes, e.g.,
