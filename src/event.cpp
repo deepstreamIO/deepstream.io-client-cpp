@@ -38,6 +38,20 @@ Event::Event(const SendFn& send) :
 
 
 
+void Event::emit(const Name& name, const Buffer& buffer)
+{
+	if( name.empty() )
+		throw std::invalid_argument( "Empty event name" );
+
+	MessageBuilder evt(Topic::EVENT, Action::EVENT);
+	evt.add_argument(name);
+	evt.add_argument(buffer);
+
+	send_(evt);
+}
+
+
+
 Event::SubscribeFnPtr Event::subscribe(const Name& name, const SubscribeFn& f)
 {
 	SubscribeFnPtr p_f( new SubscribeFn(f) );
@@ -285,7 +299,5 @@ void Event::notify_listeners_(const Message& message)
 	auto f = *p_f;
 	f(pattern, is_subscribed, match);
 }
-
-
 
 }
