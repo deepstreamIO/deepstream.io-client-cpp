@@ -52,6 +52,7 @@ namespace deepstream
 		explicit Event(const SendFn&);
 
 
+		SubscribeFnRef subscribe(const Name&, const SubscribeFn&);
 		void subscribe(const Name&, const SubscribeFnRef&);
 		void unsubscribe(const Name&);
 		void unsubscribe(const Name&, const SubscribeFnRef&);

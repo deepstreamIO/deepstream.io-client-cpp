@@ -38,6 +38,15 @@ Event::Event(const SendFn& send) :
 
 
 
+Event::SubscribeFnRef Event::subscribe(const Name& name, const SubscribeFn& f)
+{
+	SubscribeFnRef p_f( new SubscribeFn(f) );
+	subscribe(name, p_f);
+
+	return p_f;
+}
+
+
 void Event::subscribe(const Name& name, const SubscribeFnRef& p_f)
 {
 	assert( p_f );
