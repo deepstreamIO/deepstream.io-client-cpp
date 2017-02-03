@@ -52,6 +52,27 @@ State transition(State state, const Message& message, Sender sender)
 	assert( num_args <= expected_num_args.second );
 
 
+	// ping/pong
+	if( topic == Topic::CONNECTION &&
+		action == Action::PING &&
+		sender == Sender::SERVER )
+	{
+		assert( !is_ack );
+
+		return state;
+	}
+
+	if( topic == Topic::CONNECTION &&
+		action == Action::PONG &&
+		sender == Sender::CLIENT )
+	{
+		assert( !is_ack );
+
+		return state;
+	}
+
+
+	// actual state transitions
 	if( state == State::AWAIT_CONNECTION &&
 		topic == Topic::CONNECTION &&
 		action == Action::CHALLENGE &&
