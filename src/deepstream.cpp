@@ -58,12 +58,11 @@ Client Client::make(
 			std::move(p_error_handler)
 		);
 
-		websockets::Frame::Flags flags = 0;
 		Buffer buffer;
 		parser::MessageList messages;
 		client::State& state = c.state_;
 
-		if( c.receive_(&flags, &buffer, &messages) != websockets::State::OPEN )
+		if( c.receive_(&buffer, &messages) != websockets::State::OPEN )
 			return c;
 
 		if( messages.size() != 1 || state != client::State::CHALLENGING )
@@ -80,7 +79,7 @@ Client Client::make(
 				return c;
 		}
 
-		if( c.receive_(&flags, &buffer, &messages) != websockets::State::OPEN )
+		if( c.receive_(&buffer, &messages) != websockets::State::OPEN )
 			return c;
 
 		if( messages.size() != 1 )
@@ -158,11 +157,10 @@ client::State Client::login(
 	if( send_(areq) != websockets::State::OPEN )
 		return state_;
 
-	websockets::Frame::Flags flags = 0;
 	Buffer buffer;
 	parser::MessageList messages;
 
-	if( receive_(&flags, &buffer, &messages) != websockets::State::OPEN )
+	if( receive_(&buffer, &messages) != websockets::State::OPEN )
 		return state_;
 
 	if( messages.size() != 1 )
@@ -232,25 +230,17 @@ void Client::close()
 
 
 websockets::State Client::receive_(
-	websockets::Frame::Flags* p_flags,
-	Buffer* p_buffer,
-	parser::MessageList* p_messages)
+	Buffer* p_buffer, parser::MessageList* p_messages)
 {
-	assert( p_flags );
 	assert( p_buffer );
 	assert( p_messages );
 
 	if( !p_websocket_ )
 		return websockets::State::ERROR;
 
-	*p_flags = 0;
-
 	auto receive_ret = p_websocket_->receive_frame();
 	websockets::State ws_state = receive_ret.first;
 	std::unique_ptr<websockets::Frame> p_frame = std::move(receive_ret.second);
-
-	if( p_frame )
-		*p_flags = p_frame->flags();
 
 	if( ws_state == websockets::State::OPEN && !p_frame )
 	{
@@ -296,31 +286,6 @@ websockets::State Client::receive_(
 
 	const Buffer& payload = p_frame->payload();
 	p_buffer->assign( payload.cbegin(), payload.cend() );
-
-
-	const websockets::Frame::Flags ping_flags =
-		websockets::Frame::Bit::FIN | websockets::Frame::Opcode::PING_FRAME;
-	const websockets::Frame::Flags text_flags =
-		websockets::Frame::Bit::FIN | websockets::Frame::Opcode::TEXT_FRAME;
-
-	if( p_frame->flags() == ping_flags )
-	{
-		p_messages->clear();
-		return ws_state;
-	}
-
-	if( p_frame->flags() != text_flags )
-	{
-		p_buffer->clear();
-		p_messages->clear();
-
-		close();
-		p_error_handler_->unexpected_websocket_frame_flags( p_frame->flags() );
-
-		return websockets::State::ERROR;
-	}
-
-
 	p_buffer->push_back(0);
 	p_buffer->push_back(0);
 
