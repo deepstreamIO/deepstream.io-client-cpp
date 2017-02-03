@@ -18,6 +18,7 @@
 
 #include <cstring>
 
+#include <algorithm>
 #include <numeric>
 #include <random>
 #include <vector>
@@ -320,6 +321,47 @@ BOOST_AUTO_TEST_CASE(random_messages)
 
 			headers.push_back( message_builder.header() );
 		}
+
+		input.push_back( '\0' );
+		input.push_back( '\0' );
+
+		auto ret = execute( input.data(), input.size() );
+
+		const ErrorList& errors = ret.second;
+		BOOST_CHECK( errors.empty() );
+
+		const MessageList& messages = ret.first;
+
+		BOOST_REQUIRE_EQUAL( messages.size(), headers.size() );
+
+		auto i = headers.cbegin();
+		auto j = messages.cbegin();
+		for( ; i != headers.cend(); ++i, ++j )
+			BOOST_CHECK_EQUAL( *i, j->header() );
+	}
+}
+
+
+BOOST_AUTO_TEST_CASE(all_messages_random_order)
+{
+	auto all_ret = Message::Header::all();
+
+	for(std::size_t iteration = 0; iteration < 100; ++iteration)
+	{
+		random::Engine engine(iteration);
+
+		Buffer input;
+		std::vector<Message::Header> headers( all_ret.first, all_ret.second );
+		std::shuffle( headers.begin(), headers.end(), engine );
+
+		for(const Message::Header& h : headers)
+		{
+			MessageBuilder message = random::make_message(&engine, h);
+
+			Buffer bin = message.to_binary();
+			input.insert( input.end(), bin.cbegin(), bin.cend() );
+		}
+
 
 		input.push_back( '\0' );
 		input.push_back( '\0' );
