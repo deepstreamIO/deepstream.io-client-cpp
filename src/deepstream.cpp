@@ -284,6 +284,16 @@ websockets::State Client::receive_(
 	assert( ws_state == websockets::State::OPEN );
 	assert( p_frame );
 
+	if( p_frame->flags() !=
+		(websockets::Frame::Bit::FIN | websockets::Frame::Opcode::TEXT_FRAME) )
+	{
+		p_error_handler_->unexpected_websocket_frame_flags( p_frame->flags() );
+		close();
+
+		return websockets::State::ERROR;
+	}
+
+
 	const Buffer& payload = p_frame->payload();
 	p_buffer->assign( payload.cbegin(), payload.cend() );
 	p_buffer->push_back(0);
