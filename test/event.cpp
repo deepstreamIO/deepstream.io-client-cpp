@@ -191,12 +191,17 @@ BOOST_AUTO_TEST_CASE(subscriber_notification)
 	bool is_subscribed = false;
 	auto send = [name, &is_subscribed] (const Message& message) -> bool {
 		BOOST_CHECK_EQUAL( message.topic(), Topic::EVENT );
-		BOOST_CHECK_EQUAL( message.action(), Action::SUBSCRIBE );
 		BOOST_CHECK(
 			std::equal(name.cbegin(), name.cend(), message[0].cbegin())
 		);
 
-		is_subscribed = true;
+		if( message.action() == Action::SUBSCRIBE )
+			is_subscribed = true;
+		else if( message.action() == Action::UNSUBSCRIBE )
+			is_subscribed = false;
+		else
+			BOOST_FAIL( "This branch should not be taken" );
+
 		return true;
 	};
 
@@ -221,8 +226,31 @@ BOOST_AUTO_TEST_CASE(subscriber_notification)
 	event.notify_(message);
 	BOOST_CHECK_EQUAL( num_calls, 1 );
 
+	Event::SubscribeFn g =
+		[name, data, &num_calls, &event, &p_f] (const Buffer& my_data)
+		{
+			BOOST_CHECK(
+				std::equal(data.cbegin(), data.cend(), my_data.cbegin())
+			);
+
+			num_calls += 10;
+			event.unsubscribe(name, p_f);
+		};
+
+	Event::SubscribeFnPtr p_g = event.subscribe(name, g);
 	event.notify_(message);
-	BOOST_CHECK_EQUAL( num_calls, 2 );
+	BOOST_CHECK_EQUAL( num_calls, 12 );
+
+	BOOST_CHECK_EQUAL( event.subscriber_map_.size(), 1 );
+
+	Event::SubscriberMap::const_iterator ci = event.subscriber_map_.cbegin();
+	const Event::SubscriberList& subscribers = ci->second;
+	BOOST_CHECK_EQUAL( subscribers.size(), 1 );
+	BOOST_CHECK_EQUAL( subscribers.front(), p_g );
+
+	event.unsubscribe(name);
+	BOOST_CHECK( event.subscriber_map_.empty() );
+	BOOST_CHECK( !is_subscribed );
 }
 
 }
