@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(simple)
 	BOOST_CHECK( event.listener_map_.empty() );
 
 
-	Event::ListenFn g = [] (const Event::Name&, const Buffer&) {};
+	Event::ListenFn g = [] (const Event::Name&, bool, const Event::Name&) {};
 	Event::ListenFnPtr q1( new Event::ListenFn(g) );
 	Event::ListenFnPtr q2( new Event::ListenFn(g) );
 

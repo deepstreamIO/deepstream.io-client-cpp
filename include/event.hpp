@@ -38,7 +38,7 @@ namespace deepstream
 		typedef std::vector<SubscribeFnPtr> SubscriberList;
 		typedef std::map<Name, SubscriberList> SubscriberMap;
 
-		typedef std::function<void(const Name&, const Buffer&)> ListenFn;
+		typedef std::function<void(const Name&, bool, const Name&)> ListenFn;
 		typedef std::shared_ptr<ListenFn> ListenFnPtr;
 		typedef std::map<Name, ListenFnPtr> ListenerMap;
 
