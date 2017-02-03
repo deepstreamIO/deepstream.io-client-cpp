@@ -158,16 +158,17 @@ void Event::unlisten(const std::string& pattern)
 void Event::notify_(const Message& message)
 {
 	assert( message.topic() == Topic::EVENT );
-	assert( message.num_arguments() >= 1 );
-
-	const Buffer& arg0 = message[0];
-	Name name( arg0.cbegin(), arg0.cend() );
 
 	switch( message.action() )
 	{
 		case Action::EVENT:
-			assert( message.num_arguments() == 2 );
-			notify_subscribers_( name, message[1] );
+			notify_subscribers_(message);
+			break;
+
+		case Action::SUBSCRIPTION_FOR_PATTERN_FOUND:
+		case Action::SUBSCRIPTION_FOR_PATTERN_REMOVED:
+			assert( !message.is_ack() );
+			notify_listeners_(message);
 			break;
 
 		case Action::LISTEN:
@@ -186,8 +187,19 @@ void Event::notify_(const Message& message)
 }
 
 
-void Event::notify_subscribers_(const Name& name, const Buffer& data)
+void Event::notify_subscribers_(const Message& message)
 {
+	assert( message.action() == Action::EVENT );
+	assert( message.num_arguments() == (message.is_ack() ? 1 : 2) );
+
+	if( message.is_ack() )
+		return;
+
+
+	const Buffer& arg0 = message[0];
+	Name name( arg0.cbegin(), arg0.cend() );
+	const Buffer& data = message[1];
+
 	SubscriberMap::iterator it = subscriber_map_.find(name);
 
 	if( it == subscriber_map_.end() )
@@ -218,5 +230,48 @@ void Event::notify_subscribers_(const Name& name, const Buffer& data)
 		f(data);
 	}
 }
+
+
+void Event::notify_listeners_(const Message& message)
+{
+	assert( message.action() == Action::SUBSCRIPTION_FOR_PATTERN_FOUND ||
+			message.action() == Action::SUBSCRIPTION_FOR_PATTERN_REMOVED );
+	assert( !message.is_ack() );
+	assert( message.num_arguments() == 2 );
+
+
+	const Buffer& arg0 = message[0];
+	Name pattern( arg0.cbegin(), arg0.cend() );
+
+	const Buffer& arg1 = message[1];
+	Name match( arg1.cbegin(), arg1.cend() );
+
+	bool is_subscribed =
+		message.action() == Action::SUBSCRIPTION_FOR_PATTERN_FOUND;
+
+
+	ListenerMap::iterator it = listener_map_.find(pattern);
+
+	if( it == listener_map_.end() )
+	{
+		std::fprintf(
+			stderr,
+			"%s: no listener for pattern '%s'\n",
+			message.header().to_string(), pattern.c_str()
+		);
+
+		return;
+	}
+
+	assert( it->first == pattern );
+
+	// copy the smart pointer (increase the reference count) because the
+	// listener may decide to unlisten.
+	ListenFnPtr p_f = it->second;
+	auto f = *p_f;
+	f(pattern, is_subscribed, match);
+}
+
+
 
 }
