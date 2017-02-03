@@ -135,6 +135,11 @@ Client::Client(
 			return send_(message) == websockets::State::OPEN;
 		}
 	),
+	presence(
+		[this] (const Message& message) -> bool {
+			return send_(message) == websockets::State::OPEN;
+		}
+	),
 	state_(
 		p_websocket
 		? client::State::AWAIT_CONNECTION
@@ -263,14 +268,18 @@ void Client::process_messages()
 
 			switch( message.topic() )
 			{
+				case Topic::EVENT:
+					event.notify_(message);
+					break;
+
+				case Topic::PRESENCE:
+					presence.notify_(message);
+					break;
+
 				default:
 					assert(0);
 					close();
 					return;
-
-				case Topic::EVENT:
-					event.notify_(message);
-					break;
 			}
 		}
 	}

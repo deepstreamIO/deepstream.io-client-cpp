@@ -27,6 +27,7 @@
 // we have to include `parser.hpp` because `parser::MessageList`,
 // `parser::ErrorList` are `typedef`s and cannot be forward declared.
 #include <parser.hpp>
+#include <presence.hpp>
 
 
 namespace deepstream
@@ -79,6 +80,7 @@ namespace deepstream
 
 
 		Event event;
+		Presence presence;
 
 
 		websockets::State receive_(
