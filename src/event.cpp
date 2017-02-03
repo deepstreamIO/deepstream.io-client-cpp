@@ -17,7 +17,6 @@
 
 #include <algorithm>
 #include <stdexcept>
-#include <iterator>
 
 #include <buffer.hpp>
 #include <event.hpp>
