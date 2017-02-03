@@ -271,6 +271,7 @@ void deepstream_parser_state::handle_header(
 			assert(0);
 			break;
 
+
 		case TOKEN_A_A:
 			DS_ADD_MSG(Topic::AUTH, Action::REQUEST, true);
 			break;
@@ -290,6 +291,7 @@ void deepstream_parser_state::handle_header(
 		case TOKEN_A_REQ:
 			DS_ADD_MSG(Topic::AUTH, Action::REQUEST);
 			break;
+
 
 		case TOKEN_C_A:
 			DS_ADD_MSG(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true);
@@ -318,6 +320,7 @@ void deepstream_parser_state::handle_header(
 		case TOKEN_C_REJ:
 			DS_ADD_MSG(Topic::CONNECTION, Action::REJECT);
 			break;
+
 
 		case TOKEN_E_A_L:
 			DS_ADD_MSG(Topic::EVENT, Action::LISTEN, true);
@@ -353,6 +356,31 @@ void deepstream_parser_state::handle_header(
 
 		case TOKEN_E_US:
 			DS_ADD_MSG(Topic::EVENT, Action::UNSUBSCRIBE);
+			break;
+
+
+		case TOKEN_U_A_S:
+			DS_ADD_MSG(Topic::PRESENCE, Action::SUBSCRIBE, true);
+			break;
+
+		case TOKEN_U_A_US:
+			DS_ADD_MSG(Topic::PRESENCE, Action::UNSUBSCRIBE, true);
+			break;
+
+		case TOKEN_U_PNJ:
+			DS_ADD_MSG(Topic::PRESENCE, Action::PRESENCE_JOIN);
+			break;
+
+		case TOKEN_U_PNL:
+			DS_ADD_MSG(Topic::PRESENCE, Action::PRESENCE_LEAVE);
+			break;
+
+		case TOKEN_U_S:
+			DS_ADD_MSG(Topic::PRESENCE, Action::SUBSCRIBE);
+			break;
+
+		case TOKEN_U_US:
+			DS_ADD_MSG(Topic::PRESENCE, Action::UNSUBSCRIBE);
 			break;
 	}
 
