@@ -21,6 +21,7 @@
 #include <buffer.hpp>
 #include <event.hpp>
 #include <message.hpp>
+#include <message_builder.hpp>
 #include <scope_guard.hpp>
 
 
@@ -178,6 +179,50 @@ BOOST_AUTO_TEST_CASE(simple)
 	event.unlisten(pattern);
 	BOOST_CHECK( event.subscriber_map_.empty() );
 	BOOST_CHECK( event.listener_map_.empty() );
+}
+
+
+
+BOOST_AUTO_TEST_CASE(subscriber_notification)
+{
+	const Event::Name name("name");
+	const Buffer data("data");
+
+	bool is_subscribed = false;
+	auto send = [name, &is_subscribed] (const Message& message) -> bool {
+		BOOST_CHECK_EQUAL( message.topic(), Topic::EVENT );
+		BOOST_CHECK_EQUAL( message.action(), Action::SUBSCRIBE );
+		BOOST_CHECK(
+			std::equal(name.cbegin(), name.cend(), message[0].cbegin())
+		);
+
+		is_subscribed = true;
+		return true;
+	};
+
+	Event event(send);
+
+	unsigned num_calls = 0;
+	Event::SubscribeFn f = [data, &num_calls] (const Buffer& my_data) {
+		BOOST_CHECK( std::equal(data.cbegin(), data.cend(), my_data.cbegin()) );
+		++num_calls;
+	};
+
+	Event::SubscribeFnPtr p_f = event.subscribe(name, f);
+	BOOST_CHECK( p_f );
+	BOOST_CHECK( is_subscribed );
+	BOOST_CHECK_EQUAL( event.subscriber_map_.size(), 1 );
+
+
+	MessageBuilder message(Topic::EVENT, Action::EVENT);
+	message.add_argument(name);
+	message.add_argument(data);
+
+	event.notify_(message);
+	BOOST_CHECK_EQUAL( num_calls, 1 );
+
+	event.notify_(message);
+	BOOST_CHECK_EQUAL( num_calls, 2 );
 }
 
 }
