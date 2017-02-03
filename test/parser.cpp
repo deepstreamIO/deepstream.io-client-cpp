@@ -196,19 +196,22 @@ BOOST_AUTO_TEST_CASE(concatenated_messages)
 
 BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 {
-	const char STRING[] = "E|A|L|l+";
+	const char STRING[] = "E|A|L|x|y+";
 
 	const auto input = Message::from_human_readable(STRING);
 	const auto copy(input);
 
 	const deepstream_token TOKENS[] = {
-		TOKEN_E_A_L, TOKEN_PAYLOAD, TOKEN_MESSAGE_SEPARATOR, TOKEN_EOF
+		TOKEN_E_A_L, TOKEN_PAYLOAD, TOKEN_PAYLOAD, TOKEN_MESSAGE_SEPARATOR,
+		TOKEN_EOF
 	};
 
 	const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
 
-	const std::size_t MATCHLENS[NUM_TOKENS] = { 5, 2, 1, 1 };
-	const char* MATCHES[NUM_TOKENS] = { &input[0], &input[5], &input[7], "" };
+	const std::size_t MATCHLENS[NUM_TOKENS] = { 5, 2, 2, 1, 1 };
+	const char* MATCHES[NUM_TOKENS] = {
+		&input[0], &input[5], &input[7], &input[9], ""
+	};
 
 
 	deepstream_parser_state state( &copy[0], copy.size() );
@@ -216,7 +219,7 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 	for(std::size_t i = 0; i < NUM_TOKENS; ++i)
 	{
 		bool tokenizing_header = state.tokenizing_header_;
-		BOOST_CHECK( (i==0||i==3) ? tokenizing_header : !tokenizing_header );
+		BOOST_CHECK( (i==0||i==4) ? tokenizing_header : !tokenizing_header );
 
 		std::size_t offset = std::accumulate( MATCHLENS, MATCHLENS+i, 0 );
 		BOOST_CHECK_EQUAL( state.offset_, offset );
@@ -225,8 +228,8 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 
 		BOOST_CHECK_EQUAL( ret, TOKENS[i] );
 
-		BOOST_CHECK_EQUAL( state.messages_.size(), (i>=2) ? 0 : 1 );
-		BOOST_CHECK_EQUAL( state.errors_.size(), (i>=2) ? 1 : 0 );
+		BOOST_CHECK_EQUAL( state.messages_.size(), (i>=3) ? 0 : 1 );
+		BOOST_CHECK_EQUAL( state.errors_.size(), (i>=3) ? 1 : 0 );
 
 		BOOST_CHECK_EQUAL( state.offset_, offset+MATCHLENS[i] );
 	}
@@ -235,7 +238,7 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 	const Error& e = state.errors_.front();
 
 	BOOST_CHECK_EQUAL( e.location_.offset_, 0 );
-	BOOST_CHECK_EQUAL( e.location_.size_, 8 );
+	BOOST_CHECK_EQUAL( e.location_.size_, 10 );
 	BOOST_CHECK_EQUAL( e.tag_, Error::INVALID_NUMBER_OF_ARGUMENTS );
 }
 
@@ -244,7 +247,7 @@ BOOST_AUTO_TEST_CASE(invalid_number_of_arguments)
 
 BOOST_AUTO_TEST_CASE(simple_integration)
 {
-	const char raw[] = "A|A+ERROR+++E|A|L|p|m+";
+	const char raw[] = "A|A+ERROR+++E|A|L|p+";
 	const std::vector<char> input = Message::from_human_readable(raw);
 
 	std::vector<char> lexer_input( input.size()+2 );
@@ -287,11 +290,11 @@ BOOST_AUTO_TEST_CASE(simple_integration)
 	const MessageProxy& msg_b = parser.messages_.back();
 	BOOST_CHECK( msg_b.base() == input.data() );
 	BOOST_CHECK_EQUAL( msg_b.offset(), 12 );
-	BOOST_CHECK_EQUAL( msg_b.size(), 10 );
+	BOOST_CHECK_EQUAL( msg_b.size(), 8 );
 	BOOST_CHECK_EQUAL( msg_b.topic(), Topic::EVENT );
 	BOOST_CHECK_EQUAL( msg_b.action(), Action::LISTEN );
 	BOOST_CHECK( msg_b.is_ack() );
-	BOOST_CHECK_EQUAL( msg_b.num_arguments(), 2 );
+	BOOST_CHECK_EQUAL( msg_b.num_arguments(), 1 );
 
 	const Error& error = parser.errors_.front();
 	BOOST_CHECK_EQUAL( error.tag(), Error::UNEXPECTED_TOKEN );
