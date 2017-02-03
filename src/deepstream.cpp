@@ -250,6 +250,14 @@ void Client::process_messages()
 	{
 		for(const Message& message : messages)
 		{
+			if( message.topic() == Topic::CONNECTION &&
+				message.action() == Action::PING )
+			{
+				MessageBuilder pong( Topic::CONNECTION, Action::PONG );
+				send_(pong);
+				continue;
+			}
+
 			switch( message.topic() )
 			{
 				default:
