@@ -159,14 +159,14 @@ void Event::notify_(const Message& message)
 {
 	assert( message.topic() == Topic::EVENT );
 
+	const Buffer& arg0 = message[0];
+	Name name( arg0.cbegin(), arg0.cend() );
+
 	switch( message.action() )
 	{
 		case Action::EVENT:
 			assert( message.num_arguments() == 2 );
-			notify_subscribers_(
-				Name( message[0].cbegin(), message[0].cend() ),
-				message[1]
-			);
+			notify_subscribers_( name, message[1] );
 			break;
 
 		default:
