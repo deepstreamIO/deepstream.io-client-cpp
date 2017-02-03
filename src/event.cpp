@@ -158,6 +158,7 @@ void Event::unlisten(const std::string& pattern)
 void Event::notify_(const Message& message)
 {
 	assert( message.topic() == Topic::EVENT );
+	assert( message.num_arguments() >= 1 );
 
 	const Buffer& arg0 = message[0];
 	Name name( arg0.cbegin(), arg0.cend() );
@@ -167,6 +168,16 @@ void Event::notify_(const Message& message)
 		case Action::EVENT:
 			assert( message.num_arguments() == 2 );
 			notify_subscribers_( name, message[1] );
+			break;
+
+		case Action::LISTEN:
+		case Action::SUBSCRIBE:
+			assert( message.is_ack() );
+			break;
+
+		case Action::UNLISTEN:
+		case Action::UNSUBSCRIBE:
+			assert( message.is_ack() );
 			break;
 
 		default:
