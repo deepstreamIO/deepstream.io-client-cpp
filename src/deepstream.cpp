@@ -131,11 +131,6 @@ Client::Client(
 	std::unique_ptr<websockets::Client> p_websocket,
 	std::unique_ptr<ErrorHandler> p_error_handler
 ) :
-	event(
-		[this] (const Message& message) -> bool {
-			return send_(message) == websockets::State::OPEN;
-		}
-	),
 	state_(
 		p_websocket
 		? client::State::AWAIT_CONNECTION
@@ -234,59 +229,6 @@ void Client::close()
 
 		p_websocket_->close();
 }
-
-
-
-void Client::process_messages()
-{
-	if( !p_websocket_ )
-		return;
-
-
-	const websockets::Frame::Flags ping_flags =
-		websockets::Frame::Bit::FIN | websockets::Frame::Opcode::PING_FRAME;
-	const websockets::Frame::Flags pong_flags =
-		websockets::Frame::Bit::FIN | websockets::Frame::Opcode::PONG_FRAME;
-	const websockets::Frame::Flags text_flags =
-		websockets::Frame::Bit::FIN | websockets::Frame::Opcode::TEXT_FRAME;
-
-	websockets::Frame::Flags flags = 0;
-	Buffer buffer;
-	parser::MessageList messages;
-
-	p_websocket_->set_receive_timeout( std::chrono::milliseconds(1) );
-
-	while( receive_(&flags, &buffer, &messages) == websockets::State::OPEN )
-	{
-		if( flags == ping_flags )
-		{
-			if( send_frame_(buffer, pong_flags) != websockets::State::OPEN )
-				return;
-			continue;
-		}
-
-		if( !flags && buffer.empty() && messages.empty() )
-			return;
-
-		assert( flags == text_flags );
-
-		for(const Message& message : messages)
-		{
-			switch( message.topic() )
-			{
-				default:
-					assert(0);
-					close();
-					return;
-
-				case Topic::EVENT:
-					event.notify_(message);
-					break;
-			}
-		}
-	}
-}
-
 
 
 websockets::State Client::receive_(
