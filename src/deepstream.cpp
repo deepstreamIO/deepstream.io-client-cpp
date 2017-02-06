@@ -234,8 +234,7 @@ void Client::close()
 		return;
 
 	state_ = client::State::DISCONNECTED;
-
-		p_websocket_->close();
+	p_websocket_->close();
 }
 
 
