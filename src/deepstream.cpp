@@ -176,7 +176,7 @@ client::State Client::login(
 	if( messages.size() != 1 )
 	{
 		close();
-		return client::State::ERROR;
+		return state_;
 	}
 
 	const Message& msg = messages.front();
