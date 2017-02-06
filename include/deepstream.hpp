@@ -53,9 +53,20 @@ namespace deepstream
 		static std::string getUid();
 
 
+		/**
+		 * Given a *connected* websocket client and an error handler, construct
+		 * a deepstream client.
+		 *
+		 * @post On exit, the client is either in `AWAIT_CONNECTION` or `CLOSED`
+		 * state.
+		 *
+		 * @param[in] p_websocket A non-NULL pointer
+		 * @param[in] p_error_handler A non-NULL pointer
+		 *
+		 */
 		static Client make(
-			std::unique_ptr<websockets::Client>,
-			std::unique_ptr<ErrorHandler>
+			std::unique_ptr<websockets::Client> p_websocket,
+			std::unique_ptr<ErrorHandler> p_error_handler
 		);
 		static Client make(const std::string& uri);
 
@@ -70,12 +81,32 @@ namespace deepstream
 			std::unique_ptr<ErrorHandler>);
 
 	public:
+		/**
+		 * Given a client in `AWAIT_CONNECTION` state, this function attempts to
+		 * log in with the given authentication data.
+		 *
+		 * The format of the user authentication data depends on the <a
+		 * href="https://deepstream.io/tutorials/core/security-overview/">authentication</a>
+		 * method used by the server.
+		 *
+		 * @param[in] auth User authentication data
+		 * @param[out] p_user_data On a successful reeturn, store the user data
+		 * in `p_user_data` if the reference is not `NULL`.
+		 *
+		 * @return `AWAIT_CONNECTION`, `CLOSED`, or `CONNECTED`; `ERROR` if the
+		 * client was not connected before
+		 */
 		client::State login(const std::string& auth, Buffer* p_user_data);
 		void close();
 
 		client::State getConnectionState() { return state_; }
 
 
+		/**
+		 * This function reads all incoming messages from the websocket and
+		 * executes the appropriate callbacks; it returns when there are no
+		 * messages left.
+		 */
 		void process_messages();
 
 
@@ -83,12 +114,32 @@ namespace deepstream
 		Presence presence;
 
 
+		/**
+		 * This function reads messages from the websocket.
+		 *
+		 * @param[out] p_buffer A non-NULL pointer. After a successful exit, the
+		 * buffer stores the unparsed messages.
+		 * @param[out] p_messages A non-NULL pointer. After a successful exit,
+		 * the messages reference the storage of `p_buffer`.
+		 */
 		websockets::State receive_(
 			Buffer* p_buffer, parser::MessageList* p_messages
 		);
+		/**
+		 * This method serializes the given messages and sends it as a
+		 * non-fragmented text frame to the server.
+		 */
 		websockets::State send_(const Message&);
 
+		/**
+		 * This method sends a non-fragmented text frame with the contents of
+		 * the given buffer as payload.
+		 */
 		websockets::State send_frame_(const Buffer&);
+		/**
+		 * This method sends a frame with given flags and the contents of the
+		 * given buffer as payload.
+		 */
 		websockets::State send_frame_(const Buffer&, int);
 
 

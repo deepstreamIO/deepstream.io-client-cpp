@@ -53,6 +53,8 @@ State transition(State state, const Message& message, Sender sender)
 
 
 	// ping/pong
+	// heartbeats are implemented within deepstream and independent of
+	// websocket heartbeats (https://tools.ietf.org/html/rfc6455#section-5.5)
 	if( topic == Topic::CONNECTION &&
 		action == Action::PING &&
 		sender == Sender::SERVER )

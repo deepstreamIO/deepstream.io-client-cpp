@@ -46,8 +46,8 @@ namespace deepstream
 
 
 		/**
-		 * Given current client state, a message, and a sender, this function
-		 * returns the next state of the client's finite state machine.
+		 * Given the current client state, a message, and a sender, this
+		 * function returns the next state of the client's finite state machine.
 		 */
 		State transition(State s, const Message& message, Sender sender);
 	}

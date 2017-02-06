@@ -118,7 +118,14 @@ namespace deepstream
 			{}
 
 
+			/**
+			 * @return The human-readable representation of the header
+			 */
 			const char* to_string() const;
+			/**
+			 * @return The length of the human-readable header representation in
+			 * bytes
+			 */
 			std::size_t size() const;
 
 			/**
