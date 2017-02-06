@@ -74,6 +74,9 @@ namespace deepstream {
 			 * @param[in] p A pointer to, e.g., the beginning of a WebSocket
 			 * frame
 			 * @param[in] offset The start of the deepstream message in p
+			 * @param[in] topic Topic
+			 * @param[in] action Action
+			 * @param[in] is_ack True if this is an ACK message
 			 */
 			explicit MessageProxy(
 				const char* p, std::size_t offset,

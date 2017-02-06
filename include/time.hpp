@@ -21,6 +21,10 @@
 
 namespace deepstream
 {
+	/**
+	 * The aliases in this module should ease the use of monotonic clocks within
+	 * deepstream.
+	 */
 	namespace time
 	{
 		typedef std::chrono::steady_clock Clock;

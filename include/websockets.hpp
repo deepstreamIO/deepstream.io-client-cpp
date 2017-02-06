@@ -31,7 +31,7 @@ namespace deepstream
 	namespace websockets
 	{
 		/**
-		 * This structure stores as WebSockets frame.
+		 * This structure stores a WebSockets frame.
 		 *
 		 * To have the WebSocket data match the values in these enums, the
 		 * first eight bits of a frame must be interpreted in MSB order (most
@@ -64,7 +64,9 @@ namespace deepstream
 					TEXT_FRAME = 1,
 					BINARY_FRAME = 2,
 					CONNECTION_CLOSE_FRAME = 8,
+					// pings are implemented in deepstream as `C|PI+` messages
 					PING_FRAME = 9,
+					// pongs are implemented in deepstream as `C|PO+` messages
 					PONG_FRAME = 10
 				};
 			};
@@ -116,20 +118,35 @@ namespace deepstream
 			time::Duration get_receive_timeout();
 			void set_receive_timeout(time::Duration);
 
-			/*
-			 * received no data: returns    (Status::OPEN, nullptr)
-			 * receive data: returns        (Status::OPEN, frame)
-			 * received close frame: return (Status::CLOSED, frame)
-			 * received EOF: return         (Status::CLOSED, nullptr)
-			 * received close frame with payload too long/too short:
-			 *  return (Status::ERROR, frame)
+			/**
+			 * This function tries to receive a single websocket frame.
+			 *
+			 * The meaning of the various combinations of return values is
+			 * listed below:
+			 * - received a frame:         (Status::OPEN,   frame)
+			 * - no data (socket timeout): (Status::OPEN,   nullptr)
+			 * - received close frame:     (Status::CLOSED, frame)
+			 * - received EOF:             (Status::CLOSED, nullptr)
+			 * - received close frame with payload too long/too short:
+			 *                             (Status::ERROR,  frame)
 			 */
 			std::pair<State, std::unique_ptr<Frame> > receive_frame();
 
 			/**
-			 * @return 0 on connection close the number of bytes sent otherwise
+			 * This function sends a non-fragmented text frame with the contents
+			 * of the buffer as payload.
+			 *
+			 * @return 0 on connection close or the number of bytes sent
+			 * otherwise
 			 */
 			State send_frame(const Buffer&);
+			/**
+			 * This function sends a frame with the given flags and with the
+			 * contents of the buffer as payload.
+			 *
+			 * @return 0 on connection close or the number of bytes sent
+			 * otherwise
+			 */
 			State send_frame(const Buffer&, Frame::Flags);
 
 			void close();
