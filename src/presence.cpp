@@ -18,9 +18,9 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include <buffer.hpp>
-#include <message_builder.hpp>
-#include <presence.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/message_builder.hpp>
+#include <deepstream/presence.hpp>
 
 #include <cassert>
 

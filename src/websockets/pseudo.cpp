@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <websockets.hpp>
-#include <websockets/pseudo.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/websockets.hpp>
+#include <deepstream/websockets/pseudo.hpp>
 
 #include <cassert>
 

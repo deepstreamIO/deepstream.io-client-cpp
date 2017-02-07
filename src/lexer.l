@@ -21,7 +21,7 @@
 
 
 %{
-#include <parser.h>
+#include <deepstream/parser.h>
 %}
 
 /* message part separator */

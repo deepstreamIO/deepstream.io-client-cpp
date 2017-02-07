@@ -21,7 +21,7 @@
 #include <iosfwd>
 #include <vector>
 
-#include <message.hpp>
+#include <deepstream/message.hpp>
 
 
 namespace deepstream {

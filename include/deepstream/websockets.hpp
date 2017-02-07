@@ -20,8 +20,7 @@
 #include <string>
 #include <utility>
 
-#include <buffer.hpp>
-#include <time.hpp>
+#include <deepstream/time.hpp>
 
 
 namespace deepstream

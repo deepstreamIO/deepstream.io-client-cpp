@@ -21,14 +21,14 @@
 
 #include <arpa/inet.h>
 
-#include <buffer.hpp>
-#include <client.hpp>
 #include <deepstream.hpp>
-#include <error_handler.hpp>
-#include <message_builder.hpp>
-#include <parser.hpp>
-#include <websockets.hpp>
-#include <websockets/pseudo.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/client.hpp>
+#include <deepstream/error_handler.hpp>
+#include <deepstream/message_builder.hpp>
+#include <deepstream/parser.hpp>
+#include <deepstream/websockets.hpp>
+#include <deepstream/websockets/pseudo.hpp>
 
 #include <cassert>
 

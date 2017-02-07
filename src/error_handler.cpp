@@ -19,12 +19,12 @@
 #include <algorithm>
 #include <sstream>
 
-#include <buffer.hpp>
-#include <client.hpp>
-#include <error_handler.hpp>
-#include <message.hpp>
-#include <parser.hpp>
-#include <websockets.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/client.hpp>
+#include <deepstream/error_handler.hpp>
+#include <deepstream/message.hpp>
+#include <deepstream/parser.hpp>
+#include <deepstream/websockets.hpp>
 
 
 namespace deepstream

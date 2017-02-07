@@ -16,10 +16,10 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <buffer.hpp>
-#include <message_builder.hpp>
-#include <random.hpp>
-#include <use.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/message_builder.hpp>
+#include <deepstream/random.hpp>
+#include <deepstream/use.hpp>
 
 
 namespace deepstream {

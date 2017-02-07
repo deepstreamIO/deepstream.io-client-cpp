@@ -20,8 +20,8 @@
 #include <limits>
 #include <ostream>
 
-#include <buffer.hpp>
-#include <message.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/message.hpp>
 
 #include <cassert>
 
