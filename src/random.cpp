@@ -91,9 +91,12 @@ MessageBuilder make_message(Engine* p_engine, const Message::Header& header)
 {
 	assert( p_engine );
 
+	const std::size_t HARD_NUM_ARGS_LIMIT = 25;
+
 	auto expected_num_arguments = Message::num_arguments(header);
 	std::size_t min_num_args = expected_num_arguments.first;
-	std::size_t max_num_args = expected_num_arguments.second;
+	std::size_t max_num_args =
+		std::min(HARD_NUM_ARGS_LIMIT, expected_num_arguments.second);
 
 	MessageBuilder builder(header);
 
