@@ -27,7 +27,7 @@
 namespace deepstream
 {
 
-BOOST_AUTO_TEST_CASE(simple)
+BOOST_AUTO_TEST_CASE(subscription)
 {
 	typedef Presence::Name Name;
 
@@ -99,6 +99,58 @@ BOOST_AUTO_TEST_CASE(simple)
 	}
 
 	BOOST_CHECK( !is_subscribed );
+}
+
+
+BOOST_AUTO_TEST_CASE(queries)
+{
+	typedef Presence::Name Name;
+
+	const Name userA("foo");
+	const Name userB("bar");
+
+	unsigned num_queries = 0;
+
+	Presence::SendFn send = [&num_queries] (const Message& message) -> bool {
+		BOOST_CHECK_EQUAL( message.topic(), Topic::PRESENCE );
+		BOOST_CHECK( !message.is_ack() );
+		BOOST_CHECK_EQUAL( message.action(), Action::QUERY );
+
+		++num_queries;
+
+		return true;
+	};
+
+
+	unsigned num_calls = 0;
+	Presence::QueryFn f =
+		[&num_calls, userA, userB] (const Presence::UserList& users) {
+			BOOST_REQUIRE_EQUAL( users.size(), 2 );
+			BOOST_CHECK( users.front() == userA || users.back() == userA );
+			BOOST_CHECK( users.front() == userB || users.back() == userB );
+
+			++num_calls;
+		};
+
+
+	Presence presence(send);
+
+	presence.get_all(f);
+	BOOST_CHECK_EQUAL( num_queries, 1 );
+	BOOST_CHECK_EQUAL( presence.querents_.size(), 1 );
+
+	presence.get_all(f);
+	BOOST_CHECK_EQUAL( num_queries, 1 );
+	BOOST_CHECK_EQUAL( presence.querents_.size(), 2 );
+
+
+	MessageBuilder uq(Topic::PRESENCE, Action::QUERY, true);
+	uq.add_argument( userA );
+	uq.add_argument( userB );
+
+	presence.notify_(uq);
+	BOOST_CHECK( presence.querents_.empty() );
+	BOOST_CHECK_EQUAL( num_calls, 2 );
 }
 
 }

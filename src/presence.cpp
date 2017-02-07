@@ -84,19 +84,47 @@ void Presence::unsubscribe(const SubscribeFnPtr& p_f)
 
 
 
+void Presence::get_all(const QueryFn& f)
+{
+	querents_.push_back(f);
+
+	if( querents_.size() > 1 )
+		return;
+
+	MessageBuilder uqq(Topic::PRESENCE, Action::QUERY);
+	send_(uqq);
+}
+
+
+
 void Presence::notify_(const Message& message)
 {
 	assert( message.topic() == Topic::PRESENCE );
 
-	if( message.is_ack() )
+	if( message.action() == Action::SUBSCRIBE && message.is_ack() )
+		return;
+	if( message.action() == Action::UNSUBSCRIBE && message.is_ack() )
+		return;
+
+	if( message.action() == Action::QUERY && message.is_ack() )
 	{
-		assert( message.action() == Action::SUBSCRIBE ||
-				message.action() == Action::UNSUBSCRIBE );
+		UserList users;
+		for(std::size_t i = 0; i < message.num_arguments(); ++i)
+			users.emplace_back( message[i] );
+
+		for(const QueryFn& f : querents_)
+			f(users);
+
+		querents_.clear();
 		return;
 	}
 
-	assert( message.action() == Action::PRESENCE_JOIN ||
-			message.action() == Action::PRESENCE_LEAVE );
+	if( message.action() != Action::PRESENCE_JOIN &&
+		message.action() != Action::PRESENCE_LEAVE )
+	{
+		assert(0);
+		return;
+	}
 
 	bool is_login = message.action() == Action::PRESENCE_JOIN;
 
