@@ -49,6 +49,18 @@ namespace deepstream
 		typedef std::shared_ptr<SubscribeFn> SubscribeFnPtr;
 		typedef std::vector<SubscribeFnPtr> SubscriberList;
 
+		typedef std::vector<Name> UserList;
+		/**
+		 * This alias is the signature of a deepstream callback for presence
+		 * queries.
+		 */
+		typedef std::function<void(const UserList&)> QueryFn;
+		// "querent" is actually an obsolete word:
+		//   https://en.wiktionary.org/wiki/querent
+		// we do not need smart pointers here (like for the subscriber list)
+		// because query functions cannot remove from this list.
+		typedef std::vector<QueryFn> QuerentList;
+
 		/**
 		 * This alias is the signature of the function used to send messages to
 		 * the deepstream server.
@@ -87,6 +99,20 @@ namespace deepstream
 
 
 		/**
+		 * This function queries the server for a list of all logged in users.
+		 *
+		 * Note that clients with anonymous log-ins are not in the list.
+		 * Similarly, multiple clients can log-in as the same user but the user
+		 * will be listed only once.
+		 */
+		// Christoph, Feb 7, 2017:
+		// this name is in camelCase in the JS API but I was using pascal_case
+		// throughout the code for functions so I decided to use pascal_case
+		// here, too.
+		void get_all(const QueryFn&);
+
+
+		/**
 		 * This method handles resence-related messages (messages with topic
 		 * `Topic::PRESENCE`) from the server.
 		 */
@@ -95,6 +121,7 @@ namespace deepstream
 
 		SendFn send_;
 		SubscriberList subscribers_;
+		QuerentList querents_;
 	};
 }
 
