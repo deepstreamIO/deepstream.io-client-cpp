@@ -1,5 +1,7 @@
 add_subdirectory(websockets)
 
+configure_file(config.h.in config.h @ONLY)
+
 install(
 	FILES
 		buffer.hpp
@@ -18,6 +20,7 @@ install(
 		time.hpp
 		use.hpp
 		websockets.hpp
+		"${CMAKE_BINARY_DIR}/include/deepstream/config.h"
 	DESTINATION
 		"include/deepstream"
 )

@@ -23,6 +23,7 @@
 #include <string>
 
 #include <deepstream/buffer.hpp>
+#include <deepstream/config.h>
 #include <deepstream/client.hpp>
 #include <deepstream/error_handler.hpp>
 #include <deepstream/event.hpp>
@@ -49,6 +50,23 @@ namespace deepstream
 		enum class State;
 		struct Client;
 	}
+
+
+	struct version
+	{
+		version() = delete;
+
+		enum
+		{
+			MAJOR = DEEPSTREAM_VERSION_MAJOR,
+			MINOR = DEEPSTREAM_VERSION_MINOR,
+			PATCH = DEEPSTREAM_VERSION_PATCH
+		};
+
+		static constexpr const char* to_string() {
+			return DEEPSTREAM_VERSION;
+		}
+	};
 
 
 	struct Client
