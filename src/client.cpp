@@ -202,7 +202,8 @@ State transition(State state, const Message& message, Sender sender)
 	if( state == State::CONNECTED && topic == Topic::PRESENCE )
 	{
 		if( action == Action::SUBSCRIBE ||
-			action == Action::UNSUBSCRIBE )
+			action == Action::UNSUBSCRIBE ||
+			action == Action::QUERY )
 		{
 			if( (sender == Sender::CLIENT && !is_ack) ||
 				(sender == Sender::SERVER && is_ack) )
