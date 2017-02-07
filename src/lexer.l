@@ -86,6 +86,8 @@ NS  [^\x1e\x1f]
 	U{MPS}A{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_U_A_US); };
 	U{MPS}PNJ      { BEGIN(yypayload); return DS_PARSE(TOKEN_U_PNJ); };
 	U{MPS}PNL      { BEGIN(yypayload); return DS_PARSE(TOKEN_U_PNL); };
+	U{MPS}Q        { BEGIN(yypayload); return DS_PARSE(TOKEN_U_Q); };
+	U{MPS}Q{MPS}Q  { BEGIN(yypayload); return DS_PARSE(TOKEN_U_Q_Q); };
 	U{MPS}S{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_U_S); };
 	U{MPS}US{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_U_US); };
 
