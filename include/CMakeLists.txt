@@ -1,3 +1,7 @@
 add_subdirectory(deepstream)
 
-install(FILES deepstream.hpp DESTINATION "include")
+install(
+	DIRECTORY ./
+	DESTINATION "include"
+	FILES_MATCHING REGEX ".+[.](h|hpp)"
+)
