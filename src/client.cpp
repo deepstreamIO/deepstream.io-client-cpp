@@ -48,6 +48,7 @@ State transition(State state, const Message& message, Sender sender)
 	const std::size_t& num_args = message.num_arguments();
 
 	use(expected_num_args);
+	use(num_args);
 	assert( num_args >= expected_num_args.first );
 	assert( num_args <= expected_num_args.second );
 

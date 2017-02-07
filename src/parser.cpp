@@ -253,6 +253,9 @@ void deepstream_parser_state::handle_header(
 	using deepstream::Topic;
 	using deepstream::Action;
 
+	deepstream::use(text);
+	deepstream::use(textlen);
+
 	assert( is_header_token(token) );
 	assert( tokenizing_header_ );
 
