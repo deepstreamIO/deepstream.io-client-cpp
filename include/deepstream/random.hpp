@@ -18,7 +18,7 @@
 
 #include <random>
 
-#include <message.hpp>
+#include <deepstream/message.hpp>
 
 
 namespace deepstream

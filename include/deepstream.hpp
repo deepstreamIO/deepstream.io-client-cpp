@@ -22,17 +22,20 @@
 #include <memory>
 #include <string>
 
-#include <event.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/client.hpp>
+#include <deepstream/error_handler.hpp>
+#include <deepstream/event.hpp>
 // 201701227:
 // we have to include `parser.hpp` because `parser::MessageList`,
 // `parser::ErrorList` are `typedef`s and cannot be forward declared.
-#include <parser.hpp>
-#include <presence.hpp>
+#include <deepstream/parser.hpp>
+#include <deepstream/presence.hpp>
+#include <deepstream/websockets.hpp>
 
 
 namespace deepstream
 {
-	struct Buffer;
 	struct Message;
 	struct ErrorHandler;
 

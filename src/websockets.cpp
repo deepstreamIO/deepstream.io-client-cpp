@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <websockets.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/websockets.hpp>
 
 #include <cassert>
 

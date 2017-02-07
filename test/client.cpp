@@ -16,9 +16,9 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <buffer.hpp>
-#include <client.hpp>
-#include <message_builder.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/client.hpp>
+#include <deepstream/message_builder.hpp>
 
 
 namespace deepstream {

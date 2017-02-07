@@ -20,8 +20,8 @@
 
 #include <iosfwd>
 
-#include <message_proxy.hpp>
-#include <parser.h>
+#include <deepstream/message_proxy.hpp>
+#include <deepstream/parser.h>
 
 
 namespace deepstream

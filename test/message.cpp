@@ -21,8 +21,8 @@
 #include <algorithm>
 #include <numeric>
 
-#include <buffer.hpp>
-#include <message.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/message.hpp>
 
 
 namespace deepstream

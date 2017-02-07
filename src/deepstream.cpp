@@ -19,16 +19,16 @@
 #include <chrono>
 #include <stdexcept>
 
-#include <buffer.hpp>
-#include <client.hpp>
 #include <deepstream.hpp>
-#include <error_handler.hpp>
-#include <message.hpp>
-#include <message_builder.hpp>
-#include <scope_guard.hpp>
-#include <websockets.hpp>
-#include <websockets/poco.hpp>
-#include <use.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/client.hpp>
+#include <deepstream/error_handler.hpp>
+#include <deepstream/message.hpp>
+#include <deepstream/message_builder.hpp>
+#include <deepstream/scope_guard.hpp>
+#include <deepstream/websockets.hpp>
+#include <deepstream/websockets/poco.hpp>
+#include <deepstream/use.hpp>
 
 #include <cassert>
 

@@ -23,12 +23,12 @@
 #include <random>
 #include <vector>
 
-#include <buffer.hpp>
-#include <message.hpp>
-#include <message_builder.hpp>
-#include <parser.hpp>
-#include <random.hpp>
-#include <scope_guard.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/message.hpp>
+#include <deepstream/message_builder.hpp>
+#include <deepstream/parser.hpp>
+#include <deepstream/random.hpp>
+#include <deepstream/scope_guard.hpp>
 
 extern "C" {
 #include <lexer.h>

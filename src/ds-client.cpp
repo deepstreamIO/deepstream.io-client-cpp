@@ -17,10 +17,7 @@
 
 #include <exception>
 
-#include <client.hpp>
 #include <deepstream.hpp>
-#include <websockets.hpp>
-#include <error_handler.hpp>
 
 #include <cassert>
 

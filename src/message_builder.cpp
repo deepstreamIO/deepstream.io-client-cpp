@@ -17,8 +17,8 @@
 #include <numeric>
 #include <stdexcept>
 
-#include <buffer.hpp>
-#include <message_builder.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/message_builder.hpp>
 
 #include <cassert>
 

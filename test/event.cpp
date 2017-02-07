@@ -18,11 +18,11 @@
 
 #include <algorithm>
 
-#include <buffer.hpp>
-#include <event.hpp>
-#include <message.hpp>
-#include <message_builder.hpp>
-#include <scope_guard.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/event.hpp>
+#include <deepstream/message.hpp>
+#include <deepstream/message_builder.hpp>
+#include <deepstream/scope_guard.hpp>
 
 
 namespace deepstream

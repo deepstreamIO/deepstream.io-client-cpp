@@ -23,11 +23,11 @@
 #include <Poco/Timespan.h>
 #include <Poco/Net/NetException.h>
 
-#include <buffer.hpp>
-#include <exception.hpp>
-#include <time.hpp>
-#include <websockets.hpp>
-#include <websockets/poco.hpp>
+#include <deepstream/buffer.hpp>
+#include <deepstream/exception.hpp>
+#include <deepstream/time.hpp>
+#include <deepstream/websockets.hpp>
+#include <deepstream/websockets/poco.hpp>
 
 #include <cassert>
 

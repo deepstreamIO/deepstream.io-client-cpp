@@ -25,7 +25,7 @@
 #include <Poco/Net/HTTPClientSession.h>
 #include <Poco/Net/WebSocket.h>
 
-#include <time.hpp>
+#include <deepstream/time.hpp>
 
 
 namespace deepstream
