@@ -298,6 +298,8 @@ BOOST_AUTO_TEST_CASE(simple_integration)
 	BOOST_CHECK_EQUAL( msg_b.num_arguments(), 1 );
 
 	const Error& error = parser.errors_.front();
+	BOOST_CHECK_EQUAL( error.location().offset(), 4 );
+	BOOST_CHECK_EQUAL( error.location().size(), 8 );
 	BOOST_CHECK_EQUAL( error.tag(), Error::UNEXPECTED_TOKEN );
 }
 
