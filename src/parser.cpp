@@ -106,8 +106,7 @@ std::pair<MessageList, ErrorList> execute(char* p, std::size_t size)
 		yylex_destroy(scanner);
 	} );
 
-	int ret = 0;
-	while( (ret = yylex(scanner)) != TOKEN_EOF );
+	while( yylex(scanner) );
 
 	return std::make_pair(parser.messages_, parser.errors_);
 }

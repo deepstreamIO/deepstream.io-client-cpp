@@ -16,7 +16,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <cstdio>
 #include <cstring>
 
 #include <vector>
@@ -76,7 +75,7 @@ BOOST_AUTO_TEST_CASE(empty_string)
 	State state("");
 
 	int ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+	BOOST_CHECK_EQUAL( ret, 0 );
 
 	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 1 );
 	BOOST_CHECK_EQUAL( *yyget_text(state.scanner), 0 );
@@ -94,8 +93,38 @@ BOOST_AUTO_TEST_CASE(auth_ack)
 	BOOST_CHECK_EQUAL( ret, TOKEN_MESSAGE_SEPARATOR );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+	BOOST_CHECK_EQUAL( ret, 0 );
 }
+
+
+
+BOOST_AUTO_TEST_CASE(newline)
+{
+	State state("\n");
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 1 );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, 0 );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 1 );
+}
+
+
+BOOST_AUTO_TEST_CASE(newline_2)
+{
+	State state("\n\n");
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 2 );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, 0 );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 1 );
+}
+
 
 
 // Test detection of unknown tokens
@@ -108,7 +137,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_header)
 	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+	BOOST_CHECK_EQUAL( ret, 0 );
 }
 
 
@@ -125,7 +154,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_payload)
 	BOOST_CHECK_EQUAL( "ERROR", yyget_text(state.scanner) );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+	BOOST_CHECK_EQUAL( ret, 0 );
 }
 
 
@@ -146,7 +175,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_recovery)
 	BOOST_CHECK_EQUAL( ret, TOKEN_MESSAGE_SEPARATOR );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+	BOOST_CHECK_EQUAL( ret, 0 );
 }
 
 
@@ -168,7 +197,7 @@ BOOST_AUTO_TEST_CASE(unknown_token_recovery_MS_only)
 	BOOST_CHECK_EQUAL( ret, TOKEN_MESSAGE_SEPARATOR );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+	BOOST_CHECK_EQUAL( ret, 0 );
 }
 
 
@@ -182,7 +211,7 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_header)
 	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+	BOOST_CHECK_EQUAL( ret, 0 );
 }
 
 
@@ -197,7 +226,7 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_payload)
 	BOOST_CHECK_EQUAL( ret, TOKEN_PAYLOAD );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+	BOOST_CHECK_EQUAL( ret, 0 );
 }
 
 
@@ -209,7 +238,7 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_error)
 	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
 
 	ret = yylex(state.scanner);
-	BOOST_CHECK_EQUAL( ret, TOKEN_EOF );
+	BOOST_CHECK_EQUAL( ret, 0 );
 }
 
 
@@ -218,13 +247,13 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_error)
 BOOST_AUTO_TEST_CASE(messages)
 {
 	State state("A|A+E|S|event+");
-	deepstream_token tokens[] = {
+	const int tokens[] = {
 		TOKEN_A_A,
 		TOKEN_MESSAGE_SEPARATOR,
 		TOKEN_E_S,
 		TOKEN_PAYLOAD,
 		TOKEN_MESSAGE_SEPARATOR,
-		TOKEN_EOF
+		0
 	};
 	const std::size_t NUM_TOKENS = sizeof(tokens) / sizeof(tokens[0]);
 
@@ -243,19 +272,23 @@ BOOST_AUTO_TEST_CASE(nullchar)
 	const char input[] = "E|S|eve\0nt+";
 	std::size_t size = sizeof(input);
 
-	State state(input, size);
-	deepstream_token tokens[] = {
+	State state(input, size-1);
+	const int tokens[] = {
 		TOKEN_E_S,
 		TOKEN_PAYLOAD,
 		TOKEN_MESSAGE_SEPARATOR,
-		TOKEN_EOF
+		0
 	};
 	const std::size_t NUM_TOKENS = sizeof(tokens) / sizeof(tokens[0]);
+
+	const std::size_t matchlens[NUM_TOKENS] = { 3, 7, 1, 1 };
 
 	for(std::size_t i = 0; i < NUM_TOKENS; ++i)
 	{
 		int ret = yylex(state.scanner);
+
 		BOOST_CHECK_EQUAL( ret, tokens[i] );
+		BOOST_CHECK_EQUAL( yyget_leng(state.scanner), matchlens[i] );
 	}
 }
 
@@ -265,14 +298,14 @@ BOOST_AUTO_TEST_CASE(invalid_message_sequence)
 {
 	const char INPUT[] = "X|X|X++|+E|S|A|X+";
 
-	const deepstream_token TOKENS[] = {
+	const int TOKENS[] = {
 		TOKEN_UNKNOWN,
 		TOKEN_UNKNOWN,
 		TOKEN_E_S,
 		TOKEN_PAYLOAD,
 		TOKEN_PAYLOAD,
 		TOKEN_MESSAGE_SEPARATOR,
-		TOKEN_EOF
+		0
 	};
 	const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
 
@@ -301,11 +334,11 @@ BOOST_AUTO_TEST_CASE(invalid_message_at_eof)
 {
 	const char INPUT[] = "A|A+INVALID";
 
-	const deepstream_token TOKENS[] = {
+	const int TOKENS[] = {
 		TOKEN_A_A,
 		TOKEN_MESSAGE_SEPARATOR,
 		TOKEN_UNKNOWN,
-		TOKEN_EOF
+		0
 	};
 	const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
 
@@ -333,11 +366,11 @@ BOOST_AUTO_TEST_CASE(caret_in_payload)
 {
 	const char INPUT[] = "E|S|a^b+";
 
-	const deepstream_token TOKENS[] = {
+	const int TOKENS[] = {
 		TOKEN_E_S,
 		TOKEN_PAYLOAD,
 		TOKEN_MESSAGE_SEPARATOR,
-		TOKEN_EOF
+		0
 	};
 	const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
 
