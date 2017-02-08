@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(simple_integration)
 	State parser( input.data(), input.size() );
 	yyset_extra(&parser, scanner);
 
-	for( int ret = TOKEN_UNKNOWN; ret != TOKEN_EOF; ret = yylex(scanner) );
+	for( int ret = TOKEN_UNKNOWN; ret != 0; ret = yylex(scanner) );
 
 	BOOST_CHECK( parser.buffer_ == input.data() );
 	BOOST_CHECK_EQUAL( parser.buffer_size_, input.size() );

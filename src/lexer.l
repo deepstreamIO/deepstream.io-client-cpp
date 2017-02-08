@@ -91,8 +91,9 @@ NS  [^\x1e\x1f]
 	U{MPS}S{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_U_S); };
 	U{MPS}US{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_U_US); };
 
-	{MS}           { return DS_PARSE(TOKEN_UNKNOWN); }
+	{MS}           { return DS_PARSE(TOKEN_UNKNOWN); };
 	.              { BEGIN(yyerror); yymore(); };
+	\n             { BEGIN(yyerror); yymore(); };
 }
 
 
@@ -105,8 +106,9 @@ NS  [^\x1e\x1f]
 
 <yyerror>{
 	[^\x1e]*{MS}*  { BEGIN(INITIAL); return DS_PARSE(TOKEN_UNKNOWN); };
+	<<EOF>>        { BEGIN(INITIAL); yyless(1); return DS_PARSE(TOKEN_UNKNOWN); };
 }
 
-<<EOF>>            { return DS_PARSE(TOKEN_EOF); };
+<<EOF>>            { (void)DS_PARSE(TOKEN_EOF); yyterminate(); };
 
 %%
