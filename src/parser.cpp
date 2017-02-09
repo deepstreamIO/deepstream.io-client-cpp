@@ -56,7 +56,7 @@ std::ostream& operator<< (std::ostream& os, Error::Tag tag)
 			break;
 
 		case Error::CORRUPT_PAYLOAD:
-			os << "correct payload";
+			os << "corrupt payload";
 			break;
 
 		case Error::INVALID_NUMBER_OF_ARGUMENTS:
