@@ -53,3 +53,10 @@ add_executable(ds-client ds-client.cpp)
 target_include_directories(ds-client PUBLIC ${POCO_INCLUDE_DIRS})
 target_link_libraries(ds-client PUBLIC libdeepstream)
 target_link_libraries(ds-client PUBLIC ${POCO_LIBRARIES})
+
+
+add_executable(fuzz-me fuzz-me.cpp)
+target_link_libraries(fuzz-me PUBLIC libdeepstream)
+
+add_executable(make-fuzzer-input make-fuzzer-input.cpp)
+target_link_libraries(make-fuzzer-input PUBLIC libdeepstream)
