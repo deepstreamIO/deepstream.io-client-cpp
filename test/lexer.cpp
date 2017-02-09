@@ -128,6 +128,28 @@ BOOST_AUTO_TEST_CASE(newline_2)
 }
 
 
+BOOST_AUTO_TEST_CASE(newline_in_payload)
+{
+	State state("A|A|X\nY+");
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 3 );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_PAYLOAD );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner),  4 );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_MESSAGE_SEPARATOR );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner),  1 );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, 0 );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner),  1 );
+}
+
+
 BOOST_AUTO_TEST_CASE(newline_before_payload)
 {
 	State state("A|A\n|X+");
