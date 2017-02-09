@@ -30,6 +30,8 @@ namespace deepstream
 
 BOOST_AUTO_TEST_CASE(simple)
 {
+	typedef Event::Name Name;
+
 	int state = -1;
 	const Event::Name name("name");
 	const Event::Name pattern("pattern");
@@ -142,7 +144,7 @@ BOOST_AUTO_TEST_CASE(simple)
 	BOOST_CHECK( event.listener_map_.empty() );
 
 
-	Event::ListenFn g = [] (const Event::Name&, bool, const Event::Name&) {};
+	Event::ListenFn g = [] (const Name&, bool, const Name&) { return true; };
 	Event::ListenFnPtr q1( new Event::ListenFn(g) );
 	Event::ListenFnPtr q2( new Event::ListenFn(g) );
 
@@ -367,10 +369,14 @@ BOOST_AUTO_TEST_CASE(listener_notification)
 
 
 	bool is_listening = false;
-	auto send = [pattern, &is_listening] (const Message& message) {
+	bool sent_accept = false;
+	auto send = [pattern, &is_listening, &sent_accept] (const Message& message){
 		BOOST_CHECK_EQUAL( message.topic(), Topic::EVENT );
 		BOOST_CHECK( !message.is_ack() );
-		BOOST_CHECK_EQUAL( message.num_arguments(), 1 );
+		BOOST_REQUIRE_EQUAL(
+			message.num_arguments(),
+			(message.action()==Action::LISTEN_ACCEPT) ? 2 : 1
+		);
 
 		const Event::Name& my_pattern = message[0];
 		BOOST_REQUIRE_EQUAL( pattern.size(), my_pattern.size() );
@@ -382,6 +388,8 @@ BOOST_AUTO_TEST_CASE(listener_notification)
 			is_listening = true;
 		else if( message.action() == Action::UNLISTEN )
 			is_listening = false;
+		else if( is_listening && message.action() == Action::LISTEN_ACCEPT )
+			sent_accept = true;
 		else
 			BOOST_FAIL( "This branch should not be taken" );
 
@@ -406,6 +414,8 @@ BOOST_AUTO_TEST_CASE(listener_notification)
 			);
 
 			has_subscriber = b;
+
+			return true;
 		};
 
 	Event event(send);
@@ -423,8 +433,10 @@ BOOST_AUTO_TEST_CASE(listener_notification)
 	sp.add_argument(match);
 
 	BOOST_CHECK( !has_subscriber );
+	BOOST_CHECK( !sent_accept );
 	event.notify_(sp);
 	BOOST_CHECK( has_subscriber );
+	BOOST_CHECK( sent_accept );
 
 
 	// E|SR
