@@ -97,6 +97,8 @@ BOOST_AUTO_TEST_CASE(auth_ack)
 }
 
 
+// newline tests
+// Flex treats newline special, i.e., newlines are not matched by '.'
 
 BOOST_AUTO_TEST_CASE(newline)
 {
@@ -123,6 +125,24 @@ BOOST_AUTO_TEST_CASE(newline_2)
 	ret = yylex(state.scanner);
 	BOOST_CHECK_EQUAL( ret, 0 );
 	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 1 );
+}
+
+
+BOOST_AUTO_TEST_CASE(newline_before_payload)
+{
+	State state("A|A\n|X+");
+
+	int ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_A_A );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner), 3 );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, TOKEN_UNKNOWN );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner),  4 );
+
+	ret = yylex(state.scanner);
+	BOOST_CHECK_EQUAL( ret, 0 );
+	BOOST_CHECK_EQUAL( yyget_leng(state.scanner),  1 );
 }
 
 

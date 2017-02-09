@@ -102,6 +102,7 @@ NS  [^\x1e\x1f]
 	{MS}         { BEGIN(INITIAL); return DS_PARSE(TOKEN_MESSAGE_SEPARATOR); };
 
 	.            { BEGIN(yyerror); yymore(); }
+	\n           { BEGIN(yyerror); yymore(); }
 }
 
 <yyerror>{
