@@ -378,10 +378,6 @@ void deepstream_parser_state::handle_header(
 			break;
 
 		case TOKEN_U_Q:
-			DS_ADD_MSG(Topic::PRESENCE, Action::QUERY, true);
-			break;
-
-		case TOKEN_U_Q_Q:
 			DS_ADD_MSG(Topic::PRESENCE, Action::QUERY);
 			break;
 

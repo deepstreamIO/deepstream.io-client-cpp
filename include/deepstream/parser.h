@@ -77,7 +77,6 @@ enum deepstream_token
 	TOKEN_U_PNJ,
 	TOKEN_U_PNL,
 	TOKEN_U_Q,
-	TOKEN_U_Q_Q,
 	TOKEN_U_S,
 	TOKEN_U_US,
 	/**
