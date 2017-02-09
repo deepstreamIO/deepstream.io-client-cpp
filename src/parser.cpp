@@ -344,6 +344,14 @@ void deepstream_parser_state::handle_header(
 			DS_ADD_MSG(Topic::EVENT, Action::LISTEN);
 			break;
 
+		case TOKEN_E_LA:
+			DS_ADD_MSG(Topic::EVENT, Action::LISTEN_ACCEPT);
+			break;
+
+		case TOKEN_E_LR:
+			DS_ADD_MSG(Topic::EVENT, Action::LISTEN_REJECT);
+			break;
+
 		case TOKEN_E_S:
 			DS_ADD_MSG(Topic::EVENT, Action::SUBSCRIBE);
 			break;

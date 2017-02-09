@@ -77,6 +77,8 @@ NS  [^\x1e\x1f]
 	E{MPS}A{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_US); };
 	E{MPS}EVT      { BEGIN(yypayload); return DS_PARSE(TOKEN_E_EVT); };
 	E{MPS}L        { BEGIN(yypayload); return DS_PARSE(TOKEN_E_L); };
+	E{MPS}LA       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_LA); };
+	E{MPS}LR       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_LR); };
 	E{MPS}S        { BEGIN(yypayload); return DS_PARSE(TOKEN_E_S); };
 	E{MPS}SP       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_SP); };
 	E{MPS}SR       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_SR); };

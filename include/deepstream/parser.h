@@ -67,6 +67,8 @@ enum deepstream_token
 	TOKEN_E_A_US,
 	TOKEN_E_EVT,
 	TOKEN_E_L,
+	TOKEN_E_LA,
+	TOKEN_E_LR,
 	TOKEN_E_S,
 	TOKEN_E_SP,
 	TOKEN_E_SR,
