@@ -152,31 +152,39 @@ Client::Client(
 }
 
 
-client::State Client::login(
+
+bool Client::login()
+{
+	return login("{}");
+}
+
+
+bool Client::login(
 	const std::string& auth, Buffer* p_user_data)
 {
 	if( !p_websocket_ )
-		return client::State::ERROR;
+		return false;
 
 	if( state_ != client::State::AWAIT_AUTHENTICATION )
 		throw std::logic_error("Cannot login() in current state");
 
 	MessageBuilder areq(Topic::AUTH, Action::REQUEST);
-	areq.add_argument(auth);
+	if( !auth.empty() )
+		areq.add_argument(auth);
 
 	if( send_(areq) != websockets::State::OPEN )
-		return state_;
+		return false;
 
 	Buffer buffer;
 	parser::MessageList messages;
 
 	if( receive_(&buffer, &messages) != websockets::State::OPEN )
-		return state_;
+		return false;
 
 	if( messages.size() != 1 )
 	{
 		close();
-		return state_;
+		return false;
 	}
 
 	const Message& msg = messages.front();
@@ -192,7 +200,7 @@ client::State Client::login(
 		else if( msg.num_arguments() == 1 && p_user_data )
 			*p_user_data = msg[0];
 
-		return state_;
+		return true;
 	}
 
 	if( msg.topic() == Topic::AUTH &&
@@ -201,7 +209,7 @@ client::State Client::login(
 		assert( state_ == client::State::AWAIT_AUTHENTICATION );
 
 		p_error_handler_->authentication_error(msg);
-		return state_;
+		return false;
 	}
 
 	if( msg.topic() == Topic::AUTH &&
@@ -209,7 +217,7 @@ client::State Client::login(
 	{
 		p_error_handler_->authentication_error(msg);
 		close();
-		return state_;
+		return false;
 	}
 
 	if( msg.topic() == Topic::AUTH &&
@@ -217,12 +225,12 @@ client::State Client::login(
 	{
 		p_error_handler_->authentication_error(msg);
 		close();
-		return state_;
+		return false;
 	}
 
 
 	close();
-	return client::State::ERROR;
+	return false;
 }
 
 
