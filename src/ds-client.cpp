@@ -19,30 +19,15 @@
 
 #include <deepstream.hpp>
 
-#include <cassert>
-
-
-namespace ds = deepstream;
-
-
-
 int main()
 try
 {
-	ds::Client client = ds::Client::make("ws://localhost:6020/deepstream");
-
-
-	const char AUTH[] =
-		"{\"username\": \"user\", \"password\": \"pwd\"}";
-
-	deepstream::Buffer user_data;
-	while(true)
-	{
-		deepstream::client::State state = client.login( AUTH, &user_data );
-
-		if( state == deepstream::client::State::CONNECTED )
-			break;
-	}
+	deepstream::Client client =
+		deepstream::Client::make("ws://localhost:6020/deepstream");
+	if( client.login() )
+		std::printf( "Client logged in\n" );
+	else
+		std::printf( "Client not logged in\n" );
 }
 catch(std::exception& e)
 {

@@ -104,6 +104,14 @@ namespace deepstream
 	public:
 		/**
 		 * Given a client in `AWAIT_CONNECTION` state, this function attempts to
+		 * log in anonymously.
+		 *
+		 * @return `true` if the log in attempt was successful, `false`
+		 * otherwise
+		 */
+		bool login();
+		/**
+		 * Given a client in `AWAIT_CONNECTION` state, this function attempts to
 		 * log in with the given authentication data.
 		 *
 		 * The format of the user authentication data depends on the <a
@@ -114,10 +122,10 @@ namespace deepstream
 		 * @param[out] p_user_data On a successful reeturn, store the user data
 		 * in `p_user_data` if the reference is not `NULL`.
 		 *
-		 * @return `AWAIT_CONNECTION`, `CLOSED`, or `CONNECTED`; `ERROR` if the
-		 * client was not connected before
+		 * @return `true` if the log in attempt was successful, `false`
+		 * otherwise
 		 */
-		client::State login(const std::string& auth, Buffer* p_user_data);
+		bool login(const std::string& auth, Buffer* p_user_data=nullptr);
 		void close();
 
 		client::State getConnectionState() { return state_; }
