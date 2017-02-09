@@ -68,8 +68,7 @@ namespace deepstream
 		 * the deepstream server.
 		 *
 		 * Function matching this signature are expected to return `true` if the
-		 * message was sent successfully, `false` otherwise. As of Feb 6, 2017,
-		 * the return value is unused.
+		 * message was sent successfully, `false` otherwise.
 		 */
 		typedef std::function<bool(const Message&)> SendFn;
 
