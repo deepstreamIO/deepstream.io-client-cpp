@@ -31,8 +31,11 @@ namespace deepstream
 	 * directly.
 	 *
 	 * A. Alexandrescu, P. Marginean:
-	 * "Generic: Change the Way You Write Exception-Safe Code -- Forever"
+	 *
+	 * *Generic: Change the Way You Write Exception-Safe Code -- Forever*
+	 *
 	 * Dr. Dobbs Journal, 2000
+	 *
 	 * www.drdobbs.com/cpp/generic-change-the-way-you-write-excepti/184403758
 	 */
 	struct ScopeGuard
