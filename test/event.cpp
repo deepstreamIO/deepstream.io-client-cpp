@@ -198,9 +198,12 @@ BOOST_AUTO_TEST_CASE(subscriber_notification)
 
 	bool is_subscribed = false;
 	auto send = [name, &is_subscribed] (const Message& message) -> bool {
+		const Event::Name& my_name = message[0];
+
 		BOOST_CHECK_EQUAL( message.topic(), Topic::EVENT );
+		BOOST_REQUIRE_EQUAL( name.size(), my_name.size() );
 		BOOST_CHECK(
-			std::equal(name.cbegin(), name.cend(), message[0].cbegin())
+			std::equal(name.cbegin(), name.cend(), my_name.cbegin())
 		);
 
 		if( message.action() == Action::SUBSCRIBE )
@@ -277,9 +280,10 @@ BOOST_AUTO_TEST_CASE(listener_notification)
 		BOOST_CHECK( !message.is_ack() );
 		BOOST_CHECK_EQUAL( message.num_arguments(), 1 );
 
-		BOOST_REQUIRE_EQUAL( pattern.size(), message[0].size() );
+		const Event::Name& my_pattern = message[0];
+		BOOST_REQUIRE_EQUAL( pattern.size(), my_pattern.size() );
 		BOOST_CHECK(
-			std::equal( pattern.cbegin(), pattern.cend(), message[0].cbegin() )
+			std::equal(pattern.cbegin(), pattern.cend(), my_pattern.cbegin())
 		);
 
 		if( message.action() == Action::LISTEN )
