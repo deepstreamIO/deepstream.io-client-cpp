@@ -46,7 +46,10 @@ void Event::emit(const Name& name, const Buffer& buffer)
 	evt.add_argument(name);
 	evt.add_argument(buffer);
 
-	send_(evt);
+	if( !send_(evt) )
+		return;
+
+	notify_(evt);
 }
 
 

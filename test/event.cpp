@@ -266,6 +266,98 @@ BOOST_AUTO_TEST_CASE(subscriber_notification)
 
 
 
+BOOST_AUTO_TEST_CASE(emit)
+{
+	const Event::Name name("name");
+	const Buffer data("data");
+
+	bool is_subscribed = false;
+	unsigned num_emit = 0;
+	auto send =
+		[name, data, &is_subscribed, &num_emit]
+		(const Message& message)
+	{
+		BOOST_CHECK_EQUAL( message.topic(), Topic::EVENT );
+
+		const Event::Name& my_name = message[0];
+		BOOST_REQUIRE_EQUAL( name.size(), my_name.size() );
+		BOOST_CHECK(
+			std::equal(name.cbegin(), name.cend(), my_name.cbegin())
+		);
+
+		if( message.action() == Action::SUBSCRIBE )
+			is_subscribed = true;
+		else if( message.action() == Action::UNSUBSCRIBE )
+			is_subscribed = false;
+		else if( message.action() == Action::EVENT )
+		{
+			BOOST_REQUIRE_EQUAL( message.num_arguments(), 2 );
+
+			const Buffer& my_data = message[1];
+			BOOST_REQUIRE_EQUAL( data.size(), my_data.size() );
+			BOOST_CHECK(
+				std::equal(data.cbegin(), data.cend(), my_data.cbegin())
+			);
+
+			++num_emit;
+		}
+		else
+			BOOST_FAIL( "This branch should not be taken" );
+
+		return true;
+	};
+
+	Event event(send);
+
+	unsigned num_calls = 0;
+	Event::SubscribeFn f = [data, &num_calls] (const Buffer& my_data) {
+		BOOST_CHECK( std::equal(data.cbegin(), data.cend(), my_data.cbegin()) );
+		++num_calls;
+	};
+
+	Event::SubscribeFnPtr p_f = event.subscribe(name, f);
+	BOOST_CHECK( p_f );
+	BOOST_CHECK( is_subscribed );
+	BOOST_CHECK_EQUAL( event.subscriber_map_.size(), 1 );
+
+
+	event.emit(name, data);
+	BOOST_CHECK_EQUAL( num_emit, 1 );
+	BOOST_CHECK_EQUAL( num_calls, 1 );
+
+
+	Event::SubscribeFn g =
+		[name, data, &num_calls, &event, &p_f] (const Buffer& my_data)
+		{
+			BOOST_CHECK(
+				std::equal(data.cbegin(), data.cend(), my_data.cbegin())
+			);
+
+			num_calls += 10;
+			event.unsubscribe(name, p_f);
+		};
+	Event::SubscribeFnPtr p_g = event.subscribe(name, g);
+
+
+	event.emit(name, data);
+	BOOST_CHECK_EQUAL( num_emit, 2 );
+	BOOST_CHECK_EQUAL( num_calls, 12 );
+
+
+	BOOST_CHECK_EQUAL( event.subscriber_map_.size(), 1 );
+	Event::SubscriberMap::const_iterator ci = event.subscriber_map_.cbegin();
+	const Event::SubscriberList& subscribers = ci->second;
+	BOOST_CHECK_EQUAL( subscribers.size(), 1 );
+	BOOST_CHECK_EQUAL( subscribers.front(), p_g );
+
+
+	event.unsubscribe(name);
+	BOOST_CHECK( event.subscriber_map_.empty() );
+	BOOST_CHECK( !is_subscribed );
+}
+
+
+
 BOOST_AUTO_TEST_CASE(listener_notification)
 {
 	typedef Event::Name Name;
@@ -302,8 +394,7 @@ BOOST_AUTO_TEST_CASE(listener_notification)
 		(const Name& my_pattern, bool b, const Name& my_match) {
 			BOOST_REQUIRE_EQUAL( pattern.size(), my_pattern.size() );
 			BOOST_CHECK(
-				std::equal(
-					pattern.cbegin(), pattern.cend(), my_pattern.cbegin()
+				std::equal(pattern.cbegin(), pattern.cend(), my_pattern.cbegin()
 				)
 			);
 
