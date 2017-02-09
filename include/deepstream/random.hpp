@@ -43,7 +43,7 @@ namespace deepstream
 		 * ASCII record separator and without ASCII unit separator
 		 */
 		Buffer make_argument(
-			Engine*, std::size_t min_size=1, std::size_t max_size=100);
+			Engine*, std::size_t min_size=1, std::size_t max_size=10);
 		/**
 		 * @return A valid message with random header and random payload
 		 */
