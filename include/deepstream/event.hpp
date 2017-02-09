@@ -19,7 +19,6 @@
 #include <functional>
 #include <map>
 #include <memory>
-#include <string>
 #include <vector>
 
 
@@ -31,8 +30,7 @@ namespace deepstream
 
 	struct Event
 	{
-		// convenience typedef. maybe this should be a Buffer.
-		typedef std::string Name;
+		typedef Buffer Name;
 
 		/**
 		 * This alias is the signature of a deepstream event subscription
@@ -118,9 +116,9 @@ namespace deepstream
 		 *
 		 * Existing listeners are not overwritten.
 		 */
-		ListenFnPtr listen(const std::string&, const ListenFn&);
-		void listen(const std::string& pattern, const ListenFnPtr&);
-		void unlisten(const std::string& pattern);
+		ListenFnPtr listen(const Name&, const ListenFn&);
+		void listen(const Name& pattern, const ListenFnPtr&);
+		void unlisten(const Name& pattern);
 
 
 		/**
