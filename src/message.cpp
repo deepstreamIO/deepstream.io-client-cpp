@@ -88,7 +88,6 @@ const Message::Header HEADERS[] = {
 	Message::Header( Topic::PRESENCE, Action::UNSUBSCRIBE, true ),
 	Message::Header( Topic::PRESENCE, Action::PRESENCE_JOIN ),
 	Message::Header( Topic::PRESENCE, Action::PRESENCE_LEAVE ),
-	Message::Header( Topic::PRESENCE, Action::QUERY, true ),
 	Message::Header( Topic::PRESENCE, Action::QUERY ),
 	Message::Header( Topic::PRESENCE, Action::SUBSCRIBE ),
 	Message::Header( Topic::PRESENCE, Action::UNSUBSCRIBE )
@@ -126,7 +125,6 @@ const char* HEADER_TO_STRING[] = {
 	"U|PNJ",
 	"U|PNL",
 	"U|Q",
-	"U|Q|Q",
 	"U|S|S",
 	"U|US|US"
 };
@@ -161,7 +159,6 @@ const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
 	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(1, 1),
 	std::pair<std::size_t, std::size_t>(0, SIZE_MAX),
-	std::pair<std::size_t, std::size_t>(0, 0),
 	std::pair<std::size_t, std::size_t>(0, 0),
 	std::pair<std::size_t, std::size_t>(0, 0)
 };

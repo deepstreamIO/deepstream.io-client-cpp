@@ -92,6 +92,7 @@ void Presence::get_all(const QueryFn& f)
 		return;
 
 	MessageBuilder uqq(Topic::PRESENCE, Action::QUERY);
+	uqq.add_argument("Q");
 	send_(uqq);
 }
 
@@ -106,7 +107,7 @@ void Presence::notify_(const Message& message)
 	if( message.action() == Action::UNSUBSCRIBE && message.is_ack() )
 		return;
 
-	if( message.action() == Action::QUERY && message.is_ack() )
+	if( message.action() == Action::QUERY )
 	{
 		UserList users;
 		for(std::size_t i = 0; i < message.num_arguments(); ++i)
