@@ -271,7 +271,7 @@ void Event::notify_listeners_(const Message& message)
 	assert( message.num_arguments() == 2 );
 
 
-	Name pattern = message[0];
+	const Name& pattern = message[0];
 	const Name& match = message[1];
 
 	bool is_subscribed =
@@ -282,12 +282,13 @@ void Event::notify_listeners_(const Message& message)
 
 	if( it == listener_map_.end() )
 	{
-		pattern.push_back(0);
+		Name pattern_str(pattern);
+		pattern_str.push_back(0);
 
 		std::fprintf(
 			stderr,
 			"%s: no listener for pattern '%s'\n",
-			message.header().to_string(), pattern.data()
+			message.header().to_string(), pattern_str.data()
 		);
 
 		return;
@@ -299,7 +300,18 @@ void Event::notify_listeners_(const Message& message)
 	// listener may decide to unlisten.
 	ListenFnPtr p_f = it->second;
 	auto f = *p_f;
-	f(pattern, is_subscribed, match);
+	bool accept = f(pattern, is_subscribed, match);
+
+
+	if( message.action() == Action::SUBSCRIPTION_FOR_PATTERN_REMOVED )
+		return;
+
+
+	Action action = accept ? Action::LISTEN_ACCEPT : Action::LISTEN_REJECT;
+	MessageBuilder el(Topic::EVENT, action);
+	el.add_argument(pattern);
+	el.add_argument(match);
+	send_(el);
 }
 
 }
