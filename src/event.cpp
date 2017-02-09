@@ -137,7 +137,7 @@ void Event::unsubscribe(const Name& name, const SubscribeFnPtr& p_f)
 
 
 
-Event::ListenFnPtr Event::listen(const std::string& pattern, const ListenFn& f)
+Event::ListenFnPtr Event::listen(const Name& pattern, const ListenFn& f)
 {
 	ListenFnPtr p_f( new ListenFn(f) );
 	listen(pattern, p_f);
@@ -146,7 +146,7 @@ Event::ListenFnPtr Event::listen(const std::string& pattern, const ListenFn& f)
 }
 
 
-void Event::listen(const std::string& pattern, const ListenFnPtr& p_f)
+void Event::listen(const Name& pattern, const ListenFnPtr& p_f)
 {
 	if( pattern.empty() )
 		throw std::invalid_argument( "Cannot listen for empty patterns" );
@@ -166,7 +166,7 @@ void Event::listen(const std::string& pattern, const ListenFnPtr& p_f)
 }
 
 
-void Event::unlisten(const std::string& pattern)
+void Event::unlisten(const Name& pattern)
 {
 	ListenerMap::iterator it = listener_map_.find(pattern);
 
@@ -223,16 +223,17 @@ void Event::notify_subscribers_(const Message& message)
 		return;
 
 
-	const Buffer& arg0 = message[0];
-	Name name( arg0.cbegin(), arg0.cend() );
+	Name name = message[0];
 	const Buffer& data = message[1];
 
 	SubscriberMap::iterator it = subscriber_map_.find(name);
 
 	if( it == subscriber_map_.end() )
 	{
+		name.push_back(0);
+
 		std::fprintf(
-			stderr, "E|EVT: no subscriber named '%s'\n", name.c_str()
+			stderr, "E|EVT: no subscriber named '%s'\n", name.data()
 		);
 		return;
 	}
@@ -267,11 +268,8 @@ void Event::notify_listeners_(const Message& message)
 	assert( message.num_arguments() == 2 );
 
 
-	const Buffer& arg0 = message[0];
-	Name pattern( arg0.cbegin(), arg0.cend() );
-
-	const Buffer& arg1 = message[1];
-	Name match( arg1.cbegin(), arg1.cend() );
+	Name pattern = message[0];
+	const Name& match = message[1];
 
 	bool is_subscribed =
 		message.action() == Action::SUBSCRIPTION_FOR_PATTERN_FOUND;
@@ -281,10 +279,12 @@ void Event::notify_listeners_(const Message& message)
 
 	if( it == listener_map_.end() )
 	{
+		pattern.push_back(0);
+
 		std::fprintf(
 			stderr,
 			"%s: no listener for pattern '%s'\n",
-			message.header().to_string(), pattern.c_str()
+			message.header().to_string(), pattern.data()
 		);
 
 		return;

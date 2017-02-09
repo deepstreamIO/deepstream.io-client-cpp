@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(simple)
 {
 	int state = -1;
 	const Event::Name name("name");
-	const std::string pattern("pattern");
+	const Event::Name pattern("pattern");
 
 	auto send = [&state, name, pattern] (const Message& message) {
 		if( state == -1 )
@@ -48,9 +48,11 @@ BOOST_AUTO_TEST_CASE(simple)
 			BOOST_CHECK( !message.is_ack() );
 
 			BOOST_REQUIRE_EQUAL( message.num_arguments(), 1 );
-			const Buffer& arg = message[0];
-			BOOST_REQUIRE_EQUAL( name.size(), arg.size() );
-			BOOST_CHECK( std::equal(arg.cbegin(), arg.cend(), name.cbegin()) );
+			const Event::Name& my_name = message[0];
+			BOOST_REQUIRE_EQUAL( name.size(), my_name.size() );
+			BOOST_CHECK(
+				std::equal(name.cbegin(), name.cend(), my_name.cbegin())
+			);
 
 			return true;
 		}
@@ -61,10 +63,10 @@ BOOST_AUTO_TEST_CASE(simple)
 			BOOST_CHECK( !message.is_ack() );
 
 			BOOST_REQUIRE_EQUAL( message.num_arguments(), 1 );
-			const Buffer& arg = message[0];
-			BOOST_REQUIRE_EQUAL( pattern.size(), arg.size() );
+			const Event::Name& my_pattern = message[0];
+			BOOST_REQUIRE_EQUAL( pattern.size(), my_pattern.size() );
 			BOOST_CHECK(
-				std::equal(arg.cbegin(), arg.cend(), pattern.cbegin())
+				std::equal(pattern.cbegin(), pattern.cend(),my_pattern.cbegin())
 			);
 
 			return true;
@@ -76,10 +78,10 @@ BOOST_AUTO_TEST_CASE(simple)
 			BOOST_CHECK( !message.is_ack() );
 
 			BOOST_REQUIRE_EQUAL( message.num_arguments(), 1 );
-			const Buffer& arg = message[0];
-			BOOST_REQUIRE_EQUAL( name.size(), arg.size() );
+			const Event::Name& my_name = message[0];
+			BOOST_REQUIRE_EQUAL( name.size(), my_name.size() );
 			BOOST_CHECK(
-				std::equal(arg.cbegin(), arg.cend(), name.cbegin())
+				std::equal(name.cbegin(), name.cend(), my_name.cbegin())
 			);
 
 			return true;
@@ -91,10 +93,10 @@ BOOST_AUTO_TEST_CASE(simple)
 			BOOST_CHECK( !message.is_ack() );
 
 			BOOST_REQUIRE_EQUAL( message.num_arguments(), 1 );
-			const Buffer& arg = message[0];
-			BOOST_REQUIRE_EQUAL( pattern.size(), arg.size() );
+			const Event::Name& my_pattern = message[0];
+			BOOST_REQUIRE_EQUAL( pattern.size(), my_pattern.size() );
 			BOOST_CHECK(
-				std::equal(arg.cbegin(), arg.cend(), pattern.cbegin())
+				std::equal(pattern.cbegin(), pattern.cend(), my_pattern.begin())
 			);
 
 			return true;
@@ -150,7 +152,10 @@ BOOST_AUTO_TEST_CASE(simple)
 		BOOST_CHECK_EQUAL( event.listener_map_.size(), 1 );
 		auto it = event.listener_map_.find(pattern);
 		BOOST_REQUIRE( it != event.listener_map_.end() );
-		BOOST_REQUIRE_EQUAL( it->first, pattern );
+		BOOST_REQUIRE_EQUAL( pattern.size(), it->first.size() );
+		BOOST_REQUIRE(
+			std::equal(pattern.cbegin(), pattern.cend(), it->first.cbegin())
+		);
 		BOOST_REQUIRE_EQUAL( it->second, q1 );
 	}
 
@@ -159,7 +164,10 @@ BOOST_AUTO_TEST_CASE(simple)
 		BOOST_CHECK_EQUAL( event.listener_map_.size(), 1 );
 		auto it = event.listener_map_.find(pattern);
 		BOOST_REQUIRE( it != event.listener_map_.end() );
-		BOOST_REQUIRE_EQUAL( it->first, pattern );
+		BOOST_REQUIRE_EQUAL( pattern.size(), it->first.size() );
+		BOOST_REQUIRE(
+			std::equal(pattern.cbegin(), pattern.cend(), it->first.cbegin())
+		);
 		BOOST_REQUIRE_EQUAL( it->second, q1 );
 	}
 
@@ -269,10 +277,9 @@ BOOST_AUTO_TEST_CASE(listener_notification)
 		BOOST_CHECK( !message.is_ack() );
 		BOOST_CHECK_EQUAL( message.num_arguments(), 1 );
 
-		Buffer b( pattern.cbegin(), pattern.cend() );
 		BOOST_REQUIRE_EQUAL( pattern.size(), message[0].size() );
 		BOOST_CHECK(
-			std::equal( b.cbegin(), b.cend(), message[0].cbegin() )
+			std::equal( pattern.cbegin(), pattern.cend(), message[0].cbegin() )
 		);
 
 		if( message.action() == Action::LISTEN )
@@ -289,8 +296,20 @@ BOOST_AUTO_TEST_CASE(listener_notification)
 	Event::ListenFn f =
 		[pattern, match, &has_subscriber]
 		(const Name& my_pattern, bool b, const Name& my_match) {
-			BOOST_CHECK_EQUAL( pattern, my_pattern );
-			BOOST_CHECK_EQUAL( match, my_match );
+			BOOST_REQUIRE_EQUAL( pattern.size(), my_pattern.size() );
+			BOOST_CHECK(
+				std::equal(
+					pattern.cbegin(), pattern.cend(), my_pattern.cbegin()
+				)
+			);
+
+			BOOST_REQUIRE_EQUAL( match.size(), my_match.size() );
+			BOOST_CHECK(
+				std::equal(
+					match.cbegin(), match.cend(), my_match.cbegin()
+				)
+			);
+
 			has_subscriber = b;
 		};
 
