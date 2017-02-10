@@ -49,6 +49,9 @@ void Event::emit(const Name& name, const Buffer& buffer)
 	if( !send_(evt) )
 		return;
 
+	if( subscriber_map_.find(name) == subscriber_map_.end() )
+		return;
+
 	notify_(evt);
 }
 
