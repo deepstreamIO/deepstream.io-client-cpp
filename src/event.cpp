@@ -303,7 +303,7 @@ void Event::notify_listeners_(const Message& message)
 	// listener may decide to unlisten.
 	ListenFnPtr p_f = it->second;
 	auto f = *p_f;
-	bool accept = f(pattern, is_subscribed, match);
+	bool accept = f(match, is_subscribed);
 
 
 	if( message.action() == Action::SUBSCRIPTION_FOR_PATTERN_REMOVED )

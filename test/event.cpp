@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(simple)
 	BOOST_CHECK( event.listener_map_.empty() );
 
 
-	Event::ListenFn g = [] (const Name&, bool, const Name&) { return true; };
+	Event::ListenFn g = [] (const Name&, bool) { return true; };
 	Event::ListenFnPtr q1( new Event::ListenFn(g) );
 	Event::ListenFnPtr q2( new Event::ListenFn(g) );
 
@@ -398,14 +398,7 @@ BOOST_AUTO_TEST_CASE(listener_notification)
 
 	bool has_subscriber = false;
 	Event::ListenFn f =
-		[pattern, match, &has_subscriber]
-		(const Name& my_pattern, bool b, const Name& my_match) {
-			BOOST_REQUIRE_EQUAL( pattern.size(), my_pattern.size() );
-			BOOST_CHECK(
-				std::equal(pattern.cbegin(), pattern.cend(), my_pattern.cbegin()
-				)
-			);
-
+		[match, &has_subscriber] (const Name& my_match, bool b) {
 			BOOST_REQUIRE_EQUAL( match.size(), my_match.size() );
 			BOOST_CHECK(
 				std::equal(
