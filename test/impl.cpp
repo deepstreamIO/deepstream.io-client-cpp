@@ -21,7 +21,7 @@
 
 #include <arpa/inet.h>
 
-#include <deepstream.hpp>
+#include <deepstream/impl.hpp>
 #include <deepstream/buffer.hpp>
 #include <deepstream/client.hpp>
 #include <deepstream/error_handler.hpp>
@@ -33,7 +33,8 @@
 #include <cassert>
 
 
-namespace deepstream
+namespace deepstream {
+namespace impl
 {
 
 struct FailHandler : public ErrorHandler
@@ -204,14 +205,14 @@ struct SimpleClient : public websockets::pseudo::Client
 
 BOOST_AUTO_TEST_CASE(simple)
 {
-	Client c = Client::make(
+	std::unique_ptr<Client> p = Client::make(
 		std::unique_ptr<websockets::Client>( new SimpleClient ),
 		std::unique_ptr<ErrorHandler>( new FailHandler )
 	);
 
-	c.login("auth", nullptr);
+	p->login("auth", nullptr);
 
-	BOOST_CHECK_EQUAL( c.getConnectionState(), client::State::CONNECTED );
+	BOOST_CHECK_EQUAL( p->getConnectionState(), client::State::CONNECTED );
 }
 
 
@@ -347,18 +348,19 @@ constexpr const char RedirectionClient::REDIRECTION_URI[];
 
 BOOST_AUTO_TEST_CASE(redirections)
 {
-	Client c = Client::make(
+	std::unique_ptr<Client> p = Client::make(
 		std::unique_ptr<websockets::Client>( new RedirectionClient ),
 		std::unique_ptr<ErrorHandler>( new FailHandler )
 	);
 
-	c.login("auth", nullptr);
+	p->login("auth", nullptr);
 
-	BOOST_CHECK_EQUAL( c.getConnectionState(), client::State::CONNECTED );
+	BOOST_CHECK_EQUAL( p->getConnectionState(), client::State::CONNECTED );
 	BOOST_CHECK_EQUAL(
-		c.p_websocket_->uri(),
+		p->p_websocket_->uri(),
 		RedirectionClient::REDIRECTION_URI
 	);
 }
 
+}
 }

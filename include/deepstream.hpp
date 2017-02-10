@@ -19,25 +19,17 @@
 #include <cstdint>
 
 #include <functional>
-#include <memory>
 #include <string>
 
 #include <deepstream/buffer.hpp>
 #include <deepstream/config.h>
 #include <deepstream/client.hpp>
-#include <deepstream/error_handler.hpp>
 #include <deepstream/event.hpp>
-// 201701227:
-// we have to include `parser.hpp` because `parser::MessageList`,
-// `parser::ErrorList` are `typedef`s and cannot be forward declared.
-#include <deepstream/parser.hpp>
 #include <deepstream/presence.hpp>
-#include <deepstream/websockets.hpp>
 
 
 namespace deepstream
 {
-	struct Message;
 	struct ErrorHandler;
 
 	namespace client
@@ -45,9 +37,8 @@ namespace deepstream
 		enum class State;
 	}
 
-	namespace websockets
+	namespace impl
 	{
-		enum class State;
 		struct Client;
 	}
 
@@ -69,37 +60,22 @@ namespace deepstream
 	};
 
 
+	// This class does not use `std::unique_ptr<impl::Client>` because it
+	// prevents the use of the PIMPL idiom because the class attempts to
+	// evaluate `sizeof(impl::Client)`; naturally, we must know the definition
+	// of `impl::Client` meaning we have to include the appropriate header.
 	struct Client
 	{
 		static std::string getUid();
 
 
-		/**
-		 * Given a *connected* websocket client and an error handler, construct
-		 * a deepstream client.
-		 *
-		 * @post On exit, the client is either in `AWAIT_CONNECTION` or `CLOSED`
-		 * state.
-		 *
-		 * @param[in] p_websocket A non-NULL pointer
-		 * @param[in] p_error_handler A non-NULL pointer
-		 *
-		 */
-		static Client make(
-			std::unique_ptr<websockets::Client> p_websocket,
-			std::unique_ptr<ErrorHandler> p_error_handler
-		);
-		static Client make(const std::string& uri);
-
+		Client(const std::string& uri);
+		Client(const std::string& uri, std::unique_ptr<ErrorHandler>);
+		~Client();
 
 		Client() = delete;
 		Client(const Client&) = delete;
 		Client(Client&&) = default;
-
-	protected:
-		explicit Client(
-			std::unique_ptr<websockets::Client> p_websocket,
-			std::unique_ptr<ErrorHandler>);
 
 	public:
 		/**
@@ -128,7 +104,7 @@ namespace deepstream
 		bool login(const std::string& auth, Buffer* p_user_data=nullptr);
 		void close();
 
-		client::State getConnectionState() { return state_; }
+		client::State getConnectionState();
 
 
 		/**
@@ -139,43 +115,9 @@ namespace deepstream
 		void process_messages();
 
 
+		impl::Client* const p_impl_;
 		Event event;
 		Presence presence;
-
-
-		/**
-		 * This function reads messages from the websocket.
-		 *
-		 * @param[out] p_buffer A non-NULL pointer. After a successful exit, the
-		 * buffer stores the unparsed messages.
-		 * @param[out] p_messages A non-NULL pointer. After a successful exit,
-		 * the messages reference the storage of `p_buffer`.
-		 */
-		websockets::State receive_(
-			Buffer* p_buffer, parser::MessageList* p_messages
-		);
-		/**
-		 * This method serializes the given messages and sends it as a
-		 * non-fragmented text frame to the server.
-		 */
-		websockets::State send_(const Message&);
-
-		/**
-		 * This method sends a non-fragmented text frame with the contents of
-		 * the given buffer as payload.
-		 */
-		websockets::State send_frame_(const Buffer&);
-		/**
-		 * This method sends a frame with given flags and the contents of the
-		 * given buffer as payload.
-		 */
-		websockets::State send_frame_(const Buffer&, int);
-
-
-		client::State state_;
-		std::unique_ptr<websockets::Client> p_websocket_;
-
-		std::unique_ptr<ErrorHandler> p_error_handler_;
 	};
 }
 

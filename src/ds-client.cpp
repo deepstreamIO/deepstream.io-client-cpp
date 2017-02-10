@@ -22,8 +22,8 @@
 int main()
 try
 {
-	deepstream::Client client =
-		deepstream::Client::make("ws://localhost:6020/deepstream");
+	deepstream::Client client("ws://localhost:6020/deepstream");
+
 	if( client.login() )
 		std::printf( "Client logged in\n" );
 	else
