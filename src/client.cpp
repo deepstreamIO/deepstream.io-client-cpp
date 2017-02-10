@@ -179,7 +179,9 @@ State transition(State state, const Message& message, Sender sender)
 		if( action == Action::LISTEN ||
 			action == Action::SUBSCRIBE ||
 			action == Action::UNLISTEN ||
-			action == Action::UNSUBSCRIBE )
+			action == Action::UNSUBSCRIBE ||
+			action == Action::LISTEN_ACCEPT ||
+			action == Action::LISTEN_REJECT )
 		{
 			if( (sender == Sender::CLIENT && !is_ack) ||
 				(sender == Sender::SERVER && is_ack) )
