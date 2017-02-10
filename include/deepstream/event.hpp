@@ -56,7 +56,7 @@ namespace deepstream
 		 * The following alias is the signature of a deepstream event listener
 		 * callback.
 		 */
-		typedef std::function<bool(const Name&, bool, const Name&)> ListenFn;
+		typedef std::function<bool(const Name&, bool)> ListenFn;
 		/**
 		 * The representation of a callback is stored as a smart pointer.
 		 */
