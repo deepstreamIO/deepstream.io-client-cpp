@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cstdio>
-
 #include <exception>
-
 #include <iostream>
 
 #include <deepstream.hpp>
@@ -28,13 +25,15 @@ try
 
 	deepstream::Client client("ws://localhost:6020/deepstream");
 	if( !client.login() ) {
-		std::printf( "Client not logged in\n" );
+		std::cout << "Client not logged in" << std::endl;
 		return 1;
 	}
-	std::printf( "Client logged in\n" );
+	std::cout << "Client logged in" << std::endl;
+
+	using deepstream::Event;
 
 	// Subscribe to the event "adam"
-	deepstream::Event::SubscribeFnPtr sub_
+	Event::SubscribeFnPtr sub_ptr
 		= client.event.subscribe(Buffer("adam"), [&](const Buffer& buff){
 		// print the event data
 		std::string buff_str(buff.begin(), buff.end());
@@ -42,7 +41,7 @@ try
 		// emit the "eve" event
 		client.event.emit(Buffer("eve"), Buffer("Sbar"));
 		// unsubscribe from the "adam" event
-		client.event.unsubscribe(Buffer("adam"), sub_);
+		client.event.unsubscribe(Buffer("adam"), sub_ptr);
 	});
 
 	// Listen for subscriptions to events beginning with "foobar"
@@ -57,12 +56,27 @@ try
 		return true;
 	});
 
+	using deepstream::Presence;
+
+	// List all present users
+	// FIXME: "Sudden disconnect" errors
+/*
+ *    client.presence.get_all([](const Presence::UserList users){
+ *        std::cout << "Users: " << std::endl;
+ *
+ *        for (auto user_buff : users) {
+ *            std::string user_str(user_buff.begin(), user_buff.end());
+ *            std::cout << "\t" << user_str << std::endl;
+ *        }
+ *    });
+ */
+
 	while(true) {
 		client.process_messages();
 	}
 }
 catch(std::exception& e)
 {
-	fprintf( stderr, "error: '%s'\n", e.what() );
+	std::cerr << "error: '" << e.what() << "'" << std::endl;
 	return 1;
 }
