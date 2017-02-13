@@ -13,8 +13,8 @@
 # limitations under the License.
 
 find_path(POCO_INCLUDE_DIR NAMES Poco/Poco.h)
-find_library(POCO_LIBRARY NAMES PocoFoundation)
-find_library(POCO_NET_LIBRARY NAMES PocoNet)
+find_library(POCO_LIBRARY NAMES PocoFoundation PocoFoundationd)
+find_library(POCO_NET_LIBRARY NAMES PocoNet PocoNetd)
 
 
 include(FindPackageHandleStandardArgs)
