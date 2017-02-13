@@ -50,6 +50,11 @@ target_link_libraries(libdeepstream PUBLIC ${POCO_LIBRARIES})
 install(TARGETS libdeepstream DESTINATION "lib")
 
 
+add_executable(ds-example ds-example.cpp)
+target_include_directories(ds-example PUBLIC ${POCO_INCLUDE_DIRS})
+target_link_libraries(ds-example PUBLIC libdeepstream)
+target_link_libraries(ds-example PUBLIC ${POCO_LIBRARIES})
+
 add_executable(ds-client ds-client.cpp)
 target_include_directories(ds-client PUBLIC ${POCO_INCLUDE_DIRS})
 target_link_libraries(ds-client PUBLIC libdeepstream)
