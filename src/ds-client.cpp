@@ -33,11 +33,11 @@ int main(int argc, char *argv[])
 	    std::cout << "successfully logged in to " << uri << std::endl;
 	    return EXIT_SUCCESS;
 	} else {
-	    std::cout << "failed to login to " << uri << std::endl;
+	    std::cerr << "failed to login to " << uri << std::endl;
 	    return EXIT_FAILURE;
 	}
     } catch(std::exception& e) {
-	std::cout << "Caught exception \"" << e.what() << "\"" << std::endl;
+	std::cerr << "Caught exception \"" << e.what() << "\"" << std::endl;
 	return EXIT_FAILURE;
     }
 }
