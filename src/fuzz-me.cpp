@@ -28,31 +28,26 @@
 using namespace deepstream;
 
 
+int main(int argc, char **argv) {
+    if (argc != 1) {
+        const char *aout = (argc > 0) ? argv[0] : "a.out";
+        std::fprintf(stderr, "%s reads only from standard input\n", aout);
+        return EXIT_FAILURE;
+    }
 
-int main(int argc, char** argv)
-{
-	if( argc != 1 )
-	{
-		const char* aout = (argc > 0) ? argv[0] : "a.out";
-		std::fprintf( stderr, "%s reads only from standard input\n", aout );
-		return EXIT_FAILURE;
-	}
+    while (true) {
+        std::vector<char> buffer(4096, 0);
 
-	while(true)
-	{
-		std::vector<char> buffer(4096, 0);
+        int ret = read(STDIN_FILENO, buffer.data(), buffer.size() - 2);
 
-		int ret = read( STDIN_FILENO, buffer.data(), buffer.size()-2 );
+        if (ret == 0)
+            return 0;
 
-		if( ret == 0 )
-			return 0;
+        if (ret < 0) {
+            std::perror("read");
+            return EXIT_FAILURE;
+        }
 
-		if( ret < 0 )
-		{
-			std::perror("read");
-			return EXIT_FAILURE;
-		}
-
-		parser::execute( buffer.data(), ret + 2 );
-	}
+        parser::execute(buffer.data(), ret + 2);
+    }
 }

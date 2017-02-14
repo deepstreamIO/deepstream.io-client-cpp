@@ -20,21 +20,19 @@
 #include <string>
 
 
-namespace deepstream
-{
-	/**
-	 * An exception class whose main purpose is to ease recognition of unhandled
-	 * error cases.
-	 *
-	 * The idea is to use `Exception` throughout the code, catching and wrapping
-	 * exceptions from external code as needed. Consequently, a caught exception
-	 * which is not of type `Exception` or of type `std::system_error` is an
-	 * unhandled error condition.
-	 */
-	struct Exception : public std::runtime_error
-	{
-		explicit Exception(const std::string&);
-	};
+namespace deepstream {
+    /**
+     * An exception class whose main purpose is to ease recognition of unhandled
+     * error cases.
+     *
+     * The idea is to use `Exception` throughout the code, catching and wrapping
+     * exceptions from external code as needed. Consequently, a caught exception
+     * which is not of type `Exception` or of type `std::system_error` is an
+     * unhandled error condition.
+     */
+    struct Exception : public std::runtime_error {
+        explicit Exception(const std::string &);
+    };
 }
 
 #endif

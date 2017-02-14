@@ -23,35 +23,32 @@
 #include <deepstream/time.hpp>
 
 
-namespace deepstream
-{
-	struct Buffer;
+namespace deepstream {
+    struct Buffer;
 
-	namespace websockets
-	{
-		enum class StatusCode;
-		struct Frame;
-		struct Client;
+    namespace websockets {
+        enum class StatusCode;
+        struct Frame;
+        struct Client;
 
-		namespace pseudo
-		{
-			struct Client : public ::deepstream::websockets::Client
-			{
-				explicit Client();
+        namespace pseudo {
+            struct Client : public ::deepstream::websockets::Client {
+                explicit Client();
 
 
-				virtual std::string uri_impl() const override;
+                virtual std::string uri_impl() const override;
 
-				virtual time::Duration get_receive_timeout_impl() override;
-				virtual void set_receive_timeout_impl(time::Duration) override;
+                virtual time::Duration get_receive_timeout_impl() override;
 
-				virtual void close_impl() override;
+                virtual void set_receive_timeout_impl(time::Duration) override;
+
+                virtual void close_impl() override;
 
 
-				time::Duration timeout_;
-			};
-		}
-	}
+                time::Duration timeout_;
+            };
+        }
+    }
 }
 
 #endif

@@ -24,49 +24,47 @@
 #include <deepstream/parser.h>
 
 
-namespace deepstream
-{
-	namespace parser
-	{
-		struct Error
-		{
-			enum Tag
-			{
-				UNEXPECTED_TOKEN,
-				UNEXPECTED_EOF,
-				CORRUPT_PAYLOAD,
-				INVALID_NUMBER_OF_ARGUMENTS
-			};
+namespace deepstream {
+    namespace parser {
+        struct Error {
+            enum Tag {
+                UNEXPECTED_TOKEN,
+                UNEXPECTED_EOF,
+                CORRUPT_PAYLOAD,
+                INVALID_NUMBER_OF_ARGUMENTS
+            };
 
 
-			explicit Error(std::size_t offset, std::size_t length, Tag tag);
+            explicit Error(std::size_t offset, std::size_t length, Tag tag);
 
-			const Location& location() const { return location_; }
-			Tag tag() const { return tag_; }
+            const Location &location() const { return location_; }
 
-			Location location_;
-			Tag tag_;
-		};
+            Tag tag() const { return tag_; }
 
-
-		std::ostream& operator<< (std::ostream&, Error::Tag);
-		std::ostream& operator<< (std::ostream&, const Error&);
+            Location location_;
+            Tag tag_;
+        };
 
 
-		typedef deepstream_parser_state State;
-		typedef std::vector<deepstream::parser::MessageProxy> MessageList;
-		typedef std::vector<deepstream::parser::Error> ErrorList;
+        std::ostream &operator<<(std::ostream &, Error::Tag);
+
+        std::ostream &operator<<(std::ostream &, const Error &);
 
 
-		/**
-		 * This function returns the contents of a serialized deepstream
-		 * message.
-		 *
-		 * @param[in] p The last two characters must be zero
-		 * @param[in] sz The size of the array referenced by p
-		 */
-		std::pair<MessageList, ErrorList> execute(char* p, std::size_t sz);
-	}
+        typedef deepstream_parser_state State;
+        typedef std::vector<deepstream::parser::MessageProxy> MessageList;
+        typedef std::vector<deepstream::parser::Error> ErrorList;
+
+
+        /**
+         * This function returns the contents of a serialized deepstream
+         * message.
+         *
+         * @param[in] p The last two characters must be zero
+         * @param[in] sz The size of the array referenced by p
+         */
+        std::pair<MessageList, ErrorList> execute(char *p, std::size_t sz);
+    }
 }
 
 
@@ -75,40 +73,43 @@ namespace deepstream
  *
  * The class is not in a namespace because it is called by the scanner (C code).
  */
-struct deepstream_parser_state
-{
-	typedef deepstream::parser::MessageList MessageList;
-	typedef deepstream::parser::ErrorList ErrorList;
+struct deepstream_parser_state {
+    typedef deepstream::parser::MessageList MessageList;
+    typedef deepstream::parser::ErrorList ErrorList;
 
-	/**
-	 * @param[in] p A reference to an array of size sz
-	 * @param[in] sz The size of the array referenced by p
-	 */
-	explicit deepstream_parser_state(const char* p, std::size_t sz);
+    /**
+     * @param[in] p A reference to an array of size sz
+     * @param[in] sz The size of the array referenced by p
+     */
+    explicit deepstream_parser_state(const char *p, std::size_t sz);
 
-	// the lexer modifies its input. thus, the lexer works with a copy of the
-	// input so the argument text cannot be assumed to be a substring of buffer_
-	// starting at offset_.
-	int handle_token(
-		deepstream_token, const char* text, std::size_t);
-	void handle_error(
-		deepstream_token, const char*, std::size_t);
-	void handle_header(
-		deepstream_token, const char*, std::size_t);
-	void handle_payload(
-		deepstream_token, const char*, std::size_t);
-	void handle_message_separator(
-		deepstream_token, const char*, std::size_t);
+    // the lexer modifies its input. thus, the lexer works with a copy of the
+    // input so the argument text cannot be assumed to be a substring of buffer_
+    // starting at offset_.
+    int handle_token(
+            deepstream_token, const char *text, std::size_t);
+
+    void handle_error(
+            deepstream_token, const char *, std::size_t);
+
+    void handle_header(
+            deepstream_token, const char *, std::size_t);
+
+    void handle_payload(
+            deepstream_token, const char *, std::size_t);
+
+    void handle_message_separator(
+            deepstream_token, const char *, std::size_t);
 
 
-	const char* const buffer_;
-	const std::size_t buffer_size_;
+    const char *const buffer_;
+    const std::size_t buffer_size_;
 
-	bool tokenizing_header_;
-	std::size_t offset_; ///< number of bytes in `buffer_` consumed so far
+    bool tokenizing_header_;
+    std::size_t offset_; ///< number of bytes in `buffer_` consumed so far
 
-	MessageList messages_;
-	ErrorList errors_;
+    MessageList messages_;
+    ErrorList errors_;
 };
 
 #endif

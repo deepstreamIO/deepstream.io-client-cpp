@@ -21,39 +21,33 @@
 
 
 namespace deepstream {
-namespace websockets {
-namespace pseudo
-{
+    namespace websockets {
+        namespace pseudo {
 
 
-Client::Client() :
-	timeout_( time::Duration::max() )
-{
-}
+            Client::Client() :
+                    timeout_(time::Duration::max()) {
+            }
 
 
-std::string Client::uri_impl() const
-{
-	return "pseudo";
-}
+            std::string Client::uri_impl() const {
+                return "pseudo";
+            }
 
 
-time::Duration Client::get_receive_timeout_impl()
-{
-	return timeout_;
-}
+            time::Duration Client::get_receive_timeout_impl() {
+                return timeout_;
+            }
 
 
-void Client::set_receive_timeout_impl(time::Duration t)
-{
-	timeout_ = t;
-}
+            void Client::set_receive_timeout_impl(time::Duration t) {
+                timeout_ = t;
+            }
 
 
-void Client::close_impl()
-{
-}
+            void Client::close_impl() {
+            }
 
-}
-}
+        }
+    }
 }

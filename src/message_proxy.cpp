@@ -22,73 +22,62 @@
 
 
 namespace deepstream {
-namespace parser
-{
+    namespace parser {
 
-std::ostream& operator<< (std::ostream& os, const Location& loc)
-{
-	os << loc.offset() + 1 << ':' << loc.offset() + loc.size() + 1;
-	return os;
-}
+        std::ostream &operator<<(std::ostream &os, const Location &loc) {
+            os << loc.offset() + 1 << ':' << loc.offset() + loc.size() + 1;
+            return os;
+        }
 
 
+        MessageProxy::MessageProxy(
+                const char *p, std::size_t offset,
+                Topic topic, Action action, bool is_ack) :
+                MessageProxy(p, offset, Header(topic, action, is_ack)) {
 
-MessageProxy::MessageProxy(
-	const char* p, std::size_t offset,
-	Topic topic, Action action, bool is_ack) :
-	MessageProxy( p, offset, Header(topic,action,is_ack) )
-{
-
-}
+        }
 
 
-MessageProxy::MessageProxy(
-	const char* p, std::size_t offset, const Message::Header& header) :
-	base_(p),
-	offset_(offset),
-	size_(header.size()),
-	header_(header)
-{
-	assert( base_ );
-}
+        MessageProxy::MessageProxy(
+                const char *p, std::size_t offset, const Message::Header &header) :
+                base_(p),
+                offset_(offset),
+                size_(header.size()),
+                header_(header) {
+            assert(base_);
+        }
 
 
-
-std::size_t MessageProxy::size_impl_() const
-{
-	return size_;
-}
+        std::size_t MessageProxy::size_impl_() const {
+            return size_;
+        }
 
 
-const Message::Header& MessageProxy::header_impl_() const
-{
-	return header_;
-}
+        const Message::Header &MessageProxy::header_impl_() const {
+            return header_;
+        }
 
 
-std::size_t MessageProxy::num_arguments_impl_() const
-{
-	return arguments_.size();
-}
+        std::size_t MessageProxy::num_arguments_impl_() const {
+            return arguments_.size();
+        }
 
 
-Buffer MessageProxy::get_impl_(std::size_t i) const
-{
-	assert( i < arguments_.size() );
+        Buffer MessageProxy::get_impl_(std::size_t i) const {
+            assert(i < arguments_.size());
 
-	const char* first = base_ + arguments_[i].offset();
-	const char* last = first + arguments_[i].size();
+            const char *first = base_ + arguments_[i].offset();
+            const char *last = first + arguments_[i].size();
 
-	Buffer ret( first, last );
+            Buffer ret(first, last);
 
-	return ret;
-}
+            return ret;
+        }
 
 
-Buffer MessageProxy::to_binary_impl_() const
-{
-	return Buffer( base_, base_ + size_ );
-}
+        Buffer MessageProxy::to_binary_impl_() const {
+            return Buffer(base_, base_ + size_);
+        }
 
-}
+    }
 }

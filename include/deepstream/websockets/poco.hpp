@@ -28,52 +28,50 @@
 #include <deepstream/time.hpp>
 
 
-namespace deepstream
-{
-	struct Buffer;
+namespace deepstream {
+    struct Buffer;
 
-	namespace websockets
-	{
-		enum class StatusCode;
-		struct Frame;
-		struct Client;
+    namespace websockets {
+        enum class StatusCode;
+        struct Frame;
+        struct Client;
 
-		namespace poco
-		{
-			struct Client : public ::deepstream::websockets::Client
-			{
-				explicit Client(const std::string& uri);
+        namespace poco {
+            struct Client : public ::deepstream::websockets::Client {
+                explicit Client(const std::string &uri);
 
 
-				std::size_t num_bytes_available();
+                std::size_t num_bytes_available();
 
 
-				virtual std::unique_ptr<websockets::Client> construct_impl(
-					const std::string&
-				) const override;
+                virtual std::unique_ptr<websockets::Client> construct_impl(
+                        const std::string &
+                ) const override;
 
-				virtual std::string uri_impl() const override;
+                virtual std::string uri_impl() const override;
 
-				virtual time::Duration get_receive_timeout_impl() override;
-				virtual void set_receive_timeout_impl(time::Duration) override;
+                virtual time::Duration get_receive_timeout_impl() override;
 
-				virtual std::pair<State, std::unique_ptr<Frame> >
-					receive_frame_impl() override;
-				virtual State send_frame_impl(
-					const Buffer& buffer, Frame::Flags
-				) override;
+                virtual void set_receive_timeout_impl(time::Duration) override;
 
-				virtual void close_impl() override;
+                virtual std::pair<State, std::unique_ptr<Frame> >
+                receive_frame_impl() override;
+
+                virtual State send_frame_impl(
+                        const Buffer &buffer, Frame::Flags
+                ) override;
+
+                virtual void close_impl() override;
 
 
-				Poco::URI uri_;
-				Poco::Net::HTTPClientSession session_;
-				Poco::Net::HTTPRequest request_;
-				Poco::Net::HTTPResponse response_;
-				Poco::Net::WebSocket websocket_;
-			};
-		}
-	}
+                Poco::URI uri_;
+                Poco::Net::HTTPClientSession session_;
+                Poco::Net::HTTPRequest request_;
+                Poco::Net::HTTPResponse response_;
+                Poco::Net::WebSocket websocket_;
+            };
+        }
+    }
 }
 
 #endif

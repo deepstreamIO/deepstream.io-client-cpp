@@ -21,38 +21,39 @@
 #include <deepstream/message.hpp>
 
 
-namespace deepstream
-{
-	struct Buffer;
-	struct MessageBuilder;
+namespace deepstream {
+    struct Buffer;
+    struct MessageBuilder;
 
-	/**
-	 * This module generates random deepstream messages or random components of
-	 * deepstream messages (header, payload).
-	 */
-	namespace random
-	{
-		typedef std::mt19937_64 Engine;
+    /**
+     * This module generates random deepstream messages or random components of
+     * deepstream messages (header, payload).
+     */
+    namespace random {
+        typedef std::mt19937_64 Engine;
 
-		/**
-		 * @return A random deepstream header
-		 */
-		const Message::Header& make_header(Engine*);
-		/**
-		 * @return Random payload within the given size bounds without
-		 * ASCII record separator and without ASCII unit separator
-		 */
-		Buffer make_argument(
-			Engine*, std::size_t min_size=1, std::size_t max_size=10);
-		/**
-		 * @return A valid message with random header and random payload
-		 */
-		MessageBuilder make_message(Engine*);
-		/**
-		 * @return A message with a given header and random payload
-		 */
-		MessageBuilder make_message(Engine*, const Message::Header&);
-	}
+        /**
+         * @return A random deepstream header
+         */
+        const Message::Header &make_header(Engine *);
+
+        /**
+         * @return Random payload within the given size bounds without
+         * ASCII record separator and without ASCII unit separator
+         */
+        Buffer make_argument(
+                Engine *, std::size_t min_size = 1, std::size_t max_size = 10);
+
+        /**
+         * @return A valid message with random header and random payload
+         */
+        MessageBuilder make_message(Engine *);
+
+        /**
+         * @return A message with a given header and random payload
+         */
+        MessageBuilder make_message(Engine *, const Message::Header &);
+    }
 }
 
 #endif

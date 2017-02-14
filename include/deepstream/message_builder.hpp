@@ -22,35 +22,37 @@
 #include <deepstream/message.hpp>
 
 
-namespace deepstream
-{
-	/**
-	 * This class aids with the construction of deepstream messages.
-	 */
-	struct MessageBuilder : public Message
-	{
-		typedef Buffer Argument;
-		typedef std::vector<Argument> ArgumentList;
+namespace deepstream {
+    /**
+     * This class aids with the construction of deepstream messages.
+     */
+    struct MessageBuilder : public Message {
+        typedef Buffer Argument;
+        typedef std::vector<Argument> ArgumentList;
 
 
-		explicit MessageBuilder(const Message::Header&);
-		explicit MessageBuilder(Topic topic, Action action, bool is_ack=false);
+        explicit MessageBuilder(const Message::Header &);
 
-		void add_argument(const Argument& arg);
-		void add_argument(const std::string&);
+        explicit MessageBuilder(Topic topic, Action action, bool is_ack = false);
 
-		virtual std::size_t size_impl_() const;
+        void add_argument(const Argument &arg);
 
-		virtual const Header& header_impl_() const;
-		virtual std::size_t num_arguments_impl_() const;
-		virtual Buffer get_impl_(std::size_t) const;
+        void add_argument(const std::string &);
 
-		virtual Buffer to_binary_impl_() const;
+        virtual std::size_t size_impl_() const;
+
+        virtual const Header &header_impl_() const;
+
+        virtual std::size_t num_arguments_impl_() const;
+
+        virtual Buffer get_impl_(std::size_t) const;
+
+        virtual Buffer to_binary_impl_() const;
 
 
-		const Message::Header header_;
-		ArgumentList arguments_;
-	};
+        const Message::Header header_;
+        ArgumentList arguments_;
+    };
 }
 
 #endif
