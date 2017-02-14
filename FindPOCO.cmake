@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_path(POCO_INCLUDE_DIR NAMES Poco/Poco.h)
+find_path(POCO_INCLUDE_DIR NAMES Poco/Poco.h PATHS ${POCO_INCLUDE_PATH})
 # POCO insists on appending 'd' to the library names in debug mode
-find_library(POCO_LIBRARY NAMES PocoFoundation PocoFoundationd)
-find_library(POCO_NET_LIBRARY NAMES PocoNet PocoNetd)
+find_library(POCO_LIBRARY NAMES PocoFoundation PocoFoundationd PATHS ${POCO_LIBRARY_PATH})
+find_library(POCO_NET_LIBRARY NAMES PocoNet PocoNetd PATHS ${POCO_LIBRARY_PATH})
 
 
 include(FindPackageHandleStandardArgs)
