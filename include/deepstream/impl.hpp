@@ -24,97 +24,87 @@
 
 #include <deepstream/parser.hpp>
 
-
 namespace deepstream {
-    struct Buffer;
-    struct ErrorHandler;
-    struct Event;
-    struct Message;
-    struct Presence;
+struct Buffer;
+struct ErrorHandler;
+struct Event;
+struct Message;
+struct Presence;
 
-    namespace client {
-        enum class State;
-    }
+namespace client {
+    enum class State;
+}
 
-    namespace websockets {
-        enum class State;
-        struct Client;
-    }
+namespace websockets {
+    enum class State;
+    struct Client;
+}
 
+namespace impl {
+    struct Client {
+        static std::unique_ptr<Client>
+        make(std::unique_ptr<websockets::Client> p_websocket,
+            std::unique_ptr<ErrorHandler> p_error_handler);
 
-    namespace impl {
-        struct Client {
-            static std::unique_ptr<Client> make(
-                    std::unique_ptr<websockets::Client> p_websocket,
-                    std::unique_ptr<ErrorHandler> p_error_handler
-            );
+        static std::unique_ptr<Client> make(const std::string& uri);
 
-            static std::unique_ptr<Client> make(const std::string &uri);
+        static std::unique_ptr<Client> make(const std::string& uri,
+            std::unique_ptr<ErrorHandler>);
 
-            static std::unique_ptr<Client> make(
-                    const std::string &uri,
-                    std::unique_ptr<ErrorHandler>
-            );
+        Client() = delete;
 
+        Client(const Client&) = delete;
 
-            Client() = delete;
+        Client(Client&&) = delete;
 
-            Client(const Client &) = delete;
+    protected:
+        explicit Client(std::unique_ptr<websockets::Client> p_websocket,
+            std::unique_ptr<ErrorHandler>);
 
-            Client(Client &&) = delete;
+    public:
+        bool login();
 
-        protected:
-            explicit Client(
-                    std::unique_ptr<websockets::Client> p_websocket,
-                    std::unique_ptr<ErrorHandler>);
+        bool login(const std::string& auth, Buffer* p_user_data = nullptr);
 
-        public:
-            bool login();
+        void close();
 
-            bool login(const std::string &auth, Buffer *p_user_data = nullptr);
+        client::State getConnectionState();
 
-            void close();
+        void process_messages(Event*, Presence*);
 
-            client::State getConnectionState();
+        /**
+   * This function reads messages from the websocket.
+   *
+   * @param[out] p_buffer A non-NULL pointer. After a successful exit,
+   * the buffer stores the unparsed messages.
+   * @param[out] p_messages A non-NULL pointer. After a successful exit,
+   * the messages reference the storage of `p_buffer`.
+   */
+        websockets::State receive_(Buffer* p_buffer, parser::MessageList* p_messages);
 
+        /**
+   * This method serializes the given messages and sends it as a
+   * non-fragmented text frame to the server.
+   */
+        websockets::State send_(const Message&);
 
-            void process_messages(Event *, Presence *);
+        /**
+   * This method sends a non-fragmented text frame with the contents of
+   * the given buffer as payload.
+   */
+        websockets::State send_frame_(const Buffer&);
 
-            /**
-             * This function reads messages from the websocket.
-             *
-             * @param[out] p_buffer A non-NULL pointer. After a successful exit,
-             * the buffer stores the unparsed messages.
-             * @param[out] p_messages A non-NULL pointer. After a successful exit,
-             * the messages reference the storage of `p_buffer`.
-             */
-            websockets::State receive_(
-                    Buffer *p_buffer, parser::MessageList *p_messages
-            );
+        /**
+   * This method sends a frame with given flags and the contents of the
+   * given buffer as payload.
+   */
+        websockets::State send_frame_(const Buffer&, int);
 
-            /**
-             * This method serializes the given messages and sends it as a
-             * non-fragmented text frame to the server.
-             */
-            websockets::State send_(const Message &);
-
-            /**
-             * This method sends a non-fragmented text frame with the contents of
-             * the given buffer as payload.
-             */
-            websockets::State send_frame_(const Buffer &);
-
-            /**
-             * This method sends a frame with given flags and the contents of the
-             * given buffer as payload.
-             */
-            websockets::State send_frame_(const Buffer &, int);
-
-            client::State state_;
-            std::unique_ptr<websockets::Client> p_websocket_;
-            std::unique_ptr<ErrorHandler> p_error_handler_;
-        };
-    }
+        client::State state_;
+        std::unique_ptr<websockets::Client> p_websocket_;
+        std::unique_ptr<ErrorHandler> p_error_handler_;
+    };
+}
 }
 
 #endif

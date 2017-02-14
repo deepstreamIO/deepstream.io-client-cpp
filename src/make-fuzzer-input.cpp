@@ -29,15 +29,14 @@
 
 #include <cassert>
 
-
 using namespace deepstream;
 
-
-unsigned long str2ul(const char *p) {
+unsigned long str2ul(const char* p)
+{
     const int base = 10;
-    const char *const end = p + std::strlen(p);
+    const char* const end = p + std::strlen(p);
 
-    char *q = nullptr;
+    char* q = nullptr;
     unsigned long ul = std::strtoul(p, &q, base);
 
     if (q != end) {
@@ -48,10 +47,10 @@ unsigned long str2ul(const char *p) {
     return ul;
 }
 
-
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
     if (argc >= 4) {
-        const char *aout = (argc > 0) ? argv[0] : "a.out";
+        const char* aout = (argc > 0) ? argv[0] : "a.out";
         std::fprintf(stderr, "usage: %s [seed] [max num bytes]\n", aout);
         return EXIT_FAILURE;
     }
@@ -64,12 +63,10 @@ int main(int argc, char **argv) {
             seed = str2ul(argv[1]);
         if (argc >= 3)
             max_num_bytes = str2ul(argv[2]);
-    }
-    catch (std::invalid_argument &e) {
+    } catch (std::invalid_argument& e) {
         std::fprintf(stderr, "error: %s\n", e.what());
         return EXIT_FAILURE;
     }
-
 
     std::vector<char> output;
     output.reserve(max_num_bytes);

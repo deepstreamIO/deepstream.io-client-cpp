@@ -18,16 +18,15 @@
 
 #include <chrono>
 
-
 namespace deepstream {
-    /**
-     * The aliases in this module should ease the use of monotonic clocks within
-     * deepstream.
-     */
-    namespace time {
-        typedef std::chrono::steady_clock Clock;
-        typedef Clock::duration Duration;
-    }
+/**
+ * The aliases in this module should ease the use of monotonic clocks within
+ * deepstream.
+ */
+namespace time {
+    typedef std::chrono::steady_clock Clock;
+    typedef Clock::duration Duration;
+}
 }
 
 #endif

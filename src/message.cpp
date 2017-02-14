@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cstring>
 #include <cstdint>
+#include <cstring>
 
 #include <algorithm>
 #include <limits>
@@ -25,26 +25,25 @@
 
 #include <cassert>
 
-
 namespace deepstream {
 
-    std::ostream &operator<<(std::ostream &os, Topic topic) {
-        os << static_cast<int>(topic);
-        return os;
-    }
+std::ostream& operator<<(std::ostream& os, Topic topic)
+{
+    os << static_cast<int>(topic);
+    return os;
+}
 
+std::ostream& operator<<(std::ostream& os, Action action)
+{
+    os << static_cast<int>(action);
+    return os;
+}
 
-    std::ostream &operator<<(std::ostream &os, Action action) {
-        os << static_cast<int>(action);
-        return os;
-    }
-
-
-    std::ostream &operator<<(std::ostream &os, Sender sender) {
-        os << static_cast<int>(sender);
-        return os;
-    }
-
+std::ostream& operator<<(std::ostream& os, Sender sender)
+{
+    os << static_cast<int>(sender);
+    return os;
+}
 
 // The list order follows from lexicographical ordering of its tokens, i.e.,
 // A|A <= A|E|INVALID_AUTH_DATA <= A|REQ <= C|A ...
@@ -54,217 +53,205 @@ namespace deepstream {
 // beginning and the one past the end of the list of headers.  The information
 // could be kept in one array (of a struct or a tuple) but the accessing the
 // information would be more involved for users of `message.hpp`.
-    const Message::Header HEADERS[] = {
-            Message::Header(Topic::AUTH, Action::REQUEST, true),
-            Message::Header(Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA),
-            Message::Header(Topic::AUTH, Action::ERROR_INVALID_AUTH_MSG),
-            Message::Header(Topic::AUTH, Action::ERROR_TOO_MANY_AUTH_ATTEMPTS),
-            Message::Header(Topic::AUTH, Action::REQUEST),
+const Message::Header HEADERS[] = {
+    Message::Header(Topic::AUTH, Action::REQUEST, true),
+    Message::Header(Topic::AUTH, Action::ERROR_INVALID_AUTH_DATA),
+    Message::Header(Topic::AUTH, Action::ERROR_INVALID_AUTH_MSG),
+    Message::Header(Topic::AUTH, Action::ERROR_TOO_MANY_AUTH_ATTEMPTS),
+    Message::Header(Topic::AUTH, Action::REQUEST),
 
-            Message::Header(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true),
-            Message::Header(Topic::CONNECTION, Action::CHALLENGE),
-            Message::Header(Topic::CONNECTION, Action::CHALLENGE_RESPONSE),
-            Message::Header(Topic::CONNECTION, Action::PING),
-            Message::Header(Topic::CONNECTION, Action::PONG),
-            Message::Header(Topic::CONNECTION, Action::REDIRECT),
-            Message::Header(Topic::CONNECTION, Action::REJECT),
+    Message::Header(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true),
+    Message::Header(Topic::CONNECTION, Action::CHALLENGE),
+    Message::Header(Topic::CONNECTION, Action::CHALLENGE_RESPONSE),
+    Message::Header(Topic::CONNECTION, Action::PING),
+    Message::Header(Topic::CONNECTION, Action::PONG),
+    Message::Header(Topic::CONNECTION, Action::REDIRECT),
+    Message::Header(Topic::CONNECTION, Action::REJECT),
 
-            Message::Header(Topic::EVENT, Action::LISTEN, true),
-            Message::Header(Topic::EVENT, Action::SUBSCRIBE, true),
-            Message::Header(Topic::EVENT, Action::UNSUBSCRIBE, true),
-            Message::Header(Topic::EVENT, Action::EVENT),
-            Message::Header(Topic::EVENT, Action::LISTEN),
-            Message::Header(Topic::EVENT, Action::LISTEN_ACCEPT),
-            Message::Header(Topic::EVENT, Action::LISTEN_REJECT),
-            Message::Header(Topic::EVENT, Action::SUBSCRIBE),
-            Message::Header(Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_FOUND),
-            Message::Header(Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_REMOVED),
-            Message::Header(Topic::EVENT, Action::UNSUBSCRIBE),
+    Message::Header(Topic::EVENT, Action::LISTEN, true),
+    Message::Header(Topic::EVENT, Action::SUBSCRIBE, true),
+    Message::Header(Topic::EVENT, Action::UNSUBSCRIBE, true),
+    Message::Header(Topic::EVENT, Action::EVENT),
+    Message::Header(Topic::EVENT, Action::LISTEN),
+    Message::Header(Topic::EVENT, Action::LISTEN_ACCEPT),
+    Message::Header(Topic::EVENT, Action::LISTEN_REJECT),
+    Message::Header(Topic::EVENT, Action::SUBSCRIBE),
+    Message::Header(Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_FOUND),
+    Message::Header(Topic::EVENT, Action::SUBSCRIPTION_FOR_PATTERN_REMOVED),
+    Message::Header(Topic::EVENT, Action::UNSUBSCRIBE),
 
-            Message::Header(Topic::PRESENCE, Action::SUBSCRIBE, true),
-            Message::Header(Topic::PRESENCE, Action::UNSUBSCRIBE, true),
-            Message::Header(Topic::PRESENCE, Action::PRESENCE_JOIN),
-            Message::Header(Topic::PRESENCE, Action::PRESENCE_LEAVE),
-            Message::Header(Topic::PRESENCE, Action::QUERY),
-            Message::Header(Topic::PRESENCE, Action::SUBSCRIBE),
-            Message::Header(Topic::PRESENCE, Action::UNSUBSCRIBE)
-    };
+    Message::Header(Topic::PRESENCE, Action::SUBSCRIBE, true),
+    Message::Header(Topic::PRESENCE, Action::UNSUBSCRIBE, true),
+    Message::Header(Topic::PRESENCE, Action::PRESENCE_JOIN),
+    Message::Header(Topic::PRESENCE, Action::PRESENCE_LEAVE),
+    Message::Header(Topic::PRESENCE, Action::QUERY),
+    Message::Header(Topic::PRESENCE, Action::SUBSCRIBE),
+    Message::Header(Topic::PRESENCE, Action::UNSUBSCRIBE)
+};
 
-    const std::size_t NUM_HEADERS = sizeof(HEADERS) / sizeof(HEADERS[0]);
+const std::size_t NUM_HEADERS = sizeof(HEADERS) / sizeof(HEADERS[0]);
 
-    const char *HEADER_TO_STRING[] = {
-            "A|A",
-            "A|E|INVALID_AUTH_DATA",
-            "A|E|INVALID_AUTH_MSG",
-            "A|E|TOO_MANY_AUTH_ATTEMPTS",
-            "A|REQ",
+const char* HEADER_TO_STRING[] = { "A|A",
+    "A|E|INVALID_AUTH_DATA",
+    "A|E|INVALID_AUTH_MSG",
+    "A|E|TOO_MANY_AUTH_ATTEMPTS",
+    "A|REQ",
 
-            "C|A",
-            "C|CH",
-            "C|CHR",
-            "C|PI",
-            "C|PO",
-            "C|RED",
-            "C|REJ",
+    "C|A",
+    "C|CH",
+    "C|CHR",
+    "C|PI",
+    "C|PO",
+    "C|RED",
+    "C|REJ",
 
-            "E|A|L",
-            "E|A|S",
-            "E|A|US",
-            "E|EVT",
-            "E|L",
-            "E|LA",
-            "E|LR",
-            "E|S",
-            "E|SP",
-            "E|SR",
-            "E|US",
+    "E|A|L",
+    "E|A|S",
+    "E|A|US",
+    "E|EVT",
+    "E|L",
+    "E|LA",
+    "E|LR",
+    "E|S",
+    "E|SP",
+    "E|SR",
+    "E|US",
 
-            "U|A|S",
-            "U|A|US",
-            "U|PNJ",
-            "U|PNL",
-            "U|Q",
-            "U|S|S",
-            "U|US|US"
-    };
+    "U|A|S",
+    "U|A|US",
+    "U|PNJ",
+    "U|PNL",
+    "U|Q",
+    "U|S|S",
+    "U|US|US" };
 
-    const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
-            std::pair<std::size_t, std::size_t>(0, 1),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(1, 1),
+const std::pair<std::size_t, std::size_t> HEADER_NUM_PAYLOAD[] = {
+    std::pair<std::size_t, std::size_t>(0, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
 
-            std::pair<std::size_t, std::size_t>(0, 0),
-            std::pair<std::size_t, std::size_t>(0, 0),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(0, 0),
-            std::pair<std::size_t, std::size_t>(0, 0),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(0, 1),
+    std::pair<std::size_t, std::size_t>(0, 0),
+    std::pair<std::size_t, std::size_t>(0, 0),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(0, 0),
+    std::pair<std::size_t, std::size_t>(0, 0),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(0, 1),
 
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(2, 2),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(2, 2),
-            std::pair<std::size_t, std::size_t>(2, 2),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(2, 2),
-            std::pair<std::size_t, std::size_t>(2, 2),
-            std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(2, 2),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(2, 2),
+    std::pair<std::size_t, std::size_t>(2, 2),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(2, 2),
+    std::pair<std::size_t, std::size_t>(2, 2),
+    std::pair<std::size_t, std::size_t>(1, 1),
 
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(1, 1),
-            std::pair<std::size_t, std::size_t>(0, SIZE_MAX),
-            std::pair<std::size_t, std::size_t>(0, 0),
-            std::pair<std::size_t, std::size_t>(0, 0)
-    };
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(1, 1),
+    std::pair<std::size_t, std::size_t>(0, SIZE_MAX),
+    std::pair<std::size_t, std::size_t>(0, 0),
+    std::pair<std::size_t, std::size_t>(0, 0)
+};
 
+#define DS_COUNT(XS) (sizeof(XS) / sizeof(XS[0]))
+static_assert(DS_COUNT(HEADERS) == DS_COUNT(HEADER_TO_STRING), "");
+static_assert(DS_COUNT(HEADERS) == DS_COUNT(HEADER_NUM_PAYLOAD), "");
 
-#define DS_COUNT(XS) (sizeof(XS)/sizeof(XS[0]))
-    static_assert(DS_COUNT(HEADERS) == DS_COUNT(HEADER_TO_STRING), "");
-    static_assert(DS_COUNT(HEADERS) == DS_COUNT(HEADER_NUM_PAYLOAD), "");
+std::pair<const Message::Header*, const Message::Header*>
+Message::Header::all()
+{
+    return std::make_pair(HEADERS, HEADERS + NUM_HEADERS);
+}
 
+const char* Message::Header::to_string(Topic topic, Action action,
+    bool is_ack)
+{
+    return Message::Header(topic, action, is_ack).to_string();
+}
 
-    std::pair<const Message::Header *, const Message::Header *> Message::Header::all() {
-        return std::make_pair(HEADERS, HEADERS + NUM_HEADERS);
+std::size_t Message::Header::size(Topic topic, Action action, bool is_ack)
+{
+    return Message::Header(topic, action, is_ack).size();
+}
+
+const char* Message::Header::to_string() const
+{
+    for (std::size_t i = 0; i < NUM_HEADERS; ++i) {
+        if (*this == HEADERS[i])
+            return HEADER_TO_STRING[i];
     }
 
+    assert(0);
+    return nullptr;
+}
 
-    const char *Message::Header::to_string(Topic topic, Action action, bool is_ack) {
-        return Message::Header(topic, action, is_ack).to_string();
+std::size_t Message::Header::size() const { return std::strlen(to_string()); }
+
+Buffer Message::Header::to_binary() const
+{
+    return from_human_readable(to_string());
+}
+
+Buffer Message::from_human_readable(const char* p)
+{
+    return Message::from_human_readable(p, std::strlen(p));
+}
+
+Buffer Message::from_human_readable(const char* p, std::size_t size)
+{
+    Buffer xs(p, p + size);
+    std::replace(xs.begin(), xs.end(), '|', '\x1f');
+    std::replace(xs.begin(), xs.end(), '+', '\x1e');
+
+    return xs;
+}
+
+std::pair<std::size_t, std::size_t>
+Message::num_arguments(const Message::Header& header)
+{
+    typedef std::pair<std::size_t, std::size_t> RetType;
+
+    for (std::size_t i = 0; i < NUM_HEADERS; ++i) {
+        if (header == HEADERS[i])
+            return HEADER_NUM_PAYLOAD[i];
     }
 
+    const std::size_t max = std::numeric_limits<std::size_t>::max();
+    const RetType error(max, max);
 
-    std::size_t Message::Header::size(Topic topic, Action action, bool is_ack) {
-        return Message::Header(topic, action, is_ack).size();
-    }
+    assert(0);
+    return error;
+}
 
+Buffer Message::operator[](std::size_t i) const { return get_impl_(i); }
 
-    const char *Message::Header::to_string() const {
-        for (std::size_t i = 0; i < NUM_HEADERS; ++i) {
-            if (*this == HEADERS[i])
-                return HEADER_TO_STRING[i];
-        }
+Buffer Message::to_binary() const { return to_binary_impl_(); }
 
-        assert(0);
-        return nullptr;
-    }
+std::ostream& operator<<(std::ostream& os, const Message::Header& header)
+{
+    os << "Message::Header(" << header.topic() << ", " << header.action()
+       << (header.is_ack() ? ", true" : "") << ")";
 
+    return os;
+}
 
-    std::size_t Message::Header::size() const {
-        return std::strlen(to_string());
-    }
+bool operator==(const Message::Header& left, const Message::Header& right)
+{
+    if (left.topic() != right.topic())
+        return false;
+    if (left.action() != right.action())
+        return false;
+    if (left.is_ack() != right.is_ack())
+        return false;
 
-
-    Buffer Message::Header::to_binary() const {
-        return from_human_readable(to_string());
-    }
-
-
-    Buffer Message::from_human_readable(const char *p) {
-        return Message::from_human_readable(p, std::strlen(p));
-    }
-
-    Buffer Message::from_human_readable(const char *p, std::size_t size) {
-        Buffer xs(p, p + size);
-        std::replace(xs.begin(), xs.end(), '|', '\x1f');
-        std::replace(xs.begin(), xs.end(), '+', '\x1e');
-
-        return xs;
-    }
-
-
-    std::pair<std::size_t, std::size_t> Message::num_arguments(
-            const Message::Header &header) {
-        typedef std::pair<std::size_t, std::size_t> RetType;
-
-        for (std::size_t i = 0; i < NUM_HEADERS; ++i) {
-            if (header == HEADERS[i])
-                return HEADER_NUM_PAYLOAD[i];
-        }
-
-        const std::size_t max = std::numeric_limits<std::size_t>::max();
-        const RetType error(max, max);
-
-        assert(0);
-        return error;
-    }
-
-
-    Buffer Message::operator[](std::size_t i) const {
-        return get_impl_(i);
-    }
-
-
-    Buffer Message::to_binary() const {
-        return to_binary_impl_();
-    }
-
-
-    std::ostream &operator<<(std::ostream &os, const Message::Header &header) {
-        os <<
-           "Message::Header(" <<
-           header.topic() <<
-           ", " <<
-           header.action() <<
-           (header.is_ack() ? ", true" : "") <<
-           ")";
-
-        return os;
-    }
-
-
-    bool operator==(const Message::Header &left, const Message::Header &right) {
-        if (left.topic() != right.topic()) return false;
-        if (left.action() != right.action()) return false;
-        if (left.is_ack() != right.is_ack()) return false;
-
-        return true;
-    }
-
+    return true;
+}
 }

@@ -24,13 +24,12 @@
 
 #include <cassert>
 
-
 using namespace deepstream;
 
-
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
     if (argc != 1) {
-        const char *aout = (argc > 0) ? argv[0] : "a.out";
+        const char* aout = (argc > 0) ? argv[0] : "a.out";
         std::fprintf(stderr, "%s reads only from standard input\n", aout);
         return EXIT_FAILURE;
     }

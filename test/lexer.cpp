@@ -27,19 +27,21 @@ extern "C" {
 #include <test_lexer.h>
 }
 
-
 struct State {
     /**
-     * @param[in] p Pointer to scanner input (need not be null-terminated)
-     * @param[in] size Length of the string referenced by p
-     */
-    explicit State(const char *p, std::size_t size) :
-            input(size + 2, 0) {
+   * @param[in] p Pointer to scanner input (need not be null-terminated)
+   * @param[in] size Length of the string referenced by p
+   */
+    explicit State(const char* p, std::size_t size)
+        : input(size + 2, 0)
+    {
         std::memcpy(&input[0], p, size);
 
         for (std::size_t i = 0; i < size; ++i) {
-            if (input[i] == '+') input[i] = '\x1e';
-            if (input[i] == '|') input[i] = '\x1f';
+            if (input[i] == '+')
+                input[i] = '\x1e';
+            if (input[i] == '|')
+                input[i] = '\x1f';
         }
 
         int ret = yylex_init(&scanner);
@@ -50,14 +52,16 @@ struct State {
     }
 
     // convenience constructor for null-terminated strings
-    explicit State(const char *p) :
-            State(p, std::strlen(p)) {}
+    explicit State(const char* p)
+        : State(p, std::strlen(p))
+    {
+    }
 
-    ~State() {
+    ~State()
+    {
         yy_delete_buffer(buffer, scanner);
         yylex_destroy(scanner);
     }
-
 
     std::vector<char> input;
 
@@ -65,8 +69,8 @@ struct State {
     YY_BUFFER_STATE buffer;
 };
 
-
-BOOST_AUTO_TEST_CASE(empty_string) {
+BOOST_AUTO_TEST_CASE(empty_string)
+{
     State state("");
 
     int ret = yylex(state.scanner);
@@ -76,8 +80,8 @@ BOOST_AUTO_TEST_CASE(empty_string) {
     BOOST_CHECK_EQUAL(*yyget_text(state.scanner), 0);
 }
 
-
-BOOST_AUTO_TEST_CASE(auth_ack) {
+BOOST_AUTO_TEST_CASE(auth_ack)
+{
     State state("A|A+");
 
     int ret = yylex(state.scanner);
@@ -90,11 +94,11 @@ BOOST_AUTO_TEST_CASE(auth_ack) {
     BOOST_CHECK_EQUAL(ret, 0);
 }
 
-
 // newline tests
 // Flex treats newline special, i.e., newlines are not matched by '.'
 
-BOOST_AUTO_TEST_CASE(newline) {
+BOOST_AUTO_TEST_CASE(newline)
+{
     State state("\n");
 
     int ret = yylex(state.scanner);
@@ -106,8 +110,8 @@ BOOST_AUTO_TEST_CASE(newline) {
     BOOST_CHECK_EQUAL(yyget_leng(state.scanner), 1);
 }
 
-
-BOOST_AUTO_TEST_CASE(newline_2) {
+BOOST_AUTO_TEST_CASE(newline_2)
+{
     State state("\n\n");
 
     int ret = yylex(state.scanner);
@@ -119,8 +123,8 @@ BOOST_AUTO_TEST_CASE(newline_2) {
     BOOST_CHECK_EQUAL(yyget_leng(state.scanner), 1);
 }
 
-
-BOOST_AUTO_TEST_CASE(newline_in_payload) {
+BOOST_AUTO_TEST_CASE(newline_in_payload)
+{
     State state("A|A|X\nY+");
 
     int ret = yylex(state.scanner);
@@ -140,8 +144,8 @@ BOOST_AUTO_TEST_CASE(newline_in_payload) {
     BOOST_CHECK_EQUAL(yyget_leng(state.scanner), 1);
 }
 
-
-BOOST_AUTO_TEST_CASE(newline_before_payload) {
+BOOST_AUTO_TEST_CASE(newline_before_payload)
+{
     State state("A|A\n|X+");
 
     int ret = yylex(state.scanner);
@@ -157,11 +161,10 @@ BOOST_AUTO_TEST_CASE(newline_before_payload) {
     BOOST_CHECK_EQUAL(yyget_leng(state.scanner), 1);
 }
 
-
-
 // Test detection of unknown tokens
 
-BOOST_AUTO_TEST_CASE(unknown_token_header) {
+BOOST_AUTO_TEST_CASE(unknown_token_header)
+{
     State state("THIS_IS_AN_UNKNOWN_TOKEN");
 
     int ret = yylex(state.scanner);
@@ -171,8 +174,8 @@ BOOST_AUTO_TEST_CASE(unknown_token_header) {
     BOOST_CHECK_EQUAL(ret, 0);
 }
 
-
-BOOST_AUTO_TEST_CASE(unknown_token_payload) {
+BOOST_AUTO_TEST_CASE(unknown_token_payload)
+{
     State state("E|SERROR");
 
     int ret = yylex(state.scanner);
@@ -187,12 +190,11 @@ BOOST_AUTO_TEST_CASE(unknown_token_payload) {
     BOOST_CHECK_EQUAL(ret, 0);
 }
 
-
 // Test error recovery
 
-BOOST_AUTO_TEST_CASE(unknown_token_recovery) {
+BOOST_AUTO_TEST_CASE(unknown_token_recovery)
+{
     State state("THIS_IS_AN_UNKNOWN_TOKEN+A|A+");
-
 
     int ret = yylex(state.scanner);
     BOOST_CHECK_EQUAL(ret, TOKEN_UNKNOWN);
@@ -207,8 +209,8 @@ BOOST_AUTO_TEST_CASE(unknown_token_recovery) {
     BOOST_CHECK_EQUAL(ret, 0);
 }
 
-
-BOOST_AUTO_TEST_CASE(unknown_token_recovery_MS_only) {
+BOOST_AUTO_TEST_CASE(unknown_token_recovery_MS_only)
+{
     // Message separators \x1e are used for error recovery
     // Test what happens if the invalid message consists only of the single
     // token \x1e.
@@ -228,10 +230,10 @@ BOOST_AUTO_TEST_CASE(unknown_token_recovery_MS_only) {
     BOOST_CHECK_EQUAL(ret, 0);
 }
 
-
 // Test EOF is recognized in every state
 
-BOOST_AUTO_TEST_CASE(recognize_EOF_state_header) {
+BOOST_AUTO_TEST_CASE(recognize_EOF_state_header)
+{
     State state("A|A");
 
     int ret = yylex(state.scanner);
@@ -241,8 +243,8 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_header) {
     BOOST_CHECK_EQUAL(ret, 0);
 }
 
-
-BOOST_AUTO_TEST_CASE(recognize_EOF_state_payload) {
+BOOST_AUTO_TEST_CASE(recognize_EOF_state_payload)
+{
     State state("E|S|event");
 
     int ret = yylex(state.scanner);
@@ -255,8 +257,8 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_payload) {
     BOOST_CHECK_EQUAL(ret, 0);
 }
 
-
-BOOST_AUTO_TEST_CASE(recognize_EOF_state_error) {
+BOOST_AUTO_TEST_CASE(recognize_EOF_state_error)
+{
     State state("ERROR");
 
     int ret = yylex(state.scanner);
@@ -266,19 +268,13 @@ BOOST_AUTO_TEST_CASE(recognize_EOF_state_error) {
     BOOST_CHECK_EQUAL(ret, 0);
 }
 
-
 // Test sequence of messages
 
-BOOST_AUTO_TEST_CASE(messages) {
+BOOST_AUTO_TEST_CASE(messages)
+{
     State state("A|A+E|S|event+");
-    const int tokens[] = {
-            TOKEN_A_A,
-            TOKEN_MESSAGE_SEPARATOR,
-            TOKEN_E_S,
-            TOKEN_PAYLOAD,
-            TOKEN_MESSAGE_SEPARATOR,
-            0
-    };
+    const int tokens[] = { TOKEN_A_A, TOKEN_MESSAGE_SEPARATOR, TOKEN_E_S,
+        TOKEN_PAYLOAD, TOKEN_MESSAGE_SEPARATOR, 0 };
     const std::size_t NUM_TOKENS = sizeof(tokens) / sizeof(tokens[0]);
 
     for (std::size_t i = 0; i < NUM_TOKENS; ++i) {
@@ -287,23 +283,18 @@ BOOST_AUTO_TEST_CASE(messages) {
     }
 }
 
-
 //
 
-BOOST_AUTO_TEST_CASE(nullchar) {
+BOOST_AUTO_TEST_CASE(nullchar)
+{
     const char input[] = "E|S|eve\0nt+";
     std::size_t size = sizeof(input);
 
     State state(input, size - 1);
-    const int tokens[] = {
-            TOKEN_E_S,
-            TOKEN_PAYLOAD,
-            TOKEN_MESSAGE_SEPARATOR,
-            0
-    };
+    const int tokens[] = { TOKEN_E_S, TOKEN_PAYLOAD, TOKEN_MESSAGE_SEPARATOR, 0 };
     const std::size_t NUM_TOKENS = sizeof(tokens) / sizeof(tokens[0]);
 
-    const std::size_t matchlens[NUM_TOKENS] = {3, 7, 1, 1};
+    const std::size_t matchlens[NUM_TOKENS] = { 3, 7, 1, 1 };
 
     for (std::size_t i = 0; i < NUM_TOKENS; ++i) {
         int ret = yylex(state.scanner);
@@ -313,28 +304,23 @@ BOOST_AUTO_TEST_CASE(nullchar) {
     }
 }
 
-
 // test sequences of invalid messages
-BOOST_AUTO_TEST_CASE(invalid_message_sequence) {
+BOOST_AUTO_TEST_CASE(invalid_message_sequence)
+{
     const char INPUT[] = "X|X|X++|+E|S|A|X+";
 
     const int TOKENS[] = {
-            TOKEN_UNKNOWN,
-            TOKEN_UNKNOWN,
-            TOKEN_E_S,
-            TOKEN_PAYLOAD,
-            TOKEN_PAYLOAD,
-            TOKEN_MESSAGE_SEPARATOR,
-            0
+        TOKEN_UNKNOWN, TOKEN_UNKNOWN, TOKEN_E_S, TOKEN_PAYLOAD,
+        TOKEN_PAYLOAD, TOKEN_MESSAGE_SEPARATOR, 0
     };
     const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
 
     State state(INPUT);
 
-    const std::size_t TEXTLENS[NUM_TOKENS] = {7, 2, 3, 2, 2, 1, 1};
-    const char *const TEXTS[NUM_TOKENS] = {
-            &state.input[0], &state.input[7], &state.input[9], &state.input[12],
-            &state.input[14], &state.input[16], &state.input[17]
+    const std::size_t TEXTLENS[NUM_TOKENS] = { 7, 2, 3, 2, 2, 1, 1 };
+    const char* const TEXTS[NUM_TOKENS] = {
+        &state.input[0], &state.input[7], &state.input[9], &state.input[12],
+        &state.input[14], &state.input[16], &state.input[17]
     };
 
     for (std::size_t i = 0; i < NUM_TOKENS; ++i) {
@@ -346,26 +332,20 @@ BOOST_AUTO_TEST_CASE(invalid_message_sequence) {
         BOOST_CHECK(!strncmp(yyget_text(state.scanner), TEXTS[i], len));
     }
 }
-
 
 // test case with invalid message at the end of file and no message separator
-BOOST_AUTO_TEST_CASE(invalid_message_at_eof) {
+BOOST_AUTO_TEST_CASE(invalid_message_at_eof)
+{
     const char INPUT[] = "A|A+INVALID";
 
-    const int TOKENS[] = {
-            TOKEN_A_A,
-            TOKEN_MESSAGE_SEPARATOR,
-            TOKEN_UNKNOWN,
-            0
-    };
+    const int TOKENS[] = { TOKEN_A_A, TOKEN_MESSAGE_SEPARATOR, TOKEN_UNKNOWN, 0 };
     const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
 
     State state(INPUT);
 
-    const std::size_t TEXTLENS[NUM_TOKENS] = {3, 1, 7, 1};
-    const char *const TEXTS[NUM_TOKENS] = {
-            &state.input[0], &state.input[3], &state.input[4], &state.input[11]
-    };
+    const std::size_t TEXTLENS[NUM_TOKENS] = { 3, 1, 7, 1 };
+    const char* const TEXTS[NUM_TOKENS] = { &state.input[0], &state.input[3],
+        &state.input[4], &state.input[11] };
 
     for (std::size_t i = 0; i < NUM_TOKENS; ++i) {
         int ret = yylex(state.scanner);
@@ -377,25 +357,19 @@ BOOST_AUTO_TEST_CASE(invalid_message_at_eof) {
     }
 }
 
-
 // regression test: carets must be allowed in the payload
-BOOST_AUTO_TEST_CASE(caret_in_payload) {
+BOOST_AUTO_TEST_CASE(caret_in_payload)
+{
     const char INPUT[] = "E|S|a^b+";
 
-    const int TOKENS[] = {
-            TOKEN_E_S,
-            TOKEN_PAYLOAD,
-            TOKEN_MESSAGE_SEPARATOR,
-            0
-    };
+    const int TOKENS[] = { TOKEN_E_S, TOKEN_PAYLOAD, TOKEN_MESSAGE_SEPARATOR, 0 };
     const std::size_t NUM_TOKENS = sizeof(TOKENS) / sizeof(TOKENS[0]);
 
     State state(INPUT);
 
-    const std::size_t TEXTLENS[NUM_TOKENS] = {3, 4, 1, 1};
-    const char *const TEXTS[NUM_TOKENS] = {
-            &state.input[0], &state.input[3], &state.input[7], ""
-    };
+    const std::size_t TEXTLENS[NUM_TOKENS] = { 3, 4, 1, 1 };
+    const char* const TEXTS[NUM_TOKENS] = { &state.input[0], &state.input[3],
+        &state.input[7], "" };
 
     for (std::size_t i = 0; i < NUM_TOKENS; ++i) {
         int ret = yylex(state.scanner);

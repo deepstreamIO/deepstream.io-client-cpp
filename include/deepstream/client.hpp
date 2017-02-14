@@ -18,36 +18,34 @@
 
 #include <iosfwd>
 
-
 namespace deepstream {
-    enum class Sender;
-    struct Message;
+enum class Sender;
+struct Message;
 
-    namespace client {
-        /**
-         * This enumeration stores the different client states of a deepstream
-         * 2.x client.
-         */
-        enum class State {
-            ERROR,
-            AWAIT_CONNECTION,
-            CHALLENGING,
-            CHALLENGING_WAIT,
-            AWAIT_AUTHENTICATION,
-            AUTHENTICATING,
-            CONNECTED,
-            DISCONNECTED
-        };
+namespace client {
+    /**
+ * This enumeration stores the different client states of a deepstream
+ * 2.x client.
+ */
+    enum class State {
+        ERROR,
+        AWAIT_CONNECTION,
+        CHALLENGING,
+        CHALLENGING_WAIT,
+        AWAIT_AUTHENTICATION,
+        AUTHENTICATING,
+        CONNECTED,
+        DISCONNECTED
+    };
 
-        std::ostream &operator<<(std::ostream &, State);
+    std::ostream& operator<<(std::ostream&, State);
 
-
-        /**
-         * Given the current client state, a message, and a sender, this
-         * function returns the next state of the client's finite state machine.
-         */
-        State transition(State s, const Message &message, Sender sender);
-    }
+    /**
+ * Given the current client state, a message, and a sender, this
+ * function returns the next state of the client's finite state machine.
+ */
+    State transition(State s, const Message& message, Sender sender);
+}
 }
 
 #endif

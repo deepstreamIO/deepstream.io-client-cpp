@@ -33,7 +33,6 @@ extern "C" {
 
 struct deepstream_parser_state;
 
-
 /**
  * This enumeration contains all tokens that are recognized by the scanner.
  *
@@ -81,23 +80,19 @@ enum deepstream_token {
     TOKEN_U_S,
     TOKEN_U_US,
     /**
-     * The following token is a dummy value for development purposes, e.g.,
-     * the number of valid tokens is TOKENS_MAXVAL - TOKEN_UNKNOWN + 1.
-     */
-            TOKEN_MAXVAL
+   * The following token is a dummy value for development purposes, e.g.,
+   * the number of valid tokens is TOKENS_MAXVAL - TOKEN_UNKNOWN + 1.
+   */
+    TOKEN_MAXVAL
 };
 
-
 bool is_header_token(enum deepstream_token);
-
 
 /**
  * The callback handed to the scanner.
  */
-int deepstream_parser_handle(
-        struct deepstream_parser_state *, enum deepstream_token,
-        const char *, size_t);
-
+int deepstream_parser_handle(struct deepstream_parser_state*,
+    enum deepstream_token, const char*, size_t);
 
 /**
  * This macro either
@@ -107,14 +102,10 @@ int deepstream_parser_handle(
 #ifdef DEEPSTREAM_TEST_LEXER
 #define DS_PARSE(TOKEN) (TOKEN)
 #else
-#define \
-    DS_PARSE(TOKEN) \
-    deepstream_parser_handle( \
-        yyget_extra(yyscanner), TOKEN, \
-        yyget_text(yyscanner), yyget_leng(yyscanner) \
-    )
+#define DS_PARSE(TOKEN)                                     \
+    deepstream_parser_handle(yyget_extra(yyscanner), TOKEN, \
+        yyget_text(yyscanner), yyget_leng(yyscanner))
 #endif
-
 
 #if __cplusplus
 }
