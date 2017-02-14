@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     }
 
     try {
-	deepstream::Client client(uri.c_str());
+	deepstream::Client client(uri);
 
 	if (client.login()) {
 	    std::cout << "successfully logged in to " << uri << std::endl;
