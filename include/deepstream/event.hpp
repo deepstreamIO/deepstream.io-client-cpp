@@ -29,87 +29,87 @@ struct Event {
     typedef Buffer Name;
 
     /**
-   * This alias is the signature of a deepstream event subscription
-   * callback.
-   */
+     * This alias is the signature of a deepstream event subscription
+     * callback.
+     */
     typedef std::function<void(const Buffer&)> SubscribeFn;
     /**
-   * The representation of a callback is stored as a smart pointer.
-   *
-   * Given an event name, the deepstream API allows the selective removal
-   * of subscription callbacks. Hence, we need to be able to compare
-   * functions. This is not possible `std::function` objects but with a
-   * smart pointer we solve two problems:
-   * - we can compare function references for equality,
-   * - if a callback removes itself as a callback, we can ensure that the
-   *   `std::function` destructor is not called before returning.
-   */
+     * The representation of a callback is stored as a smart pointer.
+     *
+     * Given an event name, the deepstream API allows the selective removal
+     * of subscription callbacks. Hence, we need to be able to compare
+     * functions. This is not possible `std::function` objects but with a
+     * smart pointer we solve two problems:
+     * - we can compare function references for equality,
+     * - if a callback removes itself as a callback, we can ensure that the
+     *   `std::function` destructor is not called before returning.
+     */
     typedef std::shared_ptr<SubscribeFn> SubscribeFnPtr;
     typedef std::vector<SubscribeFnPtr> SubscriberList;
     typedef std::map<Name, SubscriberList> SubscriberMap;
 
     /**
-   * The following alias is the signature of a deepstream event listener
-   * callback.
-   */
+     * The following alias is the signature of a deepstream event listener
+     * callback.
+     */
     typedef std::function<bool(const Name&, bool)> ListenFn;
     /**
-   * The representation of a callback is stored as a smart pointer.
-   */
+     * The representation of a callback is stored as a smart pointer.
+     */
     typedef std::shared_ptr<ListenFn> ListenFnPtr;
     typedef std::map<Name, ListenFnPtr> ListenerMap;
 
     /**
-   * This alias is the signature of the function used to send messages to
-   * the deepstream server.
-   *
-   * Function matching this signature are expected to return `true` if the
-   * message was sent successfully, `false` otherwise.
-   */
+     * This alias is the signature of the function used to send messages to
+     * the deepstream server.
+     *
+     * Function matching this signature are expected to return `true` if the
+     * message was sent successfully, `false` otherwise.
+     */
     typedef std::function<bool(const Message&)> SendFn;
 
     /**
-   * The constructor takes a function that sends a message to the
-   * deepstream server.
-   *
-   * With this constructor instead of `Event(deepstream::Client*)` it
-   * becomes easier to test this module.
-   */
+     * The constructor takes a function that sends a message to the
+     * deepstream server.
+     *
+     * With this constructor instead of `Event(deepstream::Client*)` it
+     * becomes easier to test this module.
+     */
     explicit Event(const SendFn&);
 
     /**
-   * This function emits an event with the provided name and the given
-   * buffer as its data.
-   */
+     * This function emits an event with the provided name and the given
+     * buffer as its data.
+     */
     void emit(const Name&, const Buffer&);
 
     /**
-   * This method subscribes the given function to the event with the given
-   * name.
-   *
-   * @return A smart pointer which can be used to unsubscribe
-   */
+     * This method subscribes the given function to the event with the given
+     * name.
+     *
+     * @return A smart pointer which can be used to unsubscribe
+     */
     SubscribeFnPtr subscribe(const Name&, const SubscribeFn&);
 
     void subscribe(const Name&, const SubscribeFnPtr&);
 
     /**
-   * This function unsubscribes *all* callbacks from the given event.
-   */
+     * This function unsubscribes *all* callbacks from the given event.
+     */
     void unsubscribe(const Name&);
 
     /**
-   * This function removes the given callback from the list of subscribers
-   * for the given event.
-   */
+     * This function removes the given callback from the list of subscribers
+     * for the given event.
+     */
     void unsubscribe(const Name&, const SubscribeFnPtr&);
 
     /**
-   * This method adds a callback that listens for subscriptions matching
-   * the given pattern.
-   *
-   * Existing listeners are not overwritten.
-   */
+     * This method adds a callback that listens for subscriptions matching
+     * the given pattern.
+     *
+     * Existing listeners are not overwritten.
+     */
     ListenFnPtr listen(const Name&, const ListenFn&);
 
     void listen(const Name& pattern, const ListenFnPtr&);
@@ -117,21 +117,21 @@ struct Event {
     void unlisten(const Name& pattern);
 
     /**
-   * This method is called when event-related messages arrive (messages
-   * with topic `Topic::EVENT`) from the server.
-   */
+     * This method is called when event-related messages arrive (messages
+     * with topic `Topic::EVENT`) from the server.
+     */
     void notify_(const Message&);
 
     /**
-   * This method handles messages from the server related to event
-   * subscription.
-   */
+     * This method handles messages from the server related to event
+     * subscription.
+     */
     void notify_subscribers_(const Message&);
 
     /**
-   * This method handles messages from the server related to event
-   * listening.
-   */
+     * This method handles messages from the server related to event
+     * listening.
+     */
     void notify_listeners_(const Message&);
 
     SendFn send_;

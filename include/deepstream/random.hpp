@@ -32,25 +32,25 @@ namespace random {
     typedef std::mt19937_64 Engine;
 
     /**
- * @return A random deepstream header
- */
+     * @return A random deepstream header
+     */
     const Message::Header& make_header(Engine*);
 
     /**
- * @return Random payload within the given size bounds without
- * ASCII record separator and without ASCII unit separator
- */
+     * @return Random payload within the given size bounds without
+     * ASCII record separator and without ASCII unit separator
+     */
     Buffer make_argument(Engine*, std::size_t min_size = 1,
         std::size_t max_size = 10);
 
     /**
- * @return A valid message with random header and random payload
- */
+     * @return A valid message with random header and random payload
+     */
     MessageBuilder make_message(Engine*);
 
     /**
- * @return A message with a given header and random payload
- */
+     * @return A message with a given header and random payload
+     */
     MessageBuilder make_message(Engine*, const Message::Header&);
 }
 }

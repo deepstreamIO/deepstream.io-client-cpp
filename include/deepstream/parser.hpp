@@ -52,12 +52,12 @@ namespace parser {
     typedef std::vector<deepstream::parser::Error> ErrorList;
 
     /**
- * This function returns the contents of a serialized deepstream
- * message.
- *
- * @param[in] p The last two characters must be zero
- * @param[in] sz The size of the array referenced by p
- */
+     * This function returns the contents of a serialized deepstream
+     * message.
+     *
+     * @param[in] p The last two characters must be zero
+     * @param[in] sz The size of the array referenced by p
+     */
     std::pair<MessageList, ErrorList> execute(char* p, std::size_t sz);
 }
 }
@@ -72,9 +72,9 @@ struct deepstream_parser_state {
     typedef deepstream::parser::ErrorList ErrorList;
 
     /**
-   * @param[in] p A reference to an array of size sz
-   * @param[in] sz The size of the array referenced by p
-   */
+     * @param[in] p A reference to an array of size sz
+     * @param[in] sz The size of the array referenced by p
+     */
     explicit deepstream_parser_state(const char* p, std::size_t sz);
 
     // the lexer modifies its input. thus, the lexer works with a copy of the

@@ -28,10 +28,10 @@ struct Buffer;
 
 namespace parser {
     /**
- * This class represents a half-open interval within an array by
- * storing the beginning of the interval and the length of the
- * interval.
- */
+     * This class represents a half-open interval within an array by
+     * storing the beginning of the interval and the length of the
+     * interval.
+     */
     struct Location {
         explicit Location(std::size_t offset, std::size_t size)
             : offset_(offset)
@@ -50,28 +50,28 @@ namespace parser {
     std::ostream& operator<<(std::ostream&, const Location&);
 
     /**
- * Given an array containing a deepstream message, this class stores
- * all information needed to access header and payload.
- *
- * This class was designed for use with the message parser.
- */
+     * Given an array containing a deepstream message, this class stores
+     * all information needed to access header and payload.
+     *
+     * This class was designed for use with the message parser.
+     */
     struct MessageProxy : public Message {
         typedef std::vector<Location> LocationList;
 
         /**
-   * Given the message header, this constructor initializes a
-   * MessageProxy object without payload.
-   *
-   * @warning The memory referenced by p must be valid throughout the
-   * lifetime of the constructed MessageProxy object.
-   *
-   * @param[in] p A pointer to, e.g., the beginning of a WebSocket
-   * frame
-   * @param[in] offset The start of the deepstream message in p
-   * @param[in] topic Topic
-   * @param[in] action Action
-   * @param[in] is_ack True if this is an ACK message
-   */
+	 * Given the message header, this constructor initializes a
+	 * MessageProxy object without payload.
+	 *
+	 * @warning The memory referenced by p must be valid throughout the
+	 * lifetime of the constructed MessageProxy object.
+	 *
+	 * @param[in] p A pointer to, e.g., the beginning of a WebSocket
+	 * frame
+	 * @param[in] offset The start of the deepstream message in p
+	 * @param[in] topic Topic
+	 * @param[in] action Action
+	 * @param[in] is_ack True if this is an ACK message
+	 */
         explicit MessageProxy(const char* p, std::size_t offset, Topic topic,
             Action action, bool is_ack = false);
 
@@ -95,8 +95,8 @@ namespace parser {
         const char* const base_;
         const std::size_t offset_;
         /**
-   * the size of the binary representation of the message in bytes
-   */
+	 * the size of the binary representation of the message in bytes
+	 */
         std::size_t size_;
 
         Message::Header header_;

@@ -81,26 +81,26 @@ std::ostream& operator<<(std::ostream&, Sender);
 struct Message {
     struct Header {
         /**
-     * This function returns the list of all valid message headers.
-     *
-     * The return value is a pair of iterators forming a half-open
-     * interval.
-     */
+	 * This function returns the list of all valid message headers.
+	 *
+	 * The return value is a pair of iterators forming a half-open
+	 * interval.
+	 */
         static std::pair<const Header*, const Header*> all();
 
         /**
-     * This function returns the human-readable representation of the
-     * given message header.
-     *
-     * The input must form a valid message header.
-     */
+	 * This function returns the human-readable representation of the
+	 * given message header.
+	 *
+	 * The input must form a valid message header.
+	 */
         static const char* to_string(Topic, Action, bool is_ack = false);
 
         /**
-     * This function returns the number of bytes needed to store the
-     * serialized message header in a deepstream message or its
-     * human-readable representation.
-     */
+	 * This function returns the number of bytes needed to store the
+	 * serialized message header in a deepstream message or its
+	 * human-readable representation.
+	 */
         static std::size_t size(Topic, Action, bool is_ack = false);
 
         explicit Header(Topic topic, Action action, bool is_ack = false)
@@ -111,20 +111,20 @@ struct Message {
         }
 
         /**
-     * @return The human-readable representation of the header
-     */
+	 * @return The human-readable representation of the header
+	 */
         const char* to_string() const;
 
         /**
-     * @return The length of the human-readable header representation in
-     * bytes
-     */
+	 * @return The length of the human-readable header representation in
+	 * bytes
+	 */
         std::size_t size() const;
 
         /**
-     * This method returns the representation of this header in a
-     * deepstream message.
-     */
+	 * This method returns the representation of this header in a
+	 * deepstream message.
+	 */
         Buffer to_binary() const;
 
         Topic topic() const { return topic_impl_; }
@@ -139,33 +139,33 @@ struct Message {
     };
 
     /**
-   * This function takes a human-readable deepstream message, e.g.,
-   * `E|A|S|event+`, and returns its machine-readable counterpart by
-   * replacing `|` with the ASCII character 31 (unit separator) and `+`
-   * with ASCII character 30 (record separator).
-   *
-   * @param[in] p A null-terminated string
-   */
+     * This function takes a human-readable deepstream message, e.g.,
+     * `E|A|S|event+`, and returns its machine-readable counterpart by
+     * replacing `|` with the ASCII character 31 (unit separator) and `+`
+     * with ASCII character 30 (record separator).
+     *
+     * @param[in] p A null-terminated string
+     */
     static Buffer from_human_readable(const char* p);
 
     /**
-   * @param[in] p A pointer to a string of length `size`
-   * @param[in] size The length of the string referenced by p
-   */
+     * @param[in] p A pointer to a string of length `size`
+     * @param[in] size The length of the string referenced by p
+     */
     static Buffer from_human_readable(const char* p, std::size_t size);
 
     /**
-   * This function returns the minimum and maximum number of arguments
-   * for every message, e.g., for "E|S|event+" (event subscription), this
-   * function returns the pair (1, 1).
-   */
+     * This function returns the minimum and maximum number of arguments
+     * for every message, e.g., for "E|S|event+" (event subscription), this
+     * function returns the pair (1, 1).
+     */
     static std::pair<std::size_t, std::size_t> num_arguments(const Header&);
 
     virtual ~Message() = default;
 
     /**
-   * This method returns the size of the message in bytes.
-   */
+     * This method returns the size of the message in bytes.
+     */
     std::size_t size() const { return size_impl_(); }
 
     const Header& header() const { return header_impl_(); }
@@ -179,13 +179,13 @@ struct Message {
     std::size_t num_arguments() const { return num_arguments_impl_(); }
 
     /**
-   * This operator returns the i-th argument of a message.
-   */
+     * This operator returns the i-th argument of a message.
+     */
     Buffer operator[](std::size_t) const;
 
     /**
-   * This method returns the assembled deepstream message.
-   */
+     * This method returns the assembled deepstream message.
+     */
     Buffer to_binary() const;
 
     virtual std::size_t size_impl_() const = 0;

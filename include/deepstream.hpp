@@ -71,29 +71,29 @@ struct Client {
 
 public:
     /**
-   * Given a client in `AWAIT_CONNECTION` state, this function attempts to
-   * log in anonymously.
-   *
-   * @return `true` if the log in attempt was successful, `false`
-   * otherwise
-   */
+     * Given a client in `AWAIT_CONNECTION` state, this function attempts to
+     * log in anonymously.
+     *
+     * @return `true` if the log in attempt was successful, `false`
+     * otherwise
+     */
     bool login();
 
     /**
-   * Given a client in `AWAIT_CONNECTION` state, this function attempts to
-   * log in with the given authentication data.
-   *
-   * The format of the user authentication data depends on the <a
-   * href="https://deepstream.io/tutorials/core/security-overview/">authentication</a>
-   * method used by the server.
-   *
-   * @param[in] auth User authentication data
-   * @param[out] p_user_data On a successful reeturn, store the user data
-   * in `p_user_data` if the reference is not `NULL`.
-   *
-   * @return `true` if the log in attempt was successful, `false`
-   * otherwise
-   */
+     * Given a client in `AWAIT_CONNECTION` state, this function attempts to
+     * log in with the given authentication data.
+     *
+     * The format of the user authentication data depends on the <a
+     * href="https://deepstream.io/tutorials/core/security-overview/">authentication</a>
+     * method used by the server.
+     *
+     * @param[in] auth User authentication data
+     * @param[out] p_user_data On a successful reeturn, store the user data
+     * in `p_user_data` if the reference is not `NULL`.
+     *
+     * @return `true` if the log in attempt was successful, `false`
+     * otherwise
+     */
     bool login(const std::string& auth, Buffer* p_user_data = nullptr);
 
     void close();
@@ -101,10 +101,10 @@ public:
     client::State getConnectionState();
 
     /**
-   * This function reads all incoming messages from the websocket and
-   * executes the appropriate callbacks; it returns when there are no
-   * messages left.
-   */
+     * This function reads all incoming messages from the websocket and
+     * executes the appropriate callbacks; it returns when there are no
+     * messages left.
+     */
     void process_messages();
 
     impl::Client* const p_impl_;

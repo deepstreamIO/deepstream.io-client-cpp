@@ -27,16 +27,16 @@ struct Buffer;
 
 namespace websockets {
     /**
- * This structure stores a WebSockets frame.
- *
- * To have the WebSocket data match the values in these enums, the
- * first eight bits of a frame must be interpreted in MSB order (most
- * significant bit first, also known as network order). This agrees
- * with the behavior of the POCO C++ WebSockets libraries.
- *
- * Enum classes are inappropriate here because a valid WebSocket frame
- * always contains combinations of flags.
- */
+     * This structure stores a WebSockets frame.
+     *
+     * To have the WebSocket data match the values in these enums, the
+     * first eight bits of a frame must be interpreted in MSB order (most
+     * significant bit first, also known as network order). This agrees
+     * with the behavior of the POCO C++ WebSockets libraries.
+     *
+     * Enum classes are inappropriate here because a valid WebSocket frame
+     * always contains combinations of flags.
+     */
     struct Frame {
         typedef int Flags;
 
@@ -85,10 +85,10 @@ namespace websockets {
         virtual ~Client() = default;
 
         /**
-   * This method returns a new object of the concrete class
-   * implementing this interface with the new object being connected
-   * to the given URI.
-   */
+	 * This method returns a new object of the concrete class
+	 * implementing this interface with the new object being connected
+	 * to the given URI.
+	 */
         std::unique_ptr<Client> construct(const std::string& uri) const;
 
         std::string uri() const;
@@ -98,35 +98,35 @@ namespace websockets {
         void set_receive_timeout(time::Duration);
 
         /**
-   * This function tries to receive a single websocket frame.
-   *
-   * The meaning of the various combinations of return values is
-   * listed below:
-   * - received a frame:         (Status::OPEN,   frame)
-   * - no data (socket timeout): (Status::OPEN,   nullptr)
-   * - received close frame:     (Status::CLOSED, frame)
-   * - received EOF:             (Status::CLOSED, nullptr)
-   * - received close frame with payload too long/too short:
-   *                             (Status::ERROR,  frame)
-   */
+	 * This function tries to receive a single websocket frame.
+	 *
+	 * The meaning of the various combinations of return values is
+	 * listed below:
+	 * - received a frame:         (Status::OPEN,   frame)
+	 * - no data (socket timeout): (Status::OPEN,   nullptr)
+	 * - received close frame:     (Status::CLOSED, frame)
+	 * - received EOF:             (Status::CLOSED, nullptr)
+	 * - received close frame with payload too long/too short:
+	 *                             (Status::ERROR,  frame)
+	 */
         std::pair<State, std::unique_ptr<Frame> > receive_frame();
 
         /**
-   * This function sends a non-fragmented text frame with the contents
-   * of the buffer as payload.
-   *
-   * @return 0 on connection close or the number of bytes sent
-   * otherwise
-   */
+	 * This function sends a non-fragmented text frame with the contents
+	 * of the buffer as payload.
+	 *
+	 * @return 0 on connection close or the number of bytes sent
+	 * otherwise
+	 */
         State send_frame(const Buffer&);
 
         /**
-   * This function sends a frame with the given flags and with the
-   * contents of the buffer as payload.
-   *
-   * @return 0 on connection close or the number of bytes sent
-   * otherwise
-   */
+	 * This function sends a frame with the given flags and with the
+	 * contents of the buffer as payload.
+	 *
+	 * @return 0 on connection close or the number of bytes sent
+	 * otherwise
+	 */
         State send_frame(const Buffer&, Frame::Flags);
 
         void close();

@@ -53,46 +53,46 @@ struct ErrorHandler {
     void invalid_state_transition(client::State, const Message&);
 
     /**
-   * @param[in] num_redirections The number of redirections before calling
-   * the error handler.
-   */
+     * @param[in] num_redirections The number of redirections before calling
+     * the error handler.
+     */
     void too_many_redirections(unsigned num_redirections);
 
     void system_error(const std::system_error&);
 
     /**
-   * A standard websocket close frame comes with a 2 byte payload
-   * containing a <a
-   * href="https://tools.ietf.org/html/rfc6455#section-7.4">status
-   * code</a> in network byte order; this function handler is called if
-   * the payload size is not two.
-   */
+     * A standard websocket close frame comes with a 2 byte payload
+     * containing a <a
+     * href="https://tools.ietf.org/html/rfc6455#section-7.4">status
+     * code</a> in network byte order; this function handler is called if
+     * the payload size is not two.
+     */
     void invalid_close_frame_size(const websockets::Frame&);
 
     /**
-   * This method handles exceptions thrown by the used websocket
-   * implementation.
-   */
+     * This method handles exceptions thrown by the used websocket
+     * implementation.
+     */
     void websocket_exception(const std::exception&);
 
     /**
-   * Currently, the implementation can only handle non-fragmented text and
-   * close frames; this error handler is called if a different kind of
-   * frame is received.
-   */
+     * Currently, the implementation can only handle non-fragmented text and
+     * close frames; this error handler is called if a different kind of
+     * frame is received.
+     */
     void unexpected_websocket_frame_flags(int got);
 
     /**
-   * A socket read returned zero indicating the server disconnected (cf
-   * Section *Return Values* in `man 2 read` or `man 2 recv`).
-   */
+     * A socket read returned zero indicating the server disconnected (cf
+     * Section *Return Values* in `man 2 read` or `man 2 recv`).
+     */
     void sudden_disconnect(const std::string& uri);
 
     /**
-   * This error handles is invoked when too many authentications attempts
-   * failed, i.e., after receiving a `A|E|E_TOO_MANY_AUTH_ATTEMPTS|msg`
-   * message.
-   */
+     * This error handles is invoked when too many authentications attempts
+     * failed, i.e., after receiving a `A|E|E_TOO_MANY_AUTH_ATTEMPTS|msg`
+     * message.
+     */
     void authentication_error(const Message& msg);
 
 protected:

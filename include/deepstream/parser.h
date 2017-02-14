@@ -80,9 +80,9 @@ enum deepstream_token {
     TOKEN_U_S,
     TOKEN_U_US,
     /**
-   * The following token is a dummy value for development purposes, e.g.,
-   * the number of valid tokens is TOKENS_MAXVAL - TOKEN_UNKNOWN + 1.
-   */
+     * The following token is a dummy value for development purposes, e.g.,
+     * the number of valid tokens is TOKENS_MAXVAL - TOKEN_UNKNOWN + 1.
+     */
     TOKEN_MAXVAL
 };
 

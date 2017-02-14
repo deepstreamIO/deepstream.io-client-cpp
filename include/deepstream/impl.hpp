@@ -73,31 +73,31 @@ namespace impl {
         void process_messages(Event*, Presence*);
 
         /**
-   * This function reads messages from the websocket.
-   *
-   * @param[out] p_buffer A non-NULL pointer. After a successful exit,
-   * the buffer stores the unparsed messages.
-   * @param[out] p_messages A non-NULL pointer. After a successful exit,
-   * the messages reference the storage of `p_buffer`.
-   */
+	 * This function reads messages from the websocket.
+	 *
+	 * @param[out] p_buffer A non-NULL pointer. After a successful exit,
+	 * the buffer stores the unparsed messages.
+	 * @param[out] p_messages A non-NULL pointer. After a successful exit,
+	 * the messages reference the storage of `p_buffer`.
+	 */
         websockets::State receive_(Buffer* p_buffer, parser::MessageList* p_messages);
 
         /**
-   * This method serializes the given messages and sends it as a
-   * non-fragmented text frame to the server.
-   */
+	 * This method serializes the given messages and sends it as a
+	 * non-fragmented text frame to the server.
+	 */
         websockets::State send_(const Message&);
 
         /**
-   * This method sends a non-fragmented text frame with the contents of
-   * the given buffer as payload.
-   */
+	 * This method sends a non-fragmented text frame with the contents of
+	 * the given buffer as payload.
+	 */
         websockets::State send_frame_(const Buffer&);
 
         /**
-   * This method sends a frame with given flags and the contents of the
-   * given buffer as payload.
-   */
+	 * This method sends a frame with given flags and the contents of the
+	 * given buffer as payload.
+	 */
         websockets::State send_frame_(const Buffer&, int);
 
         client::State state_;
