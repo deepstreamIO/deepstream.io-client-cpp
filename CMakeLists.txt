@@ -10,10 +10,11 @@ set(PROJECT_VERSION
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
 
-option(BUILD_TESTING "Build tests" OFF)
-
-if(BUILD_TESTING)
-	enable_testing()
+option(CCACHE "Use ccache if available" ON)
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE AND CCACHE_PROGRAM)
+  message(STATUS "using ccache")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
 
 # Use ld.gold if it is available and isn't explicitly disabled.
@@ -27,6 +28,12 @@ if(USE_LD_GOLD AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   else()
     message(WARNING "GNU gold linker isn't available, using the default system linker.")
   endif()
+endif()
+
+option(BUILD_TESTING "Build tests" OFF)
+
+if(BUILD_TESTING)
+	enable_testing()
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -std=c11 -pedantic")
