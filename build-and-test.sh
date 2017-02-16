@@ -49,4 +49,6 @@ cmake \
 	-- "$my_src"
 make --jobs=$num_jobs
 make --jobs=$num_jobs test
+
+# If valgrind is available run the tests again.
 type -p valgrind > /dev/null 2>&1 && ctest -T memcheck
