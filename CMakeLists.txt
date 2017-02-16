@@ -10,13 +10,24 @@ set(PROJECT_VERSION
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
 
-
 option(BUILD_TESTING "Build tests" OFF)
 
 if(BUILD_TESTING)
 	enable_testing()
 endif()
 
+# Use ld.gold if it is available and isn't explicitly disabled.
+option(USE_LD_GOLD "Use GNU gold linker" ON)
+if(USE_LD_GOLD AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  execute_process(COMMAND ${CMAKE_CXX_COMPILER} -fuse-ld=gold -Wl,--version OUTPUT_VARIABLE stdout ERROR_QUIET)
+  if("${stdout}" MATCHES "GNU gold")
+    message(STATUS "matched GNU gold")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=gold")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=gold")
+  else()
+    message(WARNING "GNU gold linker isn't available, using the default system linker.")
+  endif()
+endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -std=c11 -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wall -std=c++11 -pedantic")
