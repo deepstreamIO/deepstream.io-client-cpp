@@ -1,15 +1,24 @@
 cmake_minimum_required(VERSION 2.8.12)
+
 project(deepstream.io-client-c++)
+
 enable_language(C)
 enable_language(CXX)
 include(CTest)
+
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
 set(PROJECT_VERSION_PATCH 0)
-set(PROJECT_VERSION
-	"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
+
+# Put the libaries and binaries that get built into directories at the
+# top of the build tree rather than in hard-to-find leaf directories.
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 option(CCACHE "Use ccache if available" ON)
 find_program(CCACHE_PROGRAM ccache)
