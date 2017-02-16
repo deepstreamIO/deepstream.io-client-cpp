@@ -21,4 +21,4 @@ addons:
             - valgrind
 
 
-script: bash build-and-test.sh
+script: ./build-and-test.bash
