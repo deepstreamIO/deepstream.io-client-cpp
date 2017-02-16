@@ -2,6 +2,11 @@
 
 set -e
 
+display_ccache_stats() {
+    type -p ccache && ccache -s
+}
+
+display_ccache_stats
 
 num_jobs=$(getconf _NPROCESSORS_ONLN)
 
@@ -47,5 +52,14 @@ cmake \
 	-DCMAKE_PREFIX_PATH="$poco_tmp" \
 	-DBUILD_TESTING=ON \
 	-- "$my_src"
+
+display_ccache_stats
+
 make --jobs=$num_jobs
 make --jobs=$num_jobs test
+
+# If valgrind is available run the tests again.
+
+if [ -x "$(command -v valgrind)" ]; then
+    ctest -T memcheck
+fi

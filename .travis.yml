@@ -1,6 +1,9 @@
 dist: trusty
 
 language: cpp
+
+cache: ccache
+
 compiler:
     - clang
     - gcc
@@ -15,6 +18,7 @@ addons:
             - libboost-dev
             - libboost-test-dev
             - flex
+            - valgrind
 
 
-script: bash build-and-test.sh
+script: ./build-and-test.bash
