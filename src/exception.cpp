@@ -15,13 +15,10 @@
  */
 #include <deepstream/exception.hpp>
 
+namespace deepstream {
 
-namespace deepstream
-{
-
-Exception::Exception(const std::string& msg) :
-	std::runtime_error(msg)
+Exception::Exception(const std::string& msg)
+    : std::runtime_error(msg)
 {
 }
-
 }

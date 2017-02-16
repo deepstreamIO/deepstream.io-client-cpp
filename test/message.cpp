@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #define BOOST_TEST_MAIN
+
 #include <boost/test/unit_test.hpp>
 
 #include <climits>
@@ -24,52 +25,45 @@
 #include <deepstream/buffer.hpp>
 #include <deepstream/message.hpp>
 
-
-namespace deepstream
-{
+namespace deepstream {
 
 BOOST_AUTO_TEST_CASE(from_human_readable_empty)
 {
-	auto xs = Message::from_human_readable("");
-	BOOST_CHECK_EQUAL( xs.size(), 0 );
+    auto xs = Message::from_human_readable("");
+    BOOST_CHECK_EQUAL(xs.size(), 0);
 
-	auto ys = Message::from_human_readable("", 0);
-	BOOST_CHECK_EQUAL( xs.size(), 0 );
+    auto ys = Message::from_human_readable("", 0);
+    BOOST_CHECK_EQUAL(xs.size(), 0);
 }
-
 
 BOOST_AUTO_TEST_CASE(from_human_readable_simple)
 {
-	std::vector<char> input(CHAR_MAX, 0);
-	std::iota( input.begin(), input.end(), 0 );
+    std::vector<char> input(CHAR_MAX, 0);
+    std::iota(input.begin(), input.end(), 0);
 
-	Buffer output = Message::from_human_readable( input.data(), input.size() );
+    Buffer output = Message::from_human_readable(input.data(), input.size());
 
-	BOOST_CHECK_EQUAL( input.size(), output.size() );
+    BOOST_CHECK_EQUAL(input.size(), output.size());
 
-	for(std::size_t i = 0; i < input.size(); ++i)
-	{
-		char c = input[i];
-		char out = (c=='+') ? 0x1e : ((c=='|') ? 0x1f : c);
+    for (std::size_t i = 0; i < input.size(); ++i) {
+        char c = input[i];
+        char out = (c == '+') ? 0x1e : ((c == '|') ? 0x1f : c);
 
-		BOOST_CHECK_EQUAL( output[i], out );
-	}
+        BOOST_CHECK_EQUAL(output[i], out);
+    }
 }
-
 
 BOOST_AUTO_TEST_CASE(from_human_readable_nop)
 {
-	std::vector<char> input(CHAR_MAX, 0);
-	std::iota( input.begin(), input.end(), 0 );
+    std::vector<char> input(CHAR_MAX, 0);
+    std::iota(input.begin(), input.end(), 0);
 
-	input['+'] = 'X';
-	input['|'] = 'X';
+    input['+'] = 'X';
+    input['|'] = 'X';
 
-	Buffer output = Message::from_human_readable( input.data(), input.size() );
+    Buffer output = Message::from_human_readable(input.data(), input.size());
 
-	BOOST_CHECK_EQUAL( input.size(), output.size() );
-	BOOST_CHECK( std::equal(input.begin(), input.end(), output.begin()) );
+    BOOST_CHECK_EQUAL(input.size(), output.size());
+    BOOST_CHECK(std::equal(input.begin(), input.end(), output.begin()));
 }
-
-
 }

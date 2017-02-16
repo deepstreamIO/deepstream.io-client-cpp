@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #define BOOST_TEST_MAIN
+
 #include <boost/test/unit_test.hpp>
 
 #include <deepstream/buffer.hpp>
@@ -21,26 +22,23 @@
 #include <deepstream/random.hpp>
 #include <deepstream/use.hpp>
 
-
 namespace deepstream {
-namespace random
-{
+namespace random {
 
-BOOST_AUTO_TEST_CASE(simple)
-{
-	Engine::result_type seed = 1;
-	Engine engine(seed);
+    BOOST_AUTO_TEST_CASE(simple)
+    {
+        Engine::result_type seed = 1;
+        Engine engine(seed);
 
-	const Message::Header& h = make_header(&engine);
-	use(h);
+        const Message::Header& h = make_header(&engine);
+        use(h);
 
-	std::size_t arg_size =  10;
-	Buffer argument = make_argument(&engine, arg_size, arg_size);
-	BOOST_CHECK_EQUAL( argument.size(), arg_size );
+        std::size_t arg_size = 10;
+        Buffer argument = make_argument(&engine, arg_size, arg_size);
+        BOOST_CHECK_EQUAL(argument.size(), arg_size);
 
-	MessageBuilder builder = make_message(&engine);
-	use(builder);
-}
-
+        MessageBuilder builder = make_message(&engine);
+        use(builder);
+    }
 }
 }

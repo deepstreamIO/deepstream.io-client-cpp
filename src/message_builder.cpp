@@ -22,97 +22,73 @@
 
 #include <cassert>
 
+namespace deepstream {
 
-namespace deepstream
-{
-
-MessageBuilder::MessageBuilder(const Message::Header& header) :
-	header_(header)
+MessageBuilder::MessageBuilder(const Message::Header& header)
+    : header_(header)
 {
 }
 
-
-MessageBuilder::MessageBuilder(Topic topic, Action action, bool is_ack) :
-	MessageBuilder( Header(topic, action, is_ack) )
-{}
-
-
+MessageBuilder::MessageBuilder(Topic topic, Action action, bool is_ack)
+    : MessageBuilder(Header(topic, action, is_ack))
+{
+}
 
 void MessageBuilder::add_argument(const Argument& arg)
 {
-	auto it = std::find(arg.cbegin(), arg.cend(), ASCII_UNIT_SEPARATOR);
+    auto it = std::find(arg.cbegin(), arg.cend(), ASCII_UNIT_SEPARATOR);
 
-	if( it != arg.cend() )
-		throw std::invalid_argument("ASCII unit separator in payload detected");
+    if (it != arg.cend())
+        throw std::invalid_argument("ASCII unit separator in payload detected");
 
-	arguments_.push_back(arg);
+    arguments_.push_back(arg);
 }
-
-
 
 void MessageBuilder::add_argument(const std::string& string)
 {
-	add_argument( Buffer(string.cbegin(), string.cend()) );
+    add_argument(Buffer(string.cbegin(), string.cend()));
 }
-
-
 
 std::size_t MessageBuilder::size_impl_() const
 {
-	std::size_t size =
-		header_.size() +
-		arguments_.size() + // one separator for every argument
-		std::accumulate(
-			arguments_.cbegin(),
-			arguments_.cend(),
-			0,
-			[] (std::size_t k, const Argument& arg) {return k + arg.size(); }
-		) +
-		1; // message separator
+    std::size_t size = header_.size() + arguments_.size() + // one separator for every argument
+        std::accumulate(arguments_.cbegin(), arguments_.cend(), 0,
+                           [](std::size_t k, const Argument& arg) {
+                               return k + arg.size();
+                           })
+        + 1; // message separator
 
-	return size;
+    return size;
 }
 
-
-const Message::Header& MessageBuilder::header_impl_() const
-{
-	return header_;
-}
-
+const Message::Header& MessageBuilder::header_impl_() const { return header_; }
 
 std::size_t MessageBuilder::num_arguments_impl_() const
 {
-	return arguments_.size();
+    return arguments_.size();
 }
 
-
-Buffer MessageBuilder::get_impl_(std::size_t i) const
-{
-	return arguments_[i];
-}
-
+Buffer MessageBuilder::get_impl_(std::size_t i) const { return arguments_[i]; }
 
 Buffer MessageBuilder::to_binary_impl_() const
 {
-	std::size_t size = this->size();
-	Buffer buffer(size);
+    std::size_t size = this->size();
+    Buffer buffer(size);
 
-	auto out = buffer.begin();
+    auto out = buffer.begin();
 
-	const Buffer bin_header = header_.to_binary();
-	out = std::copy( bin_header.cbegin(), bin_header.cend(), out );
+    const Buffer bin_header = header_.to_binary();
+    out = std::copy(bin_header.cbegin(), bin_header.cend(), out);
 
-	for(auto in = arguments_.cbegin(); in != arguments_.cend(); ++in)
-	{
-		*out = ASCII_UNIT_SEPARATOR;
-		++out;
-		out = std::copy( in->cbegin(), in->cend(), out );
-	}
+    for (auto in = arguments_.cbegin(); in != arguments_.cend(); ++in) {
+        *out = ASCII_UNIT_SEPARATOR;
+        ++out;
+        out = std::copy(in->cbegin(), in->cend(), out);
+    }
 
-	*out = ASCII_RECORD_SEPARATOR;
-	assert( out+1 == buffer.end() );
+    *out = ASCII_RECORD_SEPARATOR;
+    assert(out + 1 == buffer.end());
 
-	return buffer;
+    return buffer;
 }
-
 }

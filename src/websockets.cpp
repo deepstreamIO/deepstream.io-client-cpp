@@ -18,77 +18,62 @@
 
 #include <cassert>
 
-
 namespace deepstream {
-namespace websockets
-{
+namespace websockets {
 
+    Frame::Frame(Flags flags, const char* payload, std::size_t size)
+        : flags_(flags)
+        , payload_(payload, payload + size)
+    {
+        assert(payload);
+    }
 
-Frame::Frame(Flags flags, const char* payload, std::size_t size) :
-	flags_(flags),
-	payload_( payload, payload+size )
-{
-	assert(payload);
-}
+    std::unique_ptr<Client> Client::construct(const std::string& uri) const
+    {
+        assert(!uri.empty());
 
+        auto p = construct_impl(uri);
+        assert(p);
 
+        return p;
+    }
 
-std::unique_ptr<Client> Client::construct(const std::string& uri) const
-{
-	assert( !uri.empty() );
+    std::string Client::uri() const
+    {
+        std::string ret = uri_impl();
+        assert(!ret.empty());
 
-	auto p = construct_impl(uri);
-	assert(p);
+        return ret;
+    }
 
-	return p;
-}
+    void Client::set_receive_timeout(time::Duration t)
+    {
+        set_receive_timeout_impl(t);
+    }
 
+    time::Duration Client::get_receive_timeout()
+    {
+        return get_receive_timeout_impl();
+    }
 
-std::string Client::uri() const
-{
-	std::string ret = uri_impl();
-	assert( !ret.empty() );
+    std::pair<State, std::unique_ptr<Frame> > Client::receive_frame()
+    {
+        return receive_frame_impl();
+    }
 
-	return ret;
-}
+    State Client::send_frame(const Buffer& buffer)
+    {
+        Frame::Flags f = Frame::Bit::FIN | Frame::Opcode::TEXT_FRAME;
+        return send_frame(buffer, f);
+    }
 
+    State Client::send_frame(const Buffer& buffer, Frame::Flags flags)
+    {
+        assert(!buffer.empty());
 
-void Client::set_receive_timeout(time::Duration t)
-{
-	set_receive_timeout_impl(t);
-}
+        return send_frame_impl(buffer, flags);
+    }
 
-
-time::Duration Client::get_receive_timeout()
-{
-	return get_receive_timeout_impl();
-}
-
-
-std::pair<State, std::unique_ptr<Frame> > Client::receive_frame()
-{
-	return receive_frame_impl();
-}
-
-
-State Client::send_frame(const Buffer& buffer)
-{
-	Frame::Flags f = Frame::Bit::FIN | Frame::Opcode::TEXT_FRAME;
-	return send_frame(buffer, f);
-}
-
-State Client::send_frame(const Buffer& buffer, Frame::Flags flags)
-{
-	assert( !buffer.empty() );
-
-	return send_frame_impl(buffer, flags);
-}
-
-
-void Client::close()
-{
-	close_impl();
-}
-
+    void Client::close() { close_impl(); }
 }
 }

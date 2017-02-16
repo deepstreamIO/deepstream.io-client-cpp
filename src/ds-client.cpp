@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <iostream>
 #include <exception>
+#include <iostream>
 
 #include <deepstream.hpp>
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     std::string uri = "ws://localhost:6020/deepstream";
 
     if (argc >= 2) {
-	uri = argv[1];
+        uri = argv[1];
     }
 
     try {
-	deepstream::Client client(uri);
+        deepstream::Client client(uri);
 
-	if (client.login()) {
-	    std::cout << "successfully logged in to " << uri << std::endl;
-	    return EXIT_SUCCESS;
-	} else {
-	    std::cerr << "failed to login to " << uri << std::endl;
-	    return EXIT_FAILURE;
-	}
-    } catch(std::exception& e) {
-	std::cerr << "Caught exception \"" << e.what() << "\"" << std::endl;
-	return EXIT_FAILURE;
+        if (client.login()) {
+            std::cout << "successfully logged in to " << uri << std::endl;
+            return EXIT_SUCCESS;
+        } else {
+            std::cerr << "failed to login to " << uri << std::endl;
+            return EXIT_FAILURE;
+        }
+    } catch (std::exception& e) {
+        std::cerr << "Caught exception \"" << e.what() << "\"" << std::endl;
+        return EXIT_FAILURE;
     }
 }
