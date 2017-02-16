@@ -15,6 +15,7 @@ addons:
             - libboost-dev
             - libboost-test-dev
             - flex
+            - valgrind
 
 
 script: bash build-and-test.sh
