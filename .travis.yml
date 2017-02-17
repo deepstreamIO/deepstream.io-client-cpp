@@ -23,7 +23,9 @@ script:
   - ./build-and-install-poco.bash $HOME/poco-1.7.7
   - cmake -DCMAKE_PREFIX_PATH=$HOME/poco-1.7.7 -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON
   - make -j $(nproc)
-  - ./lcov.bash
+  - env
+  - [[ "$CXX" =~ "gcc"   ]] && ./lcov.bash
+  - [[ "$CXX" =~ "clang" ]] && make test
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
