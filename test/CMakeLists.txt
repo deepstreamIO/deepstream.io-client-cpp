@@ -16,6 +16,7 @@ function(add_boost_test FILENAME DEPENDENCY_LIB)
 	get_filename_component(TEST_EXECUTABLE ${FILENAME} NAME_WE)
 	add_executable(${TEST_EXECUTABLE} ${FILENAME})
 	target_compile_definitions(${TEST_EXECUTABLE} PUBLIC -DBOOST_TEST_DYN_LINK)
+	target_include_directories(${TEST_EXECUTABLE} PUBLIC ${Boost_INCLUDE_DIRS})
 	target_link_libraries(${TEST_EXECUTABLE} ${DEPENDENCY_LIB})
 	target_link_libraries(${TEST_EXECUTABLE} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
