@@ -21,12 +21,14 @@ addons:
       - lcov
 
 script:
+  - ccache -s
   - ./build-and-install-poco.bash $HOME/poco-1.7.7
   - cmake -DCMAKE_PREFIX_PATH=$HOME/poco-1.7.7 -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON
   - make -j $(nproc)
   - ctest -T memcheck
   - if [ "$CXX" == "g++"     ]; then ./lcov.bash; fi
   - if [ "$CXX" == "clang++" ]; then make test; fi
+  - ccache -s
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
