@@ -65,4 +65,4 @@ make --jobs=$num_jobs test
 #     ctest -T memcheck
 # fi
 
-$my_src/lcov.bash
+[[ "${CXX}" =~ "g++" ]] && $my_src/lcov.bash
