@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(deepstream.io-client-c++)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+endif()
+
 enable_language(C)
 enable_language(CXX)
 include(CTest)
@@ -77,9 +83,29 @@ if(NOT DEFINED(CMAKE_BUILD_TYPE) OR "Debug" STREQUAL "${CMAKE_BUILD_TYPE}")
   endif()
 endif()
 
+option(BUILD_COVERAGE "Build with code coverage" ON)
+
+if(BUILD_COVERAGE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
+endif()
+
 include_directories("include")
 
 add_subdirectory(doc)
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(test)
+
+message(STATUS "CMAKE_SYSTEM=${CMAKE_SYSTEM}")
+message(STATUS "CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}")
+message(STATUS "CMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_GENERATOR=${CMAKE_GENERATOR}")
+message(STATUS "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+message(STATUS "CMAKE_C_COMPILER=${CMAKE_C_COMPILER}")
+message(STATUS "CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
+
+message(STATUS "BUILD_TESTING=${BUILD_TESTING}")
+message(STATUS "BUILD_COVERAGE=${BUILD_COVERAGE}")
