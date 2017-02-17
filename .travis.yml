@@ -10,18 +10,23 @@ compiler:
 git:
     depth: 3
 
-
 addons:
-    apt:
-        packages:
-            - libboost-dev
-            - libboost-test-dev
-            - flex
-            - valgrind
-            - lcov
+  apt:
+    packages:
+      - libboost-dev
+      - libboost-test-dev
+      - flex
+      - valgrind
+      - lcov
 
+install:
+  - ./build-and-install-poco.bash $HOME/poco-1.7.7
+  
 script:
-  - ./build-and-test.bash
+  - cmake -DCMAKE_PREFIX_PATH=$HOME/poco-1.7.7 -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON
+  - make -j $(nproc)
+  - make test
+  - ctest -T coverage
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
