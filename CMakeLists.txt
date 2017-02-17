@@ -83,7 +83,7 @@ if(NOT DEFINED(CMAKE_BUILD_TYPE) OR "Debug" STREQUAL "${CMAKE_BUILD_TYPE}")
   endif()
 endif()
 
-option(BUILD_COVERAGE "Build with code coverage" ON)
+option(BUILD_COVERAGE "Build with code coverage" OFF)
 
 if(BUILD_COVERAGE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
