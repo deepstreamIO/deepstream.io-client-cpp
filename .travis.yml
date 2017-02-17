@@ -20,5 +20,7 @@ addons:
             - flex
             - valgrind
 
-
 script: ./build-and-test.bash
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
