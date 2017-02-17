@@ -5,7 +5,7 @@ language: cpp
 cache: ccache
 
 compiler:
-    - gcc
+  - gcc
 
 git:
     depth: 3
@@ -19,14 +19,11 @@ addons:
       - valgrind
       - lcov
 
-install:
-  - ./build-and-install-poco.bash $HOME/poco-1.7.7
-  
 script:
+  - ./build-and-install-poco.bash $HOME/poco-1.7.7
   - cmake -DCMAKE_PREFIX_PATH=$HOME/poco-1.7.7 -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON
   - make -j $(nproc)
-  - make test
-  - ctest -T coverage
+  - ./lcov.bash
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
