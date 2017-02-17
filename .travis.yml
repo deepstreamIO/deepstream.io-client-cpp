@@ -5,7 +5,7 @@ language: cpp
 cache: ccache
 
 compiler:
-    - g++
+    - gcc
 
 git:
     depth: 3
@@ -20,7 +20,8 @@ addons:
             - valgrind
             - lcov
 
-script: ./build-and-test.bash
+script:
+  - ./build-and-test.bash
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

@@ -58,6 +58,7 @@ display_ccache_stats
 
 make --jobs=$num_jobs
 make --jobs=$num_jobs test
+ctest -T coverage
 
 # If valgrind is available run the tests again.
 
@@ -65,4 +66,4 @@ make --jobs=$num_jobs test
 #     ctest -T memcheck
 # fi
 
-[[ "${CXX}" =~ "g++" ]] && $my_src/lcov.bash
+# [[ "${CXX}" =~ "g++" ]] && $my_src/lcov.bash
