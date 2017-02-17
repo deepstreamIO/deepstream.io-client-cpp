@@ -5,8 +5,7 @@ language: cpp
 cache: ccache
 
 compiler:
-    - clang
-    - gcc
+    - g++
 
 git:
     depth: 3
