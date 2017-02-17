@@ -61,6 +61,6 @@ make --jobs=$num_jobs test
 
 # If valgrind is available run the tests again.
 
-if [ -x "$(command -v valgrind)" ]; then
-    ctest -T memcheck
-fi
+# if [ -x "$(command -v valgrind)" ]; then
+#     ctest -T memcheck
+# fi
