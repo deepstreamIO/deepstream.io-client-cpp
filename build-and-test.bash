@@ -51,6 +51,7 @@ pushd "$my_tmp"
 cmake \
 	-DCMAKE_PREFIX_PATH="$poco_tmp" \
 	-DBUILD_TESTING=ON \
+	-DBUILD_COVERAGE=ON \
 	-- "$my_src"
 
 display_ccache_stats
