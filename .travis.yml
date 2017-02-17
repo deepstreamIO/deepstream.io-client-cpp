@@ -19,6 +19,7 @@ addons:
             - libboost-test-dev
             - flex
             - valgrind
+            - lcov
 
 script: ./build-and-test.bash
 
