@@ -65,4 +65,4 @@ make --jobs=$num_jobs test
 #     ctest -T memcheck
 # fi
 
-./lcov.bash
+$my_src/lcov.bash
