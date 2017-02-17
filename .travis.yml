@@ -5,8 +5,8 @@ language: cpp
 cache: ccache
 
 compiler:
-  - gcc
   - clang
+  - gcc
 
 git:
     depth: 3
@@ -25,7 +25,6 @@ script:
   - cmake -DCMAKE_PREFIX_PATH=$HOME/poco-1.7.7 -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON
   - make -j $(nproc)
   - ctest -T memcheck
-  - env
   - if [ "$CXX" == "g++"     ]; then ./lcov.bash; fi
   - if [ "$CXX" == "clang++" ]; then make test; fi
 

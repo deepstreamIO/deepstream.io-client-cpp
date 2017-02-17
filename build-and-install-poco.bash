@@ -6,10 +6,11 @@ poco_url='https://pocoproject.org/releases/poco-1.7.7/poco-1.7.7.tar.gz'
 poco_zip='poco-1.7.7.tar.gz'
 poco_src='poco-1.7.7'
 
-tmpdir=$(mktemp -d)
+if [ ! -f $poco_zip ]; then
+    wget "$poco_url"
+fi
 
-wget -O $tmpdir/$poco_zip "$poco_url"
-tar -zxf $tmpdir/$poco_zip
+tar -zxf $poco_zip
 
 cd $poco_src
 
