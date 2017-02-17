@@ -64,3 +64,5 @@ make --jobs=$num_jobs test
 # if [ -x "$(command -v valgrind)" ]; then
 #     ctest -T memcheck
 # fi
+
+./lcov.bash
