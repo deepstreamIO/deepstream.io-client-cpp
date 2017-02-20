@@ -60,6 +60,11 @@ target_include_directories(ds-client PUBLIC ${POCO_INCLUDE_DIRS})
 target_link_libraries(ds-client PUBLIC libdeepstream)
 target_link_libraries(ds-client PUBLIC ${POCO_LIBRARIES})
 
+# add_executable(frobware-client frobware-client.cpp)
+# target_include_directories(frobware-client PUBLIC "/usr/local/include")
+# target_link_libraries(frobware-client PUBLIC libdeepstream)
+# target_link_libraries(frobware-client PUBLIC ${POCO_LIBRARIES})
+
 
 add_executable(fuzz-me fuzz-me.cpp)
 target_link_libraries(fuzz-me PUBLIC libdeepstream)

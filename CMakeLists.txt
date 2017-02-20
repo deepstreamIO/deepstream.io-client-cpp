@@ -8,16 +8,20 @@ if(NOT CMAKE_BUILD_TYPE)
       FORCE)
 endif()
 
-enable_language(C)
-enable_language(CXX)
-include(CTest)
-
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
 set(PROJECT_VERSION_PATCH 0)
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
+
+enable_language(C)
+enable_language(CXX)
+
+include(CTest)
+include(ExternalProject)
+include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
 
 # Put the libaries and binaries that get built into directories at the
 # top of the build tree rather than in hard-to-find leaf directories.
@@ -48,9 +52,6 @@ endif()
 
 # We absolutely depend on C++11 support from the toolchain; exit if
 # the toolchain doesn't support it.
-
-include(CheckCCompilerFlag)
-include(CheckCXXCompilerFlag)
 
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 if(COMPILER_SUPPORTS_CXX11)
@@ -83,7 +84,7 @@ if(NOT DEFINED(CMAKE_BUILD_TYPE) OR "Debug" STREQUAL "${CMAKE_BUILD_TYPE}")
   endif()
 endif()
 
-option(BUILD_COVERAGE "Build with code coverage" OFF)
+option(BUILD_COVERAGE "Build with code coverage" ON)
 
 if(BUILD_COVERAGE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
@@ -92,7 +93,24 @@ if(BUILD_COVERAGE)
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
 endif()
 
-include_directories("include")
+set(POCO "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/poco")
+
+externalproject_add(poco_project
+  GIT_REPOSITORY "https://github.com/pocoproject/poco.git"
+  GIT_TAG "poco-1.7.7"
+  PREFIX "${CMAKE_CURRENT_BINARY_DIR}/poco-project"
+  UPDATE_COMMAND ""
+  CMAKE_ARGS
+  "-G${CMAKE_GENERATOR}"
+  "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+  "-DCMAKE_INSTALL_PREFIX=${POCO}")
+	      
+add_library(poco STATIC IMPORTED)
+#set_target_properties(poco PROPERTIES IMPORTED_LOCATION ${POCO}/lib/libpoco.a)
+add_dependencies(poco poco_project)
+
+include_directories("${CMAKE_BINARY_DIR}/include")
+include_directories("${POCO}/include")
 
 add_subdirectory(doc)
 add_subdirectory(include)
