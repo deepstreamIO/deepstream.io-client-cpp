@@ -11,6 +11,7 @@ endif()
 enable_language(C)
 enable_language(CXX)
 include(CTest)
+include(ExternalProject)
 
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
@@ -91,6 +92,31 @@ if(BUILD_COVERAGE)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
 endif()
+
+externalproject_add(poco
+  PREFIX thirdparty
+  URL https://github.com/pocoproject/poco/archive/poco-1.7.7-release.tar.gz
+  URL_HASH MD5=247b97b545715dc38c8619e412fbcd96
+  CMAKE_GENERATOR ${CMAKE_GENERATOR}
+  CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}
+  CMAKE_ARGS
+  "-DENABLE_CRYPTO=OFF"
+  "-DENABLE_DATA=OFF"
+  "-DENABLE_JSON=OFF"
+  "-DENABLE_MONGODB=OFF"
+  "-DENABLE_NETSSL=OFF"
+  "-DENABLE_PAGECOMPILER=OFF"
+  "-DENABLE_PAGECOMPILER_FILE2PAGE=OFF"
+  "-DENABLE_UTIL=OFF"
+  "-DENABLE_XML=OFF"
+  "-DENABLE_ZIP=OFF"
+  -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/thirdparty
+  LOG_CONFIGURE ON
+  UPDATE_COMMAND ""
+)
+
+link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
+include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
 include_directories("include")
 
