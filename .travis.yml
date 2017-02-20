@@ -23,7 +23,7 @@ addons:
 script:
   - ccache -s
   - cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON
-  - make -j $(nproc)
+  - make
   - ctest -T memcheck
   - if [ "$CXX" == "g++"     ]; then ./lcov.bash; fi
   - if [ "$CXX" == "clang++" ]; then make test; fi
