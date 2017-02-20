@@ -96,6 +96,7 @@ endif()
 externalproject_add(poco_project
   GIT_REPOSITORY "https://github.com/pocoproject/poco.git"
   GIT_TAG "poco-1.7.7"
+  GIT_SHALLOW 1
   CMAKE_GENERATOR "${CMAKE_GENERATOR}"
   CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}"
   CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
@@ -121,3 +122,6 @@ message(STATUS "CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
 
 message(STATUS "BUILD_TESTING=${BUILD_TESTING}")
 message(STATUS "BUILD_COVERAGE=${BUILD_COVERAGE}")
+
+# Ensure parallel builds operate correctly.
+add_dependencies(libdeepstream poco_project)
