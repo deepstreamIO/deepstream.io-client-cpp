@@ -111,6 +111,7 @@ externalproject_add(poco_project
   "-DENABLE_ZIP=OFF"
   -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}
   LOG_CONFIGURE ON
+  UPDATE_COMMAND ""
 )
 
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
