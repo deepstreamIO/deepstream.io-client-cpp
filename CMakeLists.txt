@@ -1,12 +1,20 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-project(deepstream.io-client-c++)
+if(NOT BUILD_TESTING)
+  set(BUILD_TESTING OFF CACHE STRING "Build tests. Options are OFF ON." FORCE)
+endif()
+
+if(NOT BUILD_COVERAGE)
+  set(BUILD_COVERAGE OFF CACHE STRING "Build with --coverage; options are OFF ON." FORCE)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
 endif()
+
+project(deepstream.io-client-cpp)
 
 enable_language(C)
 enable_language(CXX)
@@ -67,9 +75,8 @@ else()
   message(FATAL_ERROR "Compiler ${CMAKE_C_COMPILER} has no C11 support.")
 endif()
 
-option(BUILD_TESTING "Build tests" OFF)
-
 if(BUILD_TESTING)
+  find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
   enable_testing()
 endif()
 
@@ -83,8 +90,6 @@ if(NOT DEFINED(CMAKE_BUILD_TYPE) OR "Debug" STREQUAL "${CMAKE_BUILD_TYPE}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG_PEDANTIC")
   endif()
 endif()
-
-option(BUILD_COVERAGE "Build with code coverage" OFF)
 
 if(BUILD_COVERAGE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
@@ -115,6 +120,8 @@ externalproject_add(poco
   UPDATE_COMMAND ""
 )
 
+find_package(FLEX 2.5 REQUIRED)
+
 link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
 include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
@@ -123,7 +130,10 @@ include_directories("include")
 add_subdirectory(doc)
 add_subdirectory(include)
 add_subdirectory(src)
-add_subdirectory(test)
+
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
 
 message(STATUS "CMAKE_SYSTEM=${CMAKE_SYSTEM}")
 message(STATUS "CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}")

@@ -1,12 +1,3 @@
-if(NOT BUILD_TESTING)
-	return()
-endif()
-
-
-find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
-find_package(FLEX 2.5 REQUIRED)
-
-
 # This functions searches all unit tests implemented with boost.test and turns
 # each of them into a single CTest test case. See `doc/ctest-vs-boost.md` for
 # the motivation behind this.
