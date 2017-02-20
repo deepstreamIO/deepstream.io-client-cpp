@@ -93,9 +93,12 @@ if(BUILD_COVERAGE)
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
 endif()
 
-externalproject_add(poco_project
-  GIT_REPOSITORY "https://github.com/pocoproject/poco.git"
-  GIT_TAG "poco-1.7.7"
+externalproject_add(poco
+  PREFIX thirdparty
+  URL https://github.com/pocoproject/poco/archive/poco-1.7.7-release.tar.gz
+  URL_HASH MD5=247b97b545715dc38c8619e412fbcd96
+  # GIT_REPOSITORY "https://github.com/pocoproject/poco.git"
+  # GIT_TAG "poco-1.7.7"
   CMAKE_GENERATOR ${CMAKE_GENERATOR}
   CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}
   CMAKE_ARGS
@@ -109,12 +112,13 @@ externalproject_add(poco_project
   "-DENABLE_UTIL=OFF"
   "-DENABLE_XML=OFF"
   "-DENABLE_ZIP=OFF"
-  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}
+  -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/thirdparty
   LOG_CONFIGURE ON
   UPDATE_COMMAND ""
 )
 
-link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
+include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
 include_directories("include")
 

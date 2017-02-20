@@ -61,4 +61,4 @@ add_executable(make-fuzzer-input make-fuzzer-input.cpp)
 target_link_libraries(make-fuzzer-input PUBLIC libdeepstream)
 
 # Ensure parallel builds operate correctly.
-add_dependencies(libdeepstream poco_project)
+add_dependencies(libdeepstream poco)
