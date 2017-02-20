@@ -49,7 +49,6 @@ install(TARGETS libdeepstream DESTINATION "lib")
 
 
 add_executable(ds-example ds-example.cpp)
-target_include_directories(ds-example PUBLIC ${POCO_INCLUDE_DIRS})
 target_link_libraries(ds-example PUBLIC libdeepstream)
 
 add_executable(ds-client ds-client.cpp)
