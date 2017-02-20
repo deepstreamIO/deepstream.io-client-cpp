@@ -8,20 +8,17 @@ if(NOT CMAKE_BUILD_TYPE)
       FORCE)
 endif()
 
+enable_language(C)
+enable_language(CXX)
+include(CTest)
+include(ExternalProject)
+
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 1)
 set(PROJECT_VERSION_PATCH 0)
 set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
-
-enable_language(C)
-enable_language(CXX)
-
-include(CTest)
-include(ExternalProject)
-include(CheckCCompilerFlag)
-include(CheckCXXCompilerFlag)
 
 # Put the libaries and binaries that get built into directories at the
 # top of the build tree rather than in hard-to-find leaf directories.
@@ -52,6 +49,9 @@ endif()
 
 # We absolutely depend on C++11 support from the toolchain; exit if
 # the toolchain doesn't support it.
+
+include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
 
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 if(COMPILER_SUPPORTS_CXX11)
@@ -84,7 +84,7 @@ if(NOT DEFINED(CMAKE_BUILD_TYPE) OR "Debug" STREQUAL "${CMAKE_BUILD_TYPE}")
   endif()
 endif()
 
-option(BUILD_COVERAGE "Build with code coverage" ON)
+option(BUILD_COVERAGE "Build with code coverage" OFF)
 
 if(BUILD_COVERAGE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
