@@ -96,7 +96,6 @@ endif()
 externalproject_add(poco_project
   GIT_REPOSITORY "https://github.com/pocoproject/poco.git"
   GIT_TAG "poco-1.7.7"
-  GIT_SHALLOW 1
   CMAKE_GENERATOR "${CMAKE_GENERATOR}"
   CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}"
   CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
