@@ -93,24 +93,19 @@ if(BUILD_COVERAGE)
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
 endif()
 
-set(POCO "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/poco")
-
 externalproject_add(poco_project
   GIT_REPOSITORY "https://github.com/pocoproject/poco.git"
   GIT_TAG "poco-1.7.7"
-  PREFIX "${CMAKE_CURRENT_BINARY_DIR}/poco-project"
+  CMAKE_GENERATOR "${CMAKE_GENERATOR}"
+  CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}"
+  CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
   UPDATE_COMMAND ""
-  CMAKE_ARGS
-  "-G${CMAKE_GENERATOR}"
-  "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
-  "-DCMAKE_INSTALL_PREFIX=${POCO}")
+  LOG_UPDATE 1)
 	      
-add_library(poco STATIC IMPORTED)
-#set_target_properties(poco PROPERTIES IMPORTED_LOCATION ${POCO}/lib/libpoco.a)
-add_dependencies(poco poco_project)
+include_directories("include")
 
-include_directories("${CMAKE_BINARY_DIR}/include")
-include_directories("${POCO}/include")
+find_library(PocoFoundationLibrary PocoFoundation ${CMAKE_CURRENT_BINARY_DIR}/lib)
+find_library(PocoNetLibrary PocoNet ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
 add_subdirectory(doc)
 add_subdirectory(include)

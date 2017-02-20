@@ -1,7 +1,5 @@
 find_package(Boost 1.46 REQUIRED)
 find_package(FLEX 2.5 REQUIRED)
-find_package(POCO REQUIRED)
-
 
 add_custom_command(
 	OUTPUT
@@ -45,8 +43,7 @@ add_library(
 set_target_properties(libdeepstream PROPERTIES OUTPUT_NAME deepstream)
 target_include_directories(libdeepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
 target_include_directories(libdeepstream PUBLIC ${Boost_INCLUDE_DIRS})
-target_include_directories(libdeepstream PUBLIC ${POCO_INCLUDE_DIRS})
-target_link_libraries(libdeepstream PUBLIC ${POCO_LIBRARIES})
+target_link_libraries(libdeepstream PUBLIC ${PocoFoundationLibrary} ${PocoNetLibrary})
 install(TARGETS libdeepstream DESTINATION "lib")
 
 
@@ -56,7 +53,6 @@ target_link_libraries(ds-example PUBLIC libdeepstream)
 target_link_libraries(ds-example PUBLIC ${POCO_LIBRARIES})
 
 add_executable(ds-client ds-client.cpp)
-target_include_directories(ds-client PUBLIC ${POCO_INCLUDE_DIRS})
 target_link_libraries(ds-client PUBLIC libdeepstream)
 target_link_libraries(ds-client PUBLIC ${POCO_LIBRARIES})
 
