@@ -1,6 +1,3 @@
-find_package(Boost 1.46 REQUIRED)
-find_package(FLEX 2.5 REQUIRED)
-
 add_custom_command(
 	OUTPUT
 		${CMAKE_CURRENT_BINARY_DIR}/lexer.c
@@ -42,7 +39,6 @@ add_library(
 
 set_target_properties(libdeepstream PROPERTIES OUTPUT_NAME deepstream)
 target_include_directories(libdeepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
-target_include_directories(libdeepstream PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(libdeepstream PUBLIC PocoFoundation PocoNet)
 
 install(TARGETS libdeepstream DESTINATION "lib")
