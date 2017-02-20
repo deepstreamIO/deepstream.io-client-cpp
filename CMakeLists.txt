@@ -112,7 +112,7 @@ externalproject_add(poco_project
   -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}
   LOG_CONFIGURE ON
 )
-	      
+
 link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 include_directories("include")
