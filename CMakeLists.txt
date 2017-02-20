@@ -102,10 +102,9 @@ externalproject_add(poco_project
   UPDATE_COMMAND ""
   LOG_UPDATE 1)
 	      
-include_directories("include")
+link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
-find_library(PocoFoundationLibrary PocoFoundation ${CMAKE_CURRENT_BINARY_DIR}/lib)
-find_library(PocoNetLibrary PocoNet ${CMAKE_CURRENT_BINARY_DIR}/lib)
+include_directories("include")
 
 add_subdirectory(doc)
 add_subdirectory(include)
