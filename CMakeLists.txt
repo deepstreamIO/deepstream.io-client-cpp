@@ -97,8 +97,6 @@ externalproject_add(poco
   PREFIX thirdparty
   URL https://github.com/pocoproject/poco/archive/poco-1.7.7-release.tar.gz
   URL_HASH MD5=247b97b545715dc38c8619e412fbcd96
-  # GIT_REPOSITORY "https://github.com/pocoproject/poco.git"
-  # GIT_TAG "poco-1.7.7"
   CMAKE_GENERATOR ${CMAKE_GENERATOR}
   CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}
   CMAKE_ARGS
