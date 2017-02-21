@@ -18,8 +18,32 @@
 
 #include <deepstream.hpp>
 
+#include <Poco/Exception.h>
+#include <Poco/Net/AcceptCertificateHandler.h>
+#include <Poco/Net/ConsoleCertificateHandler.h>
+#include <Poco/Net/HTTPRequest.h>
+#include <Poco/Net/HTTPResponse.h>
+#include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/Net/HTTPSStreamFactory.h>
+#include <Poco/Net/HTTPStreamFactory.h>
+#include <Poco/Net/KeyConsoleHandler.h>
+#include <Poco/Net/SSLManager.h>
+#include <Poco/SharedPtr.h>
+#include <Poco/URI.h>
+#include <Poco/URIStreamOpener.h>
+
 int main(int argc, char* argv[])
 {
+    // TODO(frobware) - move all the SSL stuff into the library.
+
+    Poco::Net::HTTPStreamFactory::registerFactory();
+    Poco::Net::HTTPSStreamFactory::registerFactory();
+
+    Poco::SharedPtr<Poco::Net::InvalidCertificateHandler> pAcceptCertHandler = new Poco::Net::AcceptCertificateHandler(true);
+    Poco::Net::Context::Ptr pContext = new Poco::Net::Context(Poco::Net::Context::CLIENT_USE, "", "", "", Poco::Net::Context::VERIFY_RELAXED, 9, true, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+
+    Poco::Net::SSLManager::instance().initializeClient(NULL, pAcceptCertHandler, pContext);
+
     std::string uri = "ws://localhost:6020/deepstream";
 
     if (argc >= 2) {

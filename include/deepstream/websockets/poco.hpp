@@ -19,7 +19,7 @@
 #include <string>
 #include <utility>
 
-#include <Poco/Net/HTTPClientSession.h>
+#include <Poco/Net/HTTPSClientSession.h>
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/WebSocket.h>
@@ -58,7 +58,7 @@ namespace websockets {
             virtual void close_impl() override;
 
             Poco::URI uri_;
-            Poco::Net::HTTPClientSession session_;
+            Poco::Net::HTTPSClientSession session_;
             Poco::Net::HTTPRequest request_;
             Poco::Net::HTTPResponse response_;
             Poco::Net::WebSocket websocket_;
