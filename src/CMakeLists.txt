@@ -1,6 +1,8 @@
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+find_package(OpenSSL REQUIRED)
+
 add_custom_command(
 	OUTPUT
 		${CMAKE_CURRENT_BINARY_DIR}/lexer.c
@@ -44,7 +46,7 @@ set(POCO_LIBS PocoNetSSL PocoCrypto PocoNet PocoUtil PocoJSON PocoXML PocoFounda
 
 set_target_properties(libdeepstream PROPERTIES OUTPUT_NAME deepstream)
 target_include_directories(libdeepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
-target_link_libraries(libdeepstream PUBLIC ${POCO_LIBS} crypto ssl Threads::Threads)
+target_link_libraries(libdeepstream PUBLIC ${POCO_LIBS} ${OPENSSL_LIBRARIES} Threads::Threads)
 install(TARGETS libdeepstream DESTINATION "lib")
 
 
