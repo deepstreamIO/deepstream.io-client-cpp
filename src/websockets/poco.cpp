@@ -56,7 +56,7 @@ namespace websockets {
                     "",
                     "",
                     "",
-                    Poco::Net::Context::VERIFY_RELAXED,
+                    Poco::Net::Context::VERIFY_NONE,
                     9,
                     true,
                     "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
