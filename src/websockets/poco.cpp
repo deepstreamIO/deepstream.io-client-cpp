@@ -20,7 +20,13 @@
 #include <system_error>
 
 #include <Poco/Exception.h>
+#include <Poco/Net/AcceptCertificateHandler.h>
+#include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/Net/HTTPSStreamFactory.h>
+#include <Poco/Net/HTTPStreamFactory.h>
+#include <Poco/Net/KeyConsoleHandler.h>
 #include <Poco/Net/NetException.h>
+#include <Poco/Net/SSLManager.h>
 #include <Poco/Timespan.h>
 
 #include <deepstream/buffer.hpp>
@@ -35,14 +41,55 @@ namespace net = Poco::Net;
 
 namespace deepstream {
 namespace websockets {
-    namespace poco {
 
-        Client::Client(const std::string& uri_string) try
-            : uri_(uri_string),
-              session_(uri_.getHost(), uri_.getPort()),
-              request_(net::HTTPRequest::HTTP_GET, uri_.getPath(),
-                  net::HTTPRequest::HTTP_1_1),
-              websocket_(session_, request_, response_) {
+    namespace poco {
+        class SSLManager {
+        public:
+            SSLManager()
+                : pAcceptCertHandler_(nullptr)
+                , pContext_(nullptr)
+            {
+                Poco::Net::HTTPStreamFactory::registerFactory();
+                Poco::Net::HTTPSStreamFactory::registerFactory();
+
+                pAcceptCertHandler_ = new Poco::Net::AcceptCertificateHandler(true);
+                pContext_ = new Poco::Net::Context(Poco::Net::Context::CLIENT_USE,
+                    "",
+                    "",
+                    "",
+                    // TODO(frobware) VERIFY_NONE is pointless. Should be VERIFY_STRICT.
+                    Poco::Net::Context::VERIFY_NONE,
+                    9,
+                    true,
+                    "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+                Poco::Net::SSLManager::instance().initializeClient(NULL, pAcceptCertHandler_, pContext_);
+            }
+
+            ~SSLManager() = default;
+
+        private:
+            Poco::SharedPtr<Poco::Net::InvalidCertificateHandler> pAcceptCertHandler_;
+            Poco::Net::Context::Ptr pContext_;
+        };
+
+        Client* Client::makeClient(const std::string& uri_string)
+        {
+            Poco::URI uri(uri_string);
+            Poco::Net::HTTPClientSession* session;
+
+            if (uri.getScheme() == "wss") {
+                session = new Poco::Net::HTTPSClientSession(uri.getHost(), uri.getPort());
+            } else {
+                session = new Poco::Net::HTTPClientSession(uri.getHost(), uri.getPort());
+            }
+
+            return new websockets::poco::Client(uri_string, std::unique_ptr<Poco::Net::HTTPClientSession>(session));
+        }
+
+      Client::Client(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session) try
+            : uri_(uri),
+              request_(net::HTTPRequest::HTTP_GET, uri_.getPath(), net::HTTPRequest::HTTP_1_1),
+              websocket_(*session, request_, response_) {
         } catch (Poco::Exception& e) {
             throw Exception(e.displayText());
         }
@@ -58,7 +105,7 @@ namespace websockets {
         std::unique_ptr<websockets::Client>
         Client::construct_impl(const std::string& uri) const
         {
-            return std::unique_ptr<websockets::Client>(new Client(uri));
+            return std::unique_ptr<websockets::Client>(Client::makeClient(uri));
         }
 
         std::string Client::uri_impl() const { return uri_.toString(); }
@@ -140,6 +187,8 @@ namespace websockets {
         }
 
         void Client::close_impl() { websocket_.shutdown(); }
+
+        static std::unique_ptr<poco::SSLManager> sslManager(new SSLManager());
     }
 }
 }
