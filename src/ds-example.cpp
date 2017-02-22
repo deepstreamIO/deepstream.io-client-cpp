@@ -18,17 +18,24 @@
 
 #include <deepstream.hpp>
 
-int main() try {
-    using deepstream::Buffer;
+using deepstream::Buffer;
+using deepstream::Event;
+using deepstream::Presence;
 
-    deepstream::Client client("ws://localhost:6020/deepstream");
+int main(int argc, char* argv[])
+{
+    if (argc < 2) {
+        std::cerr << "usage: <URI>" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    deepstream::Client client(argv[1]);
     if (!client.login()) {
         std::cout << "Client not logged in" << std::endl;
         return 1;
     }
-    std::cout << "Client logged in" << std::endl;
 
-    using deepstream::Event;
+    std::cout << "Client logged in" << std::endl;
 
     // Subscribe to the event "adam"
     Event::SubscribeFnPtr sub_ptr = client.event.subscribe(Buffer("adam"), [&](const Buffer& buff) {
@@ -54,25 +61,19 @@ int main() try {
         return true;
     });
 
-    using deepstream::Presence;
-
+#if 0
     // List all present users
     // FIXME: "Sudden disconnect" errors
-    /*
-   *    client.presence.get_all([](const Presence::UserList users){
-   *        std::cout << "Users: " << std::endl;
-   *
-   *        for (auto user_buff : users) {
-   *            std::string user_str(user_buff.begin(), user_buff.end());
-   *            std::cout << "\t" << user_str << std::endl;
-   *        }
-   *    });
-   */
+    client.presence.get_all([](const Presence::UserList users){
+        std::cout << "Users: " << std::endl;
 
+        for (auto user_buff : users) {
+            std::string user_str(user_buff.begin(), user_buff.end());
+            std::cout << "\t" << user_str << std::endl;
+        }
+    });
+#endif
     while (true) {
         client.process_messages();
     }
-} catch (std::exception& e) {
-    std::cerr << "error: '" << e.what() << "'" << std::endl;
-    return 1;
 }
