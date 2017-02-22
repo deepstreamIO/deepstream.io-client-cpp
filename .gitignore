@@ -4,3 +4,4 @@ a.out
 *.tab.c
 
 .*.swp
+.idea
