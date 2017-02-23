@@ -1,6 +1,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <Poco/Net/HTTPClientSession.h>
 
 namespace Foo {
 
@@ -18,7 +19,9 @@ struct Bar {
 
     std::shared_ptr<ErrorHandler> errorHandler_;
 
-    ~Bar() {}
+    ~Bar() {
+ 	std::cerr << "delete ~Bar()" << reinterpret_cast<void *>(this) << std::endl;
+    }
 };
 
 std::unique_ptr<Bar> make_example() { 

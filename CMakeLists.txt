@@ -162,5 +162,5 @@ SET(CMAKE_SWIG_OUTDIR python)
 
 SET_SOURCE_FILES_PROPERTIES(deepstream.i PROPERTIES CPLUSPLUS ON)
 
-SWIG_ADD_MODULE(pydeepstream python deepstream.i)
-SWIG_LINK_LIBRARIES(pydeepstream libdeepstream)
+SWIG_ADD_MODULE(deepstream python deepstream.i)
+SWIG_LINK_LIBRARIES(deepstream libdeepstream ${POCO_LIBS} ${PYTHON_LIBRARIES})

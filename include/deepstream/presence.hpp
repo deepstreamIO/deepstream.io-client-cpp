@@ -104,7 +104,7 @@ struct Presence {
     // this name is in camelCase in the JS API but I was using pascal_case
     // throughout the code for functions so I decided to use pascal_case
     // here, too.
-    void get_all(const QueryFn&);
+  //    void get_all(const QueryFn&);
 
     /**
      * This method handles resence-related messages (messages with topic
