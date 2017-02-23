@@ -6,6 +6,14 @@
 
 %include "std_unique_ptr.i"
 
- //wrap_unique_ptr(FooUniquePtr, Foo::Foobar);
+%include <std_except.i>
+%include <std_string.i>
+%include <std_vector.i>
+
+namespace std {
+   %template(vectorc) vector<char>;
+};
+
+wrap_unique_ptr(FooBarUniquePtr, Foo::Bar);
 
 %include "Foo.hpp"
