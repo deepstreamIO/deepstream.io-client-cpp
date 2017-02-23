@@ -153,7 +153,7 @@ message(STATUS "BUILD_COVERAGE=${BUILD_COVERAGE}")
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
-FIND_PACKAGE(PythonLibs)
+FIND_PACKAGE(PythonLibs REQUIRED)
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -161,13 +161,6 @@ SET(CMAKE_SWIG_FLAGS "")
 SET(CMAKE_SWIG_OUTDIR python)
 
 SET_SOURCE_FILES_PROPERTIES(deepstream.i PROPERTIES CPLUSPLUS ON)
-#SET_SOURCE_FILES_PROPERTIES(deepstream.i PROPERTIES SWIG_FLAGS "-includeall")
 
-swig_add_module(pydeepstream python deepstream.i)
-swig_link_libraries(pydeepstream libdeepstream ${PYTHON_LIBRARIES})
-
-#add_dependencies(pydeepstream libdeepstream)
-
-# SWIG_ADD_MODULE(example python deepstream.i deepstream_wrap.cxx)
-# SWIG_LINK_LIBRARIES(example ${PYTHON_LIBRARIES})
-
+SWIG_ADD_MODULE(pydeepstream python deepstream.i)
+SWIG_LINK_LIBRARIES(pydeepstream libdeepstream)

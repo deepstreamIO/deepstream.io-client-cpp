@@ -36,8 +36,8 @@
 namespace deepstream {
 namespace impl {
 
-    std::unique_ptr<Client>
-    Client::make(std::unique_ptr<websockets::Client> p_websocket,
+    std::shared_ptr<Client>
+    Client::make(std::shared_ptr<websockets::Client> p_websocket,
         std::shared_ptr<ErrorHandler> p_error_handler)
     {
         assert(p_websocket);
@@ -51,8 +51,8 @@ namespace impl {
 
             const std::string uri = p_websocket->uri();
 
-            std::unique_ptr<Client> p(
-                new Client(std::move(p_websocket), std::move(p_error_handler)));
+            std::shared_ptr<Client> p(
+                new Client(p_websocket, p_error_handler));
 
             Buffer buffer;
             parser::MessageList messages;
@@ -93,7 +93,7 @@ namespace impl {
                 std::string new_uri(uri_buffer.cbegin(), uri_buffer.cend());
 
                 p_websocket = p->p_websocket_->construct(new_uri);
-                p_error_handler = std::move(p->p_error_handler_);
+                p_error_handler = p->p_error_handler_;
 
                 continue;
             }
@@ -105,24 +105,24 @@ namespace impl {
         assert(p_error_handler);
         p_error_handler->too_many_redirections(MAX_NUM_REDIRECTIONS);
 
-        return std::unique_ptr<Client>(
-            new Client(nullptr, std::move(p_error_handler)));
+        return std::shared_ptr<Client>(
+            new Client(nullptr, p_error_handler));
     }
 
-    std::unique_ptr<Client> Client::make(const std::string& uri, std::shared_ptr<ErrorHandler> p_eh)
+    std::shared_ptr<Client> Client::make(const std::string& uri, std::shared_ptr<ErrorHandler> p_eh)
     {
         if (uri.empty())
             throw std::invalid_argument("URI must not be empty");
 
-	return Client::make(std::unique_ptr<websockets::Client>(websockets::poco::Client::makeClient(uri)), std::move(p_eh));
+	return Client::make(std::shared_ptr<websockets::Client>(websockets::poco::Client::makeClient(uri)), p_eh);
     }
 
-    Client::Client(std::unique_ptr<websockets::Client> p_websocket,
+    Client::Client(std::shared_ptr<websockets::Client> p_websocket,
         std::shared_ptr<ErrorHandler> p_error_handler)
         : state_(p_websocket ? client::State::AWAIT_CONNECTION
                              : client::State::ERROR)
-        , p_websocket_(std::move(p_websocket))
-        , p_error_handler_(std::move(p_error_handler))
+        , p_websocket_(p_websocket)
+        , p_error_handler_(p_error_handler)
     {
         assert(p_error_handler_);
     }

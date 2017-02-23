@@ -8,7 +8,7 @@
 #include "deepstream/client.hpp"
 %}
  
-%include "std_unique_ptr.i"
+//%include "std_unique_ptr.i"
 
 %include <std_except.i>
 %include <std_string.i>

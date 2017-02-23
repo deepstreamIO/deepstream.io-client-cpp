@@ -89,7 +89,7 @@ namespace websockets {
 	 * implementing this interface with the new object being connected
 	 * to the given URI.
 	 */
-        std::unique_ptr<Client> construct(const std::string& uri) const;
+        std::shared_ptr<Client> construct(const std::string& uri) const;
 
         std::string uri() const;
 
@@ -132,7 +132,7 @@ namespace websockets {
         void close();
 
     protected:
-        virtual std::unique_ptr<websockets::Client>
+        virtual std::shared_ptr<websockets::Client>
         construct_impl(const std::string&) const = 0;
 
         virtual std::string uri_impl() const = 0;

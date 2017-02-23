@@ -42,13 +42,13 @@ namespace websockets {
 
 namespace impl {
     struct Client {
-        static std::unique_ptr<Client>
-        make(std::unique_ptr<websockets::Client> p_websocket,
+        static std::shared_ptr<Client>
+        make(std::shared_ptr<websockets::Client> p_websocket,
             std::shared_ptr<ErrorHandler> p_error_handler);
 
-        static std::unique_ptr<Client> make(const std::string& uri);
+        static std::shared_ptr<Client> make(const std::string& uri);
 
-        static std::unique_ptr<Client> make(const std::string& uri,
+        static std::shared_ptr<Client> make(const std::string& uri,
             std::shared_ptr<ErrorHandler>);
 
         Client() = delete;
@@ -58,7 +58,7 @@ namespace impl {
         Client(Client&&) = delete;
 
     protected:
-        explicit Client(std::unique_ptr<websockets::Client> p_websocket,
+        explicit Client(std::shared_ptr<websockets::Client> p_websocket,
             std::shared_ptr<ErrorHandler>);
 
     public:
@@ -101,7 +101,7 @@ namespace impl {
         websockets::State send_frame_(const Buffer&, int);
 
         client::State state_;
-        std::unique_ptr<websockets::Client> p_websocket_;
+        std::shared_ptr<websockets::Client> p_websocket_;
         std::shared_ptr<ErrorHandler> p_error_handler_;
     };
 }

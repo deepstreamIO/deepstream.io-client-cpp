@@ -40,7 +40,7 @@ namespace impl {
     struct Client;
 }
 
-// This class does not use `std::unique_ptr<impl::Client>` because it
+// This class does not use `std::shared_ptr<impl::Client>` because it
 // prevents the use of the PIMPL idiom because the class attempts to
 // evaluate `sizeof(impl::Client)`; naturally, we must know the definition
 // of `impl::Client` meaning we have to include the appropriate header.
@@ -97,7 +97,7 @@ public:
      */
     void process_messages();
 
-    impl::Client* const p_impl_;
+    impl::Client *p_impl_;
     Event event;
     Presence presence;
 };
