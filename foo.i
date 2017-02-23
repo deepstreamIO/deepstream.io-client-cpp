@@ -1,8 +1,11 @@
 %module foo
 
 %{
-#include "foo.hpp"
+#include "Foo.hpp"
 %}
- 
-/* Parse the header file to generate wrappers */
-%include "foo.hpp"
+
+%include "std_unique_ptr.i"
+
+ //wrap_unique_ptr(FooUniquePtr, Foo::Foobar);
+
+%include "Foo.hpp"

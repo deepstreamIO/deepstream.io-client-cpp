@@ -21,11 +21,13 @@
 #include <functional>
 #include <string>
 
-#include <deepstream/buffer.hpp>
 #include <deepstream/client.hpp>
 #include <deepstream/config.h>
 #include <deepstream/event.hpp>
+#include <deepstream/buffer.hpp>
 #include <deepstream/presence.hpp>
+#include <deepstream/error_handler.hpp>
+#include <deepstream/buffer.hpp>
 
 namespace deepstream {
 struct ErrorHandler;
@@ -38,18 +40,6 @@ namespace impl {
     struct Client;
 }
 
-struct version {
-    version() = delete;
-
-    enum {
-        MAJOR = DEEPSTREAM_VERSION_MAJOR,
-        MINOR = DEEPSTREAM_VERSION_MINOR,
-        PATCH = DEEPSTREAM_VERSION_PATCH
-    };
-
-    static constexpr const char* to_string() { return DEEPSTREAM_VERSION; }
-};
-
 // This class does not use `std::unique_ptr<impl::Client>` because it
 // prevents the use of the PIMPL idiom because the class attempts to
 // evaluate `sizeof(impl::Client)`; naturally, we must know the definition
@@ -59,7 +49,7 @@ struct Client {
 
     Client(const std::string& uri);
 
-    Client(const std::string& uri, std::unique_ptr<ErrorHandler>);
+    Client(const std::string &uri, std::shared_ptr<ErrorHandler>);
 
     ~Client();
 

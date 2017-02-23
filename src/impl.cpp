@@ -38,7 +38,7 @@ namespace impl {
 
     std::unique_ptr<Client>
     Client::make(std::unique_ptr<websockets::Client> p_websocket,
-        std::unique_ptr<ErrorHandler> p_error_handler)
+        std::shared_ptr<ErrorHandler> p_error_handler)
     {
         assert(p_websocket);
         assert(p_error_handler);
@@ -109,7 +109,7 @@ namespace impl {
             new Client(nullptr, std::move(p_error_handler)));
     }
 
-    std::unique_ptr<Client> Client::make(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
+    std::unique_ptr<Client> Client::make(const std::string& uri, std::shared_ptr<ErrorHandler> p_eh)
     {
         if (uri.empty())
             throw std::invalid_argument("URI must not be empty");
@@ -118,7 +118,7 @@ namespace impl {
     }
 
     Client::Client(std::unique_ptr<websockets::Client> p_websocket,
-        std::unique_ptr<ErrorHandler> p_error_handler)
+        std::shared_ptr<ErrorHandler> p_error_handler)
         : state_(p_websocket ? client::State::AWAIT_CONNECTION
                              : client::State::ERROR)
         , p_websocket_(std::move(p_websocket))

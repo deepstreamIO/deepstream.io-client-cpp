@@ -24,7 +24,7 @@ set_source_files_properties(
 )
 
 add_library(
-	libdeepstream STATIC
+	libdeepstream SHARED
 	client.cpp
 	deepstream.cpp
 	error_handler.cpp

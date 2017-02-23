@@ -28,7 +28,7 @@
 
 namespace deepstream {
 
-Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
+Client::Client(const std::string& uri, std::shared_ptr<ErrorHandler> p_eh)
     : p_impl_(impl::Client::make(uri, std::move(p_eh)).release())
     , event([this](const Message& message) -> bool {
         assert(p_impl_);
@@ -42,7 +42,7 @@ Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
 }
 
 Client::Client(const std::string& uri)
-    : Client(uri, std::unique_ptr<ErrorHandler>(new ErrorHandler()))
+    : Client(uri, std::shared_ptr<ErrorHandler>(new ErrorHandler()))
 {
 }
 

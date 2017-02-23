@@ -65,6 +65,11 @@ struct Buffer : public std::vector<char> {
     {
     }
 
+    Buffer(const std::vector<char>& init)
+        : Base(init)
+    {
+    }
+
     explicit Buffer(const char* p)
         : Base(p, p + std::strlen(p))
     {
