@@ -8,7 +8,7 @@
 #include "deepstream/presence.hpp"
 #include "deepstream/error_handler.hpp"
 %}
- 
+
 %include "std_unique_ptr.i"
 
 %include <std_except.i>
@@ -28,4 +28,3 @@ wrap_unique_ptr(deepstreamClientUniquePtr, deepstream::Client);
 %include "deepstream/event.hpp"
 %include "deepstream/client.hpp"
 %include "deepstream.hpp"
-
