@@ -83,10 +83,10 @@ namespace websockets {
                 session = new Poco::Net::HTTPClientSession(uri.getHost(), uri.getPort());
             }
 
-            return new websockets::poco::Client(uri_string, std::shared_ptr<Poco::Net::HTTPClientSession>(session));
+            return new websockets::poco::Client(uri_string, std::unique_ptr<Poco::Net::HTTPClientSession>(session));
         }
 
-      Client::Client(const std::string& uri, std::shared_ptr<Poco::Net::HTTPClientSession> session) try
+      Client::Client(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session) try
             : uri_(uri),
               request_(net::HTTPRequest::HTTP_GET, uri_.getPath(), net::HTTPRequest::HTTP_1_1),
               websocket_(*session, request_, response_) {
@@ -102,10 +102,10 @@ namespace websockets {
             return num_bytes;
         }
 
-        std::shared_ptr<websockets::Client>
+        std::unique_ptr<websockets::Client>
         Client::construct_impl(const std::string& uri) const
         {
-            return std::shared_ptr<websockets::Client>(Client::makeClient(uri));
+            return std::unique_ptr<websockets::Client>(Client::makeClient(uri));
         }
 
         std::string Client::uri_impl() const { return uri_.toString(); }
@@ -188,7 +188,7 @@ namespace websockets {
 
         void Client::close_impl() { websocket_.shutdown(); }
 
-      //static std::shared_ptr<poco::SSLManager> sslManager(new SSLManager());
+      //static std::unique_ptr<poco::SSLManager> sslManager(new SSLManager());
     }
 }
 }

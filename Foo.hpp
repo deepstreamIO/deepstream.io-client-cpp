@@ -1,7 +1,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
-#include <Poco/Net/HTTPClientSession.h>
+// #include <Poco/Net/HTTPClientSession.h>
 
 namespace Foo {
 
@@ -11,13 +11,13 @@ struct ErrorHandler {
 };
   
 struct Bar {
-    Bar () {}
-    Bar (std::shared_ptr<ErrorHandler> handler) : errorHandler_(handler) {}
+    Bar() {}
+    Bar(std::unique_ptr<ErrorHandler> handler) : errorHandler_(std::move(handler)) {}
   
     void baz(const std::string& s) { std::cout << "you said " << s << "\n"; }
     int wibble;
 
-    std::shared_ptr<ErrorHandler> errorHandler_;
+    std::unique_ptr<ErrorHandler> errorHandler_;
 
     ~Bar() {
  	std::cerr << "delete ~Bar()" << reinterpret_cast<void *>(this) << std::endl;

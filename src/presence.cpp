@@ -72,7 +72,6 @@ void Presence::unsubscribe(const SubscribeFnPtr& p_f)
     send_(uus);
 }
 
-#if 0
 void Presence::get_all(const QueryFn& f)
 {
     querents_.push_back(f);
@@ -84,7 +83,7 @@ void Presence::get_all(const QueryFn& f)
     uqq.add_argument("Q");
     send_(uqq);
 }
-#endif
+
 void Presence::notify_(const Message& message)
 {
     assert(message.topic() == Topic::PRESENCE);

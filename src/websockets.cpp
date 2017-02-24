@@ -28,7 +28,7 @@ namespace websockets {
         assert(payload);
     }
 
-    std::shared_ptr<Client> Client::construct(const std::string& uri) const
+    std::unique_ptr<Client> Client::construct(const std::string& uri) const
     {
         assert(!uri.empty());
 

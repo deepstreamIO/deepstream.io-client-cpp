@@ -2,7 +2,7 @@
 
 %{
 #include "Foo.hpp"
-#include "deepstream.hpp"
+/* #include "deepstream.hpp" */
 %}
 
 %include "std_unique_ptr.i"
@@ -16,9 +16,10 @@ namespace std {
 };
 
 wrap_unique_ptr(FooBarUniquePtr, Foo::Bar);
+wrap_unique_ptr(ErrorHandlerUniquePtr, Foo::ErrorHandler);
 
-//%include "Foo.hpp"
-%include "deepstream/event.hpp"
-%include "deepstream/buffer.hpp"
-%include "deepstream/presence.hpp"
-%include "deepstream.hpp"
+%include "Foo.hpp"
+/* %include "deepstream/event.hpp" */
+/* %include "deepstream/buffer.hpp" */
+/* %include "deepstream/presence.hpp" */
+/* %include "deepstream.hpp" */
