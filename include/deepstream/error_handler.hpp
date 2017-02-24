@@ -46,7 +46,7 @@ namespace websockets {
  * methods print an error message to standard error.
  */
 struct ErrorHandler {
-    ~ErrorHandler() = default;
+    virtual ~ErrorHandler() = default;
 
     void parser_error(const parser::Error&);
 
