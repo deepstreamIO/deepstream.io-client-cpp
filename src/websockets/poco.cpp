@@ -86,7 +86,7 @@ namespace websockets {
             return new websockets::poco::Client(uri_string, std::unique_ptr<Poco::Net::HTTPClientSession>(session));
         }
 
-      Client::Client(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session) try
+        Client::Client(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session) try
             : uri_(uri),
               request_(net::HTTPRequest::HTTP_GET, uri_.getPath(), net::HTTPRequest::HTTP_1_1),
               websocket_(*session, request_, response_) {
@@ -188,7 +188,7 @@ namespace websockets {
 
         void Client::close_impl() { websocket_.shutdown(); }
 
-      //static std::unique_ptr<poco::SSLManager> sslManager(new SSLManager());
+        static std::unique_ptr<poco::SSLManager> sslManager(new SSLManager());
     }
 }
 }
