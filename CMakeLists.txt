@@ -9,7 +9,7 @@ if(NOT BUILD_COVERAGE)
 endif()
 
 if(NOT BUILD_POCO)
-  set(BUILD_POCO OFF CACHE STRING "Build Poco locally; options are OFF ON." FORCE)
+  set(BUILD_POCO ON CACHE STRING "Build Poco locally; options are OFF ON." FORCE)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
