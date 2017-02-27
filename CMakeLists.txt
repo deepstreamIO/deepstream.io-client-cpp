@@ -153,6 +153,17 @@ message(STATUS "BUILD_COVERAGE=${BUILD_COVERAGE}")
 FIND_PACKAGE(SWIG)
 
 if(SWIG_FOUND)
+  # We need to fix the generated Swig wrapper as the current version
+  # of Swig does not handle std::unique_ptr. Our fix directly calls
+  # std::move() for the few cases where this smart pointer type is
+  # exposed in the deepstream public API.
+
+  add_custom_command(
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx
+    COMMAND ${CMAKE_SOURCE_DIR}/fix-deepstream-swig.pl ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
+    COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
+
   INCLUDE(${SWIG_USE_FILE})
   FIND_PACKAGE(PythonLibs REQUIRED)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
@@ -160,6 +171,6 @@ if(SWIG_FOUND)
   SET(CMAKE_SWIG_FLAGS "")
   SET(CMAKE_SWIG_OUTDIR python)
   SET_SOURCE_FILES_PROPERTIES(deepstream.i PROPERTIES CPLUSPLUS ON)
-  SWIG_ADD_MODULE(deepstream python deepstream.i)
+  SWIG_ADD_MODULE(deepstream python deepstream.i ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
   SWIG_LINK_LIBRARIES(deepstream libdeepstream ${POCO_LIBS} ${PYTHON_LIBRARIES})
 endif()
