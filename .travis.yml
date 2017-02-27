@@ -32,6 +32,10 @@ addons:
 
 script:
   - ccache -s
+  - sudo apt-get build-dep cmake
+  - wget https://github.com/Kitware/CMake/archive/v3.5.1.tar.gz
+  - tar xf v3.5.1.tar.gz
+  - (cd CMake-3.5.1; ./bootstrap; ./configure; make $(nproc); sudo make install)
   - cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON -DBUILD_POCO=ON
   - export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH
   - export PYTHONPATH=$PWD/lib:$PWD/python
