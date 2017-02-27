@@ -32,7 +32,6 @@ addons:
       - libssl-dev
       - python3
       - python3-dev
-      - swig3.0
       - valgrind
       - wget
 
