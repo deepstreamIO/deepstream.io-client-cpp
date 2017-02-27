@@ -14,7 +14,7 @@ git:
 
 before_install:
   - wget http://178.62.20.154/~aim/frobware-poco_1.7.7-1_amd64.deb
-  - dpkg -i frobware-poco_1.7.7-1_amd64.deb
+  - sudo dpkg -i frobware-poco_1.7.7-1_amd64.deb
   - dpkg -l | grep frobware
 
 addons:
