@@ -69,3 +69,10 @@ add_boost_test(message_builder.cpp libdeepstream)
 add_boost_test(parser.cpp libdeepstream)
 add_boost_test(presence.cpp libdeepstream)
 add_boost_test(random.cpp libdeepstream)
+
+if(SWIG_FOUND)
+  add_test(
+    NAME    python-swig-test
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/python-swig-test.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
