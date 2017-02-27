@@ -7,8 +7,3 @@ version = deepstream.version_to_string()
 
 if deepstream.version_to_string() != expected:
     raise ValueError("Version mismatch; expected {}, got {}".format(expected, version))
-
-
-
-
-
