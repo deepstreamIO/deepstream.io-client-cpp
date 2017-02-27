@@ -1,24 +1,24 @@
 namespace std {
   %feature("novaluewrapper") unique_ptr;
   template <typename Type>
-  struct unique_ptr {
-     typedef Type* pointer;
+    struct unique_ptr {
+      typedef Type* pointer;
 
-     explicit unique_ptr( pointer Ptr );
-     unique_ptr (unique_ptr&& Right);
-     template<class Type2, Class Del2> unique_ptr( unique_ptr<Type2, Del2>&& Right );
-     unique_ptr( const unique_ptr& Right) = delete;
+      explicit unique_ptr(pointer Ptr);
+      unique_ptr(unique_ptr&& Right);
+      template <class Type2, Class Del2>
+	unique_ptr(unique_ptr<Type2, Del2>&& Right);
+      unique_ptr(const unique_ptr& Right) = delete;
 
+      pointer operator->() const;
+      pointer release();
+      void reset(pointer __p = pointer());
+      void swap(unique_ptr& __u);
+      pointer get() const;
+      operator bool() const;
 
-     pointer operator-> () const;
-     pointer release ();
-     void reset (pointer __p=pointer());
-     void swap (unique_ptr &__u);
-     pointer get () const;
-     operator bool () const;
-
-     ~unique_ptr();
-  };
+      ~unique_ptr();
+    };
 }
 
 %define wrap_unique_ptr(Name, Type)
