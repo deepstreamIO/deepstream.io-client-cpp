@@ -7,6 +7,7 @@ cache: ccache
 
 compiler:
   - gcc
+  - clang
 
 git:
     depth: 1
