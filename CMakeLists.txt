@@ -163,8 +163,8 @@ if(SWIG_FOUND)
   enable_testing()
   add_test(
     NAME    python-swig-test
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/python-swig-test.py
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/python-swig-test.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 add_subdirectory(doc)
