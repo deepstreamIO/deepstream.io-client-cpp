@@ -43,9 +43,9 @@ script:
   - export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH
   - export PYTHONPATH=$PWD/lib:$PWD/python
   - make -j $(nproc)
-  - ctest -T memcheck
-  - if [ "$CXX" == "g++"     ]; then ./lcov.bash; fi
-  - if [ "$CXX" == "clang++" ]; then make test; fi
+  - make test
+  - make NightlyMemCheck
+  - make NightlyCoverage
   - ccache -s
 
 after_success:
