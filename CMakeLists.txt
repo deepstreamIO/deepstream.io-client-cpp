@@ -128,7 +128,7 @@ externalproject_add(poco
   UPDATE_COMMAND ""
 )
 
-find_package(SWIG)
+find_package(SWIG 3)
 find_package(FLEX 2.5 REQUIRED)
 
 link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
