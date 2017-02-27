@@ -20,11 +20,14 @@ addons:
       - valgrind
       - lcov
       - swig
+      - python3
+      - python3-dev
 
 script:
   - ccache -s
   - cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON
   - export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH
+  - PYTHONPATH=$PWD/lib python3 -c 'import deepstream; print(deepstream.version_to_string())'
   - make -j $(nproc)
   - ctest -T memcheck
   - if [ "$CXX" == "g++"     ]; then ./lcov.bash; fi
