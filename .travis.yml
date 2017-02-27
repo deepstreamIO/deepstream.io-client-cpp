@@ -12,6 +12,12 @@ compiler:
 git:
     depth: 1
 
+before_install:
+  - sudo apt-add-repository "deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse"
+  - sudo apt-get -qq update
+  - sudo apt-get -t trusty-backports install swig3.0
+  - sudo apt-get -t trusty-backports install cmake
+
 addons:
   apt:
     packages:
@@ -31,11 +37,6 @@ addons:
 
 script:
   - ccache -s
-  - wget https://github.com/Kitware/CMake/archive/v3.5.1.tar.gz
-  - tar xf v3.5.1.tar.gz
-  - (cd CMake-3.5.1; ./bootstrap; ./configure; make $(nproc); sudo make install)
-  - hash -r
-  - which cmake
   - cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON -DBUILD_POCO=ON
   - export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH
   - export PYTHONPATH=$PWD/lib:$PWD/python
