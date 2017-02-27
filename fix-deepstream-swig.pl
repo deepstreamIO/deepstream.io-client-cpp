@@ -1,4 +1,4 @@
-#!/usr/bin/perl -ip
+#!/usr/bin/perl -i
 
 use strict;
 
