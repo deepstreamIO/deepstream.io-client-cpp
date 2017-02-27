@@ -19,6 +19,7 @@ addons:
       - flex
       - valgrind
       - lcov
+      - swig
 
 script:
   - ccache -s
