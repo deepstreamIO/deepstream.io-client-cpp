@@ -8,6 +8,10 @@ if(NOT BUILD_COVERAGE)
   set(BUILD_COVERAGE OFF CACHE STRING "Build with --coverage; options are OFF ON." FORCE)
 endif()
 
+if(NOT BUILD_POCO)
+  set(BUILD_POCO OFF CACHE STRING "Build Poc locally; options are OFF ON." FORCE)
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
