@@ -13,7 +13,7 @@ git:
     depth: 3
 
 before_install:
-  - wget http://178.62.20.154/~aim/frobware-trusty-poco_1.7.7-1_amd64.deb
+  - wget http://178.62.20.154/~aim/frobware-trusty-poco_1.7.7-2_amd64.deb
   - sudo dpkg -i frobware-trusty-poco_1.7.7-1_amd64.deb
   - dpkg -l | grep frobware
 
