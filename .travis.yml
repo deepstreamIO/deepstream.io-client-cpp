@@ -16,7 +16,6 @@ addons:
   apt:
     packages:
       - build-essential
-      - cmake
       - curl
       - flex
       - gcc
@@ -32,7 +31,6 @@ addons:
 
 script:
   - ccache -s
-  - sudo apt-get build-dep cmake
   - wget https://github.com/Kitware/CMake/archive/v3.5.1.tar.gz
   - tar xf v3.5.1.tar.gz
   - (cd CMake-3.5.1; ./bootstrap; ./configure; make $(nproc); sudo make install)
