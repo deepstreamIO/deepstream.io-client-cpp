@@ -11,6 +11,8 @@ apt-get -yq --no-install-suggests --no-install-recommends install \
 	lcov \
 	libboost-dev \
 	libboost-test-dev \
+	python3 \
+	python3-dev \
 	swig \
 	valgrind \
 	wget
