@@ -22,7 +22,6 @@ project(deepstream.io-client-cpp)
 
 enable_language(C)
 enable_language(CXX)
-enable_testing()
 include(CTest)
 include(ExternalProject)
 
@@ -80,7 +79,7 @@ else()
   message(FATAL_ERROR "Compiler ${CMAKE_C_COMPILER} has no C11 support.")
 endif()
 
-if(BUILD_TESTING AND Boost_FOUND)
+if(BUILD_TESTING)
   find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
 endif()
 
@@ -161,6 +160,7 @@ if(SWIG_FOUND)
 endif()
 
 if(SWIG_FOUND)
+  enable_testing()
   add_test(
     NAME    python-swig-test
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/python-swig-test.py
@@ -171,7 +171,8 @@ add_subdirectory(doc)
 add_subdirectory(include)
 add_subdirectory(src)
 
-if(BUILD_TESTING)
+if(BUILD_TESTING AND Boost_FOUND)
+  enable_testing()
   add_subdirectory(test)
 endif()
 
