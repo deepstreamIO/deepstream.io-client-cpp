@@ -11,5 +11,6 @@ apt-get -yq --no-install-suggests --no-install-recommends install \
 	lcov \
 	libboost-dev \
 	libboost-test-dev \
+	swig \
 	valgrind \
 	wget
