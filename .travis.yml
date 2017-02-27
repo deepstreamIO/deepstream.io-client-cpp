@@ -1,21 +1,15 @@
-dist: trusty
-sudo: required
+dist: xenial
 
 language: cpp
 
-#cache: ccache
+cache: ccache
 
 compiler:
   - clang
   - gcc
 
 git:
-    depth: 3
-
-before_install:
-  - wget -O poco.deb http://178.62.20.154/~aim/frobware-trusty-poco_1.7.7-2_amd64.deb
-  - sudo dpkg -i poco.deb
-  - dpkg -l | grep frobware
+    depth: 1
 
 addons:
   apt:
@@ -37,7 +31,7 @@ addons:
 
 script:
   - ccache -s
-  - cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON
+  - cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON -DBUILD_POCO=ON
   - export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH
   - export PYTHONPATH=$PWD/lib:$PWD/python
   - make -j $(nproc)

@@ -43,7 +43,7 @@ add_library(
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
 if(BUILD_POCO)
-  set(Poco_LIBRARIES NetSSL Crypto Net Util JSON XML Foundation)
+  set(Poco_LIBRARIES PocoNetSSL PocoCrypto PocoNet PocoUtil PocoJSON PocoXML PocoFoundation)
 endif()
 
 set_target_properties(libdeepstream PROPERTIES OUTPUT_NAME deepstream)
