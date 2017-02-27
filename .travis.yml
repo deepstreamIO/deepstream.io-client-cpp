@@ -45,7 +45,7 @@ script:
   - make -j $(nproc)
   - make test
   - make NightlyMemCheck
-  - if [ "$CXX" == "clang++" ]; then make NightlyCoverage; fi
+  - if [ "$CXX" == "g++" ]; then make NightlyCoverage; fi
   - ccache -s
 
 after_success:
