@@ -154,6 +154,7 @@ endif()
 add_subdirectory(doc)
 add_subdirectory(include)
 add_subdirectory(src)
+add_subdirectory(examples)
 
 if(BUILD_TESTING AND Boost_FOUND)
   add_subdirectory(test)
