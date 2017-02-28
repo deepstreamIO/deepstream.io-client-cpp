@@ -116,30 +116,8 @@ namespace client {
             return State::DISCONNECTED;
         }
 
-        if (state == State::CONNECTED && topic == Topic::EVENT) {
-            if (action == Action::LISTEN || action == Action::SUBSCRIBE || action == Action::UNLISTEN || action == Action::UNSUBSCRIBE || action == Action::LISTEN_ACCEPT || action == Action::LISTEN_REJECT) {
-                if ((sender == Sender::CLIENT && !is_ack) || (sender == Sender::SERVER && is_ack))
-                    return state;
-            } else if (action == Action::EVENT) {
-                return state;
-            } else if (action == Action::SUBSCRIPTION_FOR_PATTERN_FOUND || action == Action::SUBSCRIPTION_FOR_PATTERN_REMOVED) {
-                assert(!is_ack);
-
-                if (sender == Sender::SERVER)
-                    return state;
-            }
-        }
-
-        if (state == State::CONNECTED && topic == Topic::PRESENCE) {
-            if (action == Action::SUBSCRIBE || action == Action::UNSUBSCRIBE || action == Action::QUERY) {
-                if ((sender == Sender::CLIENT && !is_ack) || (sender == Sender::SERVER && is_ack))
-                    return state;
-            }
-            if (action == Action::PRESENCE_JOIN || action == Action::PRESENCE_LEAVE) {
-                if (sender == Sender::SERVER)
-                    return state;
-            }
-        }
+        if (state == State::CONNECTED)
+            return state;
 
         return State::ERROR;
     }

@@ -61,9 +61,6 @@ int main(int argc, char* argv[])
         return true;
     });
 
-#if 0
-    // List all present users
-    // FIXME: "Sudden disconnect" errors
     client.presence.get_all([](const Presence::UserList users){
         std::cout << "Users: " << std::endl;
 
@@ -72,7 +69,7 @@ int main(int argc, char* argv[])
             std::cout << "\t" << user_str << std::endl;
         }
     });
-#endif
+
     while (true) {
         client.process_messages();
     }
