@@ -1,23 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-if(NOT BUILD_TESTING)
-  set(BUILD_TESTING OFF CACHE STRING "Build tests. Options are OFF ON." FORCE)
-endif()
-
-if(NOT BUILD_COVERAGE)
-  set(BUILD_COVERAGE OFF CACHE STRING "Build with --coverage; options are OFF ON." FORCE)
-endif()
-
-if(NOT BUILD_POCO)
-  set(BUILD_POCO ON CACHE STRING "Build Poco locally; options are OFF ON." FORCE)
-endif()
-
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
-endif()
-
 project(deepstream.io-client-cpp)
 
 enable_language(C)
@@ -102,30 +84,33 @@ if(BUILD_COVERAGE)
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
 endif()
 
-externalproject_add(poco
-  PREFIX thirdparty
-  URL https://github.com/pocoproject/poco/archive/poco-1.7.7-release.tar.gz
-  URL_HASH MD5=247b97b545715dc38c8619e412fbcd96
-  CMAKE_GENERATOR ${CMAKE_GENERATOR}
-  CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}
-  CMAKE_ARGS
-  "-DENABLE_MONGODB=OFF"
-  "-DENABLE_PDF=OFF"
-  "-DENABLE_DATA=OFF"
-  "-DENABLE_DATA_SQLITE=OFF"
-  "-DENABLE_DATA_MYSQL=OFF"
-  "-DENABLE_DATA_ODBC=OFF"
-  "-DENABLE_SEVENZIP=OFF"
-  "-DENABLE_ZIP=OFF"
-  "-DENABLE_APACHECONNECTOR=OFF"
-  "-DENABLE_CPPPARSER=OFF"
-  "-DENABLE_POCODOC=OFF"
-  "-DENABLE_PAGECOMPILER=OFF"
-  "-DENABLE_PAGECOMPILER_FILE2PAGE=OFF"
-  -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/thirdparty
-  LOG_CONFIGURE ON
-  UPDATE_COMMAND ""
-)
+if(BUILD_POCO)
+  externalproject_add(poco
+    PREFIX thirdparty
+    URL https://github.com/pocoproject/poco/archive/poco-1.7.7-release.tar.gz
+    URL_HASH MD5=247b97b545715dc38c8619e412fbcd96
+    CMAKE_GENERATOR ${CMAKE_GENERATOR}
+    CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}
+    CMAKE_ARGS
+    "-DENABLE_MONGODB=OFF"
+    "-DENABLE_PDF=OFF"
+    "-DENABLE_DATA=OFF"
+    "-DENABLE_DATA_SQLITE=OFF"
+    "-DENABLE_DATA_MYSQL=OFF"
+    "-DENABLE_DATA_ODBC=OFF"
+    "-DENABLE_SEVENZIP=OFF"
+    "-DENABLE_ZIP=OFF"
+    "-DENABLE_APACHECONNECTOR=OFF"
+    "-DENABLE_CPPPARSER=OFF"
+    "-DENABLE_POCODOC=OFF"
+    "-DENABLE_PAGECOMPILER=OFF"
+    "-DENABLE_PAGECOMPILER_FILE2PAGE=OFF"
+    -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/thirdparty
+    LOG_CONFIGURE ON
+    UPDATE_COMMAND "")
+else()
+  find_package(Poco 1.7.7 REQUIRED NetSSL Crypto Net Util JSON XML Foundation)
+endif()
 
 find_package(SWIG 3)
 find_package(FLEX 2.5 REQUIRED)
@@ -185,3 +170,4 @@ message(STATUS "CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
 message(STATUS "BUILD_TESTING=${BUILD_TESTING}")
 message(STATUS "BUILD_COVERAGE=${BUILD_COVERAGE}")
 message(STATUS "BUILD_POCO=${BUILD_POCO}")
+message(STATUS "Poco_LIBRARIES=${Poco_LIBRARIES}")
