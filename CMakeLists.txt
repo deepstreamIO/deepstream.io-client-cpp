@@ -22,6 +22,7 @@ project(deepstream.io-client-cpp)
 
 enable_language(C)
 enable_language(CXX)
+enable_testing()
 include(CTest)
 include(ExternalProject)
 
@@ -160,7 +161,6 @@ if(SWIG_FOUND)
 endif()
 
 if(SWIG_FOUND)
-  enable_testing()
   add_test(
     NAME    python-swig-test
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/python-swig-test.py
@@ -172,7 +172,6 @@ add_subdirectory(include)
 add_subdirectory(src)
 
 if(BUILD_TESTING AND Boost_FOUND)
-  enable_testing()
   add_subdirectory(test)
 endif()
 
