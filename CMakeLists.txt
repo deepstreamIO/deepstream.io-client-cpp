@@ -8,6 +8,10 @@ if(NOT BUILD_COVERAGE)
   set(BUILD_COVERAGE OFF CACHE STRING "Build with --coverage; options are OFF ON." FORCE)
 endif()
 
+if(NOT BUILD_POCO)
+  set(BUILD_POCO ON CACHE STRING "Build Poco locally; options are OFF ON." FORCE)
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
@@ -18,6 +22,7 @@ project(deepstream.io-client-cpp)
 
 enable_language(C)
 enable_language(CXX)
+enable_testing()
 include(CTest)
 include(ExternalProject)
 
@@ -77,7 +82,6 @@ endif()
 
 if(BUILD_TESTING)
   find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
-  enable_testing()
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -pedantic")
@@ -118,12 +122,12 @@ externalproject_add(poco
   "-DENABLE_POCODOC=OFF"
   "-DENABLE_PAGECOMPILER=OFF"
   "-DENABLE_PAGECOMPILER_FILE2PAGE=OFF"
-  "-DPOCO_STATIC=ON"
   -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/thirdparty
   LOG_CONFIGURE ON
   UPDATE_COMMAND ""
 )
 
+find_package(SWIG 3)
 find_package(FLEX 2.5 REQUIRED)
 
 link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
@@ -131,11 +135,42 @@ include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
 include_directories("include")
 
+if(SWIG_FOUND)
+  # We need to fix the generated Swig wrapper as the current version
+  # of Swig does not handle std::unique_ptr. Our fix directly calls
+  # std::move() for the few cases where this smart pointer type is
+  # exposed in the deepstream public API.
+
+  add_custom_command(
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx
+    COMMAND ${CMAKE_SOURCE_DIR}/fix-deepstream-swig.pl ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
+    COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
+
+  include(${SWIG_USE_FILE})
+  find_package(PythonLibs REQUIRED)
+  include_directories(${PYTHON_INCLUDE_PATH})
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+  set(CMAKE_SWIG_FLAGS "")
+  set(CMAKE_SWIG_OUTDIR python)
+  set_source_files_properties(deepstream.i PROPERTIES CPLUSPLUS ON)
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx PROPERTIES COMPILE_FLAGS -Wno-self-assign)
+  swig_add_module(deepstream python deepstream.i ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
+  swig_link_libraries(deepstream libdeepstream ${POCO_LIBS} ${PYTHON_LIBRARIES})
+endif()
+
+if(SWIG_FOUND)
+  add_test(
+    NAME    python-swig-test
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/python-swig-test.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 add_subdirectory(doc)
 add_subdirectory(include)
 add_subdirectory(src)
 
-if(BUILD_TESTING)
+if(BUILD_TESTING AND Boost_FOUND)
   add_subdirectory(test)
 endif()
 
@@ -149,3 +184,4 @@ message(STATUS "CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
 
 message(STATUS "BUILD_TESTING=${BUILD_TESTING}")
 message(STATUS "BUILD_COVERAGE=${BUILD_COVERAGE}")
+message(STATUS "BUILD_POCO=${BUILD_POCO}")

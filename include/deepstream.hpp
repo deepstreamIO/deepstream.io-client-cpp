@@ -55,8 +55,6 @@ struct version {
 // evaluate `sizeof(impl::Client)`; naturally, we must know the definition
 // of `impl::Client` meaning we have to include the appropriate header.
 struct Client {
-    static std::string getUid();
-
     Client(const std::string& uri);
 
     Client(const std::string& uri, std::unique_ptr<ErrorHandler>);

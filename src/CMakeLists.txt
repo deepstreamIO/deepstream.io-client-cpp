@@ -24,7 +24,7 @@ set_source_files_properties(
 )
 
 add_library(
-	libdeepstream STATIC
+	libdeepstream SHARED
 	client.cpp
 	deepstream.cpp
 	error_handler.cpp
@@ -42,11 +42,13 @@ add_library(
 	websockets/pseudo.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
-set(POCO_LIBS PocoNetSSL PocoCrypto PocoNet PocoUtil PocoJSON PocoXML PocoFoundation)
+if(BUILD_POCO)
+  set(Poco_LIBRARIES PocoNetSSL PocoCrypto PocoNet PocoUtil PocoJSON PocoXML PocoFoundation)
+endif()
 
 set_target_properties(libdeepstream PROPERTIES OUTPUT_NAME deepstream)
 target_include_directories(libdeepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
-target_link_libraries(libdeepstream PUBLIC ${POCO_LIBS} ${OPENSSL_LIBRARIES} Threads::Threads)
+target_link_libraries(libdeepstream PUBLIC ${Poco_LIBRARIES} ${OPENSSL_LIBRARIES} Threads::Threads)
 install(TARGETS libdeepstream DESTINATION "lib")
 
 
@@ -63,4 +65,6 @@ add_executable(make-fuzzer-input make-fuzzer-input.cpp)
 target_link_libraries(make-fuzzer-input PUBLIC libdeepstream)
 
 # Ensure parallel builds operate correctly.
-add_dependencies(libdeepstream poco)
+if(BUILD_POCO)
+  add_dependencies(libdeepstream poco)
+endif()
