@@ -13,11 +13,6 @@ git:
     depth: 1
 
 before_install:
-  - cat /etc/apt/sources.list
-  # - sudo apt-add-repository "deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse"
-  # - sudo apt-get -qq update
-  # - sudo apt-get -t trusty-backports install swig3.0
-  # - sudo apt-get -t trusty-backports install cmake
   - sudo sh -x ubuntu-prerequisites.sh
 
 addons:
