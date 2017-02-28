@@ -62,7 +62,7 @@ add_executable(fuzz-me fuzz-me.cpp)
 target_link_libraries(fuzz-me PUBLIC libdeepstream)
 
 add_executable(make-fuzzer-input make-fuzzer-input.cpp)
-target_link_libraries(make-fuzzer-input PUBLIC libdeepstream ${Poco_LIBRARIES})
+target_link_libraries(make-fuzzer-input PUBLIC libdeepstream)
 
 # Ensure parallel builds operate correctly.
 if(BUILD_POCO)
