@@ -6,7 +6,9 @@ fi
 
 apt update -yq
 
-apt-get -yq --no-install-suggests --no-install-recommends install \
+apt-get install eatmydata
+
+eatmydata apt-get -yq --no-install-suggests --no-install-recommends install \
 	build-essential \
 	flex \
 	gcc \
@@ -20,9 +22,9 @@ apt-get -yq --no-install-suggests --no-install-recommends install \
 	wget
 
 if [ "$(lsb_release -cs)" = "trusty" ]; then
-    apt-get -yq -t trusty-backports install swig3.0
-    apt-get -yq -t trusty-backports install cmake
+    eatmydata apt-get -yq -t trusty-backports install swig3.0
+    eatmydata apt-get -yq -t trusty-backports install cmake
 else
-    apt-get -yq install swig3.0
-    apt-get -yq install cmake
+    eatmydata apt-get -yq install swig3.0
+    eatmydata apt-get -yq install cmake
 fi
