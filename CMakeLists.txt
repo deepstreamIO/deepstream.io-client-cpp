@@ -1,6 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
-
-# Minimum version can be relaxed if not building Swig components.
+cmake_minimum_required(VERSION 2.8.12)
 
 if(NOT BUILD_TESTING)
   set(BUILD_TESTING OFF CACHE STRING "Build tests. Options are OFF ON." FORCE)
