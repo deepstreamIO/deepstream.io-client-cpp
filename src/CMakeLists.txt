@@ -51,19 +51,6 @@ target_include_directories(libdeepstream PUBLIC "${CMAKE_BINARY_DIR}/include")
 target_link_libraries(libdeepstream PUBLIC ${Poco_LIBRARIES} ${OPENSSL_LIBRARIES} Threads::Threads)
 install(TARGETS libdeepstream DESTINATION "lib")
 
-
-add_executable(ds-example ds-example.cpp)
-target_link_libraries(ds-example PUBLIC libdeepstream)
-
-add_executable(ds-client ds-client.cpp)
-target_link_libraries(ds-client PUBLIC libdeepstream)
-
-add_executable(fuzz-me fuzz-me.cpp)
-target_link_libraries(fuzz-me PUBLIC libdeepstream)
-
-add_executable(make-fuzzer-input make-fuzzer-input.cpp)
-target_link_libraries(make-fuzzer-input PUBLIC libdeepstream)
-
 # Ensure parallel builds operate correctly.
 if(BUILD_POCO)
   add_dependencies(libdeepstream poco)
