@@ -37,6 +37,7 @@ add_library(
 	parser.cpp
 	presence.cpp
 	random.cpp
+	json-variant-visitor.cpp
 	websockets.cpp
 	websockets/poco.cpp
 	websockets/pseudo.cpp

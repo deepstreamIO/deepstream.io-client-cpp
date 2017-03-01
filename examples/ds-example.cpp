@@ -29,8 +29,13 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    deepstream::Object auth;
+    auth.values["name"] = std::string(::getenv("USER"));
+    auth.values["password"] = std::string("hack");
+
     deepstream::Client client(argv[1]);
-    if (!client.login()) {
+
+    if (!client.login(auth)) {
         std::cout << "Client not logged in" << std::endl;
         return 1;
     }

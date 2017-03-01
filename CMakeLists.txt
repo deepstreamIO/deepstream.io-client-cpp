@@ -119,6 +119,7 @@ link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
 include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
 include_directories("include")
+include_directories("variant/include")
 
 if(SWIG_FOUND)
   # We need to fix the generated Swig wrapper as the current version

@@ -29,7 +29,11 @@ int main(int argc, char* argv[])
     try {
         deepstream::Client client(uri);
 
-        if (client.login()) {
+	deepstream::Object auth;
+	auth.values["name"] = std::string(::getenv("USER"));
+	auth.values["password"] = std::string("hack");
+
+        if (client.login(auth)) {
             std::cout << "successfully logged in to " << uri << std::endl;
             return EXIT_SUCCESS;
         } else {

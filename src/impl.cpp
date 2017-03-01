@@ -114,7 +114,7 @@ namespace impl {
         if (uri.empty())
             throw std::invalid_argument("URI must not be empty");
 
-	return Client::make(std::unique_ptr<websockets::Client>(websockets::poco::Client::makeClient(uri)), std::move(p_eh));
+        return Client::make(std::unique_ptr<websockets::Client>(websockets::poco::Client::makeClient(uri)), std::move(p_eh));
     }
 
     Client::Client(std::unique_ptr<websockets::Client> p_websocket,
@@ -128,6 +128,11 @@ namespace impl {
     }
 
     bool Client::login() { return login("{}"); }
+
+    bool Client::login(const deepstream::Object& auth, Buffer* p_user_data)
+    {
+        return login(toJSON(auth), p_user_data);
+    }
 
     bool Client::login(const std::string& auth, Buffer* p_user_data)
     {

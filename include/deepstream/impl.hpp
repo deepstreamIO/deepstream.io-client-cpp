@@ -23,6 +23,7 @@
 #include <string>
 
 #include <deepstream/parser.hpp>
+#include <deepstream/variant.hpp>
 
 namespace deepstream {
 struct Buffer;
@@ -65,6 +66,7 @@ namespace impl {
         bool login();
 
         bool login(const std::string& auth, Buffer* p_user_data = nullptr);
+        bool login(const deepstream::Object& auth, Buffer* p_user_data = nullptr);
 
         void close();
 

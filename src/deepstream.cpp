@@ -55,6 +55,11 @@ bool Client::login(const std::string& auth, Buffer* p_user_data)
     return p_impl_->login(auth, p_user_data);
 }
 
+bool Client::login(const deepstream::Object& auth, Buffer* p_user_data)
+{
+    return p_impl_->login(deepstream::toJSON(auth), p_user_data);
+}
+
 void Client::close() { return p_impl_->close(); }
 
 client::State Client::getConnectionState()

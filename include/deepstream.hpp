@@ -26,6 +26,7 @@
 #include <deepstream/config.h>
 #include <deepstream/event.hpp>
 #include <deepstream/presence.hpp>
+#include <deepstream/variant.hpp>
 
 namespace deepstream {
 struct ErrorHandler;
@@ -93,6 +94,7 @@ public:
      * otherwise
      */
     bool login(const std::string& auth, Buffer* p_user_data = nullptr);
+    bool login(const deepstream::Object& auth, Buffer* p_user_data = nullptr);
 
     void close();
 
