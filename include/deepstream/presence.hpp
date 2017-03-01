@@ -31,7 +31,7 @@ struct Presence {
    * This alias is the signature of a deepstream present subscription
    * callback.
    */
-    typedef std::function<void(const Name&, bool)> SubscribeFn;
+    typedef std::function<void(const Name&, bool online)> SubscribeFn;
     /**
      * The representation of a callback is stored as a smart pointer.
      *

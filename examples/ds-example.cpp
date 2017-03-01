@@ -38,19 +38,18 @@ int main(int argc, char* argv[])
     std::cout << "Client logged in" << std::endl;
 
     // Subscribe to the event "adam"
-    Event::SubscribeFnPtr sub_ptr = client.event.subscribe(Buffer("adam"), [&](const Buffer& buff) {
+    Event::SubscribeFnPtr event_sub_ptr = client.event.subscribe(Buffer("adam"), [&](const Buffer& buff) {
         // print the event data
         std::string buff_str(buff.begin(), buff.end());
         std::cout << buff_str << std::endl;
         // emit the "eve" event
         client.event.emit(Buffer("eve"), Buffer("Sbar"));
         // unsubscribe from the "adam" event
-        client.event.unsubscribe(Buffer("adam"), sub_ptr);
+        client.event.unsubscribe(Buffer("adam"), event_sub_ptr);
     });
 
     // Listen for subscriptions to events beginning with "foobar"
-    client.event.listen(Buffer("foobar.*"), [](const Buffer& match,
-                                                bool isSubscribed) {
+    client.event.listen(Buffer("foobar.*"), [](const Buffer& match, bool isSubscribed) {
         std::string match_str(match.begin(), match.end());
         if (isSubscribed) {
             std::cout << "someone is listening to event " << match_str << std::endl;
@@ -59,6 +58,16 @@ int main(int argc, char* argv[])
         }
         // accept the listen
         return true;
+    });
+
+    // Presence subscription allows clients to know when other clients
+    // come online and offline.
+
+    Presence::SubscribeFnPtr presence_sub_ptr = client.presence.subscribe([&](const Presence::Name& name, bool online) {
+        std::string buff_str(name.begin(), name.end());
+	std::cout << buff_str;
+	std::cout << (online ? " is online" : " is offline") << std::endl;
+        client.presence.unsubscribe(presence_sub_ptr);
     });
 
     client.presence.get_all([](const Presence::UserList users){
