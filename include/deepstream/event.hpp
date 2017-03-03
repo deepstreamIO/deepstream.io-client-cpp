@@ -21,6 +21,8 @@
 #include <memory>
 #include <vector>
 
+#include <deepstream/json.hpp>
+
 namespace deepstream {
 struct Buffer;
 struct Message;
@@ -82,6 +84,12 @@ struct Event {
      * buffer as its data.
      */
     void emit(const Name&, const Buffer&);
+
+    /**
+     * This function emits an event with the provided name and the
+     * given JSON value as its data.
+     */
+    // void emit(const Name&, const nlohmann::json&);
 
     /**
      * This method subscribes the given function to the event with the given

@@ -21,8 +21,11 @@
 #include <deepstream/buffer.hpp>
 #include <deepstream/event.hpp>
 #include <deepstream/message_builder.hpp>
+#include <deepstream/json.hpp>
 
 #include <cassert>
+
+using json = nlohmann::json;
 
 namespace deepstream {
 

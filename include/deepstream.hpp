@@ -26,6 +26,9 @@
 #include <deepstream/config.h>
 #include <deepstream/event.hpp>
 #include <deepstream/presence.hpp>
+#include <deepstream/json.hpp>
+
+using json = nlohmann::json;
 
 namespace deepstream {
 struct ErrorHandler;
@@ -92,7 +95,7 @@ public:
      * @return `true` if the log in attempt was successful, `false`
      * otherwise
      */
-    bool login(const std::string& auth, Buffer* p_user_data = nullptr);
+    bool login(const nlohmann::json::object_t& auth, Buffer* p_user_data = nullptr);
 
     void close();
 

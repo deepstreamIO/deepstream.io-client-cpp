@@ -34,9 +34,9 @@ int main(int argc, char* argv[])
 
     deepstream::Client client(argv[1]);
 
-    json auth{{"name", "bob"}};
+    json::object_t auth{{ "name", "bob" }};
 
-    if (!client.login(auth.dump())) {
+    if (!client.login(auth)) {
         std::cout << "Client not logged in" << std::endl;
         return 1;
     }
@@ -45,13 +45,30 @@ int main(int argc, char* argv[])
 
     // Subscribe to the event "adam"
     Event::SubscribeFnPtr event_sub_ptr = client.event.subscribe(Buffer("adam"), [&](const Buffer& buff) {
+
         // print the event data
         std::string buff_str(buff.begin(), buff.end());
         std::cout << buff_str << std::endl;
         // emit the "eve" event
         client.event.emit(Buffer("eve"), Buffer("Sbar"));
+
+        json j = {
+            { "pi", 3.141 },
+            { "happy", true },
+            { "name", "json" },
+            { "nothing", nullptr },
+            { "answer", { { "everything", 42 } } },
+            { "list", { 1, 0, 2 } },
+            { "object", { { "currency", "USD" }, { "value", 42.99 } } }
+        };
+
+        // emit the "json" event
+        client.event.emit(Buffer("json"), Buffer(j.dump().c_str()));
+
+	//std::cout << "Sent JSON event:\n" << j.dump(4), "\n";
+
         // unsubscribe from the "adam" event
-        client.event.unsubscribe(Buffer("adam"), event_sub_ptr);
+        // client.event.unsubscribe(Buffer("adam"), event_sub_ptr);
     });
 
     // Listen for subscriptions to events beginning with "foobar"

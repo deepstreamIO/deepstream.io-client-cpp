@@ -48,11 +48,11 @@ Client::Client(const std::string& uri)
 
 Client::~Client() { delete p_impl_; }
 
-bool Client::login() { return p_impl_->login("{}"); }
+  bool Client::login() { return p_impl_->login(json({})); }
 
-bool Client::login(const std::string& auth, Buffer* p_user_data)
+  bool Client::login(const json::object_t& obj, Buffer* p_user_data)
 {
-    return p_impl_->login(auth, p_user_data);
+    return p_impl_->login(obj, p_user_data);
 }
 
 void Client::close() { return p_impl_->close(); }

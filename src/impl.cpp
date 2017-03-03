@@ -24,6 +24,7 @@
 #include <deepstream/error_handler.hpp>
 #include <deepstream/event.hpp>
 #include <deepstream/impl.hpp>
+#include <deepstream/json.hpp>
 #include <deepstream/message.hpp>
 #include <deepstream/message_builder.hpp>
 #include <deepstream/presence.hpp>
@@ -32,6 +33,8 @@
 #include <deepstream/websockets/poco.hpp>
 
 #include <cassert>
+
+using json = nlohmann::json;
 
 namespace deepstream {
 namespace impl {
@@ -114,7 +117,7 @@ namespace impl {
         if (uri.empty())
             throw std::invalid_argument("URI must not be empty");
 
-	return Client::make(std::unique_ptr<websockets::Client>(websockets::poco::Client::makeClient(uri)), std::move(p_eh));
+        return Client::make(std::unique_ptr<websockets::Client>(websockets::poco::Client::makeClient(uri)), std::move(p_eh));
     }
 
     Client::Client(std::unique_ptr<websockets::Client> p_websocket,
@@ -127,10 +130,15 @@ namespace impl {
         assert(p_error_handler_);
     }
 
-    bool Client::login() { return login("{}"); }
-
-    bool Client::login(const std::string& auth, Buffer* p_user_data)
+    bool Client::login()
     {
+        return login(json({}));
+    }
+
+    bool Client::login(const json::object_t& obj, Buffer* p_user_data)
+    {
+        const std::string& auth = json(obj);
+
         if (!p_websocket_)
             return false;
 

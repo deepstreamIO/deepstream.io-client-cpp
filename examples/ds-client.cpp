@@ -32,9 +32,9 @@ int main(int argc, char* argv[])
     try {
         deepstream::Client client(uri);
 
-	json auth{{"name", "bob"}};
+	json::object_t auth{{"name", "bob"}};
 
-        if (client.login(auth.dump())) {
+        if (client.login(auth)) {
             std::cout << "successfully logged in to " << uri << std::endl;
             return EXIT_SUCCESS;
         } else {

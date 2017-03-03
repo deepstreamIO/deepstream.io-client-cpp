@@ -3,7 +3,7 @@
 %{
 #include "deepstream.hpp"
 #include "deepstream/buffer.hpp"
-#include "deepstream/exception.hpp"
+#include "deeps /exception.hpp"
 #include "deepstream/client.hpp"
 #include "deepstream/presence.hpp"
 #include "deepstream/error_handler.hpp"
