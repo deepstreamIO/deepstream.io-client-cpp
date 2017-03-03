@@ -17,10 +17,13 @@
 #include <iostream>
 
 #include <deepstream.hpp>
+#include <deepstream/json.hpp>
 
 using deepstream::Buffer;
 using deepstream::Event;
 using deepstream::Presence;
+
+using json = nlohmann::json;
 
 int main(int argc, char* argv[])
 {
@@ -30,7 +33,10 @@ int main(int argc, char* argv[])
     }
 
     deepstream::Client client(argv[1]);
-    if (!client.login()) {
+
+    json auth{{"name", "bob"}};
+
+    if (!client.login(auth.dump())) {
         std::cout << "Client not logged in" << std::endl;
         return 1;
     }
@@ -65,12 +71,12 @@ int main(int argc, char* argv[])
 
     Presence::SubscribeFnPtr presence_sub_ptr = client.presence.subscribe([&](const Presence::Name& name, bool online) {
         std::string buff_str(name.begin(), name.end());
-	std::cout << buff_str;
-	std::cout << (online ? " is online" : " is offline") << std::endl;
+        std::cout << buff_str;
+        std::cout << (online ? " is online" : " is offline") << std::endl;
         client.presence.unsubscribe(presence_sub_ptr);
     });
 
-    client.presence.get_all([](const Presence::UserList users){
+    client.presence.get_all([](const Presence::UserList users) {
         std::cout << "Users: " << std::endl;
 
         for (auto user_buff : users) {

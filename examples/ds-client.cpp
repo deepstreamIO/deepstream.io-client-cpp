@@ -17,6 +17,9 @@
 #include <iostream>
 
 #include <deepstream.hpp>
+#include <deepstream/json.hpp>
+
+using json = nlohmann::json;
 
 int main(int argc, char* argv[])
 {
@@ -29,7 +32,9 @@ int main(int argc, char* argv[])
     try {
         deepstream::Client client(uri);
 
-        if (client.login()) {
+	json auth{{"name", "bob"}};
+
+        if (client.login(auth.dump())) {
             std::cout << "successfully logged in to " << uri << std::endl;
             return EXIT_SUCCESS;
         } else {
