@@ -120,7 +120,7 @@ include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
 include_directories("include")
 
-if(SWIG_FOUND)
+if(false)			#WAS SWIG_FOUND
   # We need to fix the generated Swig wrapper as the current version
   # of Swig does not handle std::unique_ptr. Our fix directly calls
   # std::move() for the few cases where this smart pointer type is

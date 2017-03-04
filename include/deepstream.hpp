@@ -25,12 +25,11 @@
 #include <deepstream/client.hpp>
 #include <deepstream/config.h>
 #include <deepstream/event.hpp>
-#include <deepstream/presence.hpp>
 #include <deepstream/json.hpp>
-
-using json = nlohmann::json;
+#include <deepstream/presence.hpp>
 
 namespace deepstream {
+
 struct ErrorHandler;
 
 namespace client {

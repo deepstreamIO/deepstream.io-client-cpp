@@ -33,6 +33,8 @@
 
 #include <cassert>
 
+using json = nlohmann::json;
+
 namespace deepstream {
 namespace impl {
 
@@ -186,7 +188,7 @@ namespace impl {
         std::unique_ptr<Client> p = Client::make(std::unique_ptr<websockets::Client>(new SimpleClient),
             std::unique_ptr<ErrorHandler>(new FailHandler));
 
-        p->login(json::object_t{{"name", "auth"}}, nullptr);
+        p->login(json::object_t{}, nullptr);
 
         BOOST_CHECK_EQUAL(p->getConnectionState(), client::State::CONNECTED);
     }
@@ -305,7 +307,7 @@ namespace impl {
         std::unique_ptr<Client> p = Client::make(std::unique_ptr<websockets::Client>(new RedirectionClient),
             std::unique_ptr<ErrorHandler>(new FailHandler));
 
-        p->login(json::object_t{{"name", "auth"}}, nullptr);
+        p->login(json::object_t{}, nullptr);
 
         BOOST_CHECK_EQUAL(p->getConnectionState(), client::State::CONNECTED);
         BOOST_CHECK_EQUAL(p->p_websocket_->uri(), RedirectionClient::REDIRECTION_URI);

@@ -22,8 +22,8 @@
 #include <memory>
 #include <string>
 
-#include <deepstream/parser.hpp>
 #include <deepstream/json.hpp>
+#include <deepstream/parser.hpp>
 
 namespace deepstream {
 struct Buffer;
@@ -31,8 +31,6 @@ struct ErrorHandler;
 struct Event;
 struct Message;
 struct Presence;
-
-using json = nlohmann::json;
 
 namespace client {
     enum class State;
@@ -67,7 +65,7 @@ namespace impl {
     public:
         bool login();
 
-      bool login(const json::object_t& auth, Buffer* p_user_data = nullptr);
+        bool login(const nlohmann::json::object_t& auth, Buffer* p_user_data = nullptr);
 
         void close();
 

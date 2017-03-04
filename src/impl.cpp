@@ -137,7 +137,7 @@ namespace impl {
 
     bool Client::login(const json::object_t& obj, Buffer* p_user_data)
     {
-        const std::string& auth = json(obj);
+        const std::string auth = json(obj).dump();
 
         if (!p_websocket_)
             return false;

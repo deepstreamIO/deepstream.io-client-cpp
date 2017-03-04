@@ -28,6 +28,8 @@
 
 namespace deepstream {
 
+using json = nlohmann::json;
+  
 Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
     : p_impl_(impl::Client::make(uri, std::move(p_eh)).release())
     , event([this](const Message& message) -> bool {
