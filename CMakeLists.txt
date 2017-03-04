@@ -144,7 +144,7 @@ if(false)			#WAS SWIG_FOUND
   swig_link_libraries(deepstream libdeepstream ${POCO_LIBS} ${PYTHON_LIBRARIES})
 endif()
 
-if(SWIG_FOUND)
+if(false)			#WAS SWIG_FOUND
   add_test(
     NAME    python-swig-test
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/python-swig-test.py
