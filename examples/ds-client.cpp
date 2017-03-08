@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <cstdlib>
 #include <exception>
 #include <iostream>
 
@@ -32,7 +34,7 @@ int main(int argc, char* argv[])
     try {
         deepstream::Client client(uri);
 
-	json::object_t auth{{"name", "bob"}};
+	json::object_t auth{{"username", ::getenv("USER")}};
 
         if (client.login(auth)) {
             std::cout << "successfully logged in to " << uri << std::endl;
