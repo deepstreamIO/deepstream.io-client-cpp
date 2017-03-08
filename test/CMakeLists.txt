@@ -31,7 +31,7 @@ function(add_boost_test FILENAME DEPENDENCY_LIB)
 	endforeach()
 endfunction()
 
-flex_target(lexer
+flex_target(test_lexer
   ${CMAKE_SOURCE_DIR}/src/lexer.l
   ${CMAKE_CURRENT_BINARY_DIR}/lexer.c)
 
@@ -42,7 +42,7 @@ set_source_files_properties(
 		COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter -Wno-type-limits -Wno-sign-compare"
 )
 
-add_library(test_lexer ${FLEX_lexer_OUTPUTS})
+add_library(test_lexer ${FLEX_test_lexer_OUTPUTS})
 
 target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)
 
