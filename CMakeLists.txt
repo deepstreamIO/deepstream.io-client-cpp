@@ -15,6 +15,8 @@ set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
 
+configure_file(version.hpp.in ${CMAKE_BINARY_DIR}/include/deepstream/version.hpp @ONLY)
+
 # Put the libaries and binaries that get built into directories at the
 # top of the build tree rather than in hard-to-find leaf directories.
 
@@ -118,7 +120,7 @@ find_package(FLEX 2.5 REQUIRED)
 link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
 include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
-include_directories("include")
+include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
 
 if(SWIG_FOUND)
   # We need to fix the generated Swig wrapper as the current version
@@ -152,13 +154,23 @@ if(SWIG_FOUND)
 endif()
 
 add_subdirectory(doc)
-add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(examples)
 
 if(BUILD_TESTING AND Boost_FOUND)
   add_subdirectory(test)
 endif()
+
+INSTALL(
+    DIRECTORY ${CMAKE_SOURCE_DIR}/include/
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
+
+INSTALL(
+    FILES ${CMAKE_BINARY_DIR}/include/deepstream/version.hpp
+    DESTINATION include/deepstream
+)
 
 message(STATUS "CMAKE_SYSTEM=${CMAKE_SYSTEM}")
 message(STATUS "CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}")

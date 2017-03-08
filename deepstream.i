@@ -27,4 +27,5 @@ wrap_unique_ptr(deepstreamClientUniquePtr, deepstream::Client);
 %include "deepstream/presence.hpp"
 %include "deepstream/event.hpp"
 %include "deepstream/client.hpp"
+%include "deepstream/version.hpp"
 %include "deepstream.hpp"
