@@ -5,19 +5,28 @@ language: cpp
 
 cache: ccache
 
-compiler:
-  - clang
-  - gcc
-
 git:
     depth: 1
 
 before_install:
   - sudo sh -x ubuntu-prerequisites.sh
 
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      env:
+        CC_COMPILER=gcc-4.9
+        CXX_COMPILER=g++-4.9
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: g++-4.9
+    - os: linux
+      compiler: clang
+
 addons:
   apt:
-    sources: ['ubuntu-toolchain-r-test']
     packages:
       - build-essential
       - curl
@@ -31,12 +40,13 @@ addons:
       - python3-dev
       - valgrind
       - wget
-      - g++-4.9
 
 script:
   - ccache -s
   - cmake --version
-  - cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON -DBUILD_POCO=ON
+  - ${CC_COMPILER:-${CC}}   --version
+  - ${CXX_COMPILER:-${CXX}} --version
+  - cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON -DBUILD_POCO=ON -DCMAKE_CXX_COMPILER=${CXX_COMPILER:-$CXX} -DCMAKE_C_COMPILER=${CC_COMPILER:-$CC}
   - export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH
   - export PYTHONPATH=$PWD/lib:$PWD/python
   - make -j $(nproc)
