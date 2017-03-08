@@ -23,7 +23,7 @@
 
 #include <deepstream/buffer.hpp>
 #include <deepstream/client.hpp>
-#include <deepstream/config.h>
+#include <deepstream/version.hpp>
 #include <deepstream/event.hpp>
 #include <deepstream/presence.hpp>
 
@@ -37,18 +37,6 @@ namespace client {
 namespace impl {
     struct Client;
 }
-
-struct version {
-    version() = delete;
-
-    enum {
-        MAJOR = DEEPSTREAM_VERSION_MAJOR,
-        MINOR = DEEPSTREAM_VERSION_MINOR,
-        PATCH = DEEPSTREAM_VERSION_PATCH
-    };
-
-    static constexpr const char* to_string() { return DEEPSTREAM_VERSION; }
-};
 
 // This class does not use `std::unique_ptr<impl::Client>` because it
 // prevents the use of the PIMPL idiom because the class attempts to
