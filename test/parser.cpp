@@ -32,7 +32,7 @@
 #include <deepstream/scope_guard.hpp>
 
 extern "C" {
-#include <lexer.h>
+#include "lexer.h"
 }
 
 // Remarks:

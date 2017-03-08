@@ -3,18 +3,9 @@ find_package(Threads REQUIRED)
 
 find_package(OpenSSL REQUIRED)
 
-add_custom_command(
-	OUTPUT
-		${CMAKE_CURRENT_BINARY_DIR}/lexer.c
-		${CMAKE_BINARY_DIR}/include/lexer.h
-	DEPENDS lexer.l
-	COMMAND ${FLEX_EXECUTABLE}
-		--outfile=${CMAKE_CURRENT_BINARY_DIR}/lexer.c
-		--header-file=${CMAKE_BINARY_DIR}/include/lexer.h
-		-- ${CMAKE_CURRENT_SOURCE_DIR}/lexer.l
-	COMMENT "[FLEX][src] Building lexer with Flex ${FLEX_VERSION}"
-	VERBATIM
-)
+flex_target(lexer
+  ${CMAKE_SOURCE_DIR}/src/lexer.l
+  ${CMAKE_CURRENT_BINARY_DIR}/lexer.c)
 
 set_source_files_properties(
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c"
@@ -40,7 +31,7 @@ add_library(
 	websockets.cpp
 	websockets/poco.cpp
 	websockets/pseudo.cpp
-	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
+	${FLEX_lexer_OUTPUTS})
 
 if(BUILD_POCO)
   set(Poco_LIBRARIES PocoNetSSL PocoCrypto PocoNet PocoUtil PocoJSON PocoXML PocoFoundation)
