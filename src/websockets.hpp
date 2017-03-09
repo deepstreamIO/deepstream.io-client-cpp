@@ -20,7 +20,7 @@
 #include <string>
 #include <utility>
 
-#include <deepstream/time.hpp>
+#include "time.hpp"
 
 namespace deepstream {
 struct Buffer;

@@ -20,7 +20,7 @@
 
 #include <boost/preprocessor/cat.hpp>
 
-#include <deepstream/use.hpp>
+#include "use.hpp"
 
 namespace deepstream {
 /**

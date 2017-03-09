@@ -18,7 +18,7 @@
 #include <stdexcept>
 
 #include <deepstream/buffer.hpp>
-#include <deepstream/message_builder.hpp>
+#include "message_builder.hpp"
 
 #include <cassert>
 

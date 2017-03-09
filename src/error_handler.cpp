@@ -22,9 +22,9 @@
 #include <deepstream/buffer.hpp>
 #include <deepstream/client.hpp>
 #include <deepstream/error_handler.hpp>
-#include <deepstream/message.hpp>
-#include <deepstream/parser.hpp>
-#include <deepstream/websockets.hpp>
+#include "message.hpp"
+#include "parser.hpp"
+#include "websockets.hpp"
 
 namespace deepstream {
 

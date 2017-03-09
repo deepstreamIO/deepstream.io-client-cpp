@@ -2,7 +2,6 @@
 
 %{
 #include "deepstream.hpp"
-#include "deepstream/error_handler.hpp"
 %}
 
 %include "std_unique_ptr.i"

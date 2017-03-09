@@ -16,9 +16,10 @@
 
 #include <ostream>
 
+#include <deepstream/buffer.hpp>
 #include <deepstream/client.hpp>
-#include <deepstream/message.hpp>
-#include <deepstream/use.hpp>
+#include "message.hpp"
+#include "use.hpp"
 
 #include <cassert>
 

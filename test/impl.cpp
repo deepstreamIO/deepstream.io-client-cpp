@@ -25,11 +25,11 @@
 #include <deepstream/buffer.hpp>
 #include <deepstream/client.hpp>
 #include <deepstream/error_handler.hpp>
-#include <deepstream/impl.hpp>
-#include <deepstream/message_builder.hpp>
-#include <deepstream/parser.hpp>
-#include <deepstream/websockets.hpp>
-#include <deepstream/websockets/pseudo.hpp>
+#include "../src/impl.hpp"
+#include "../src/message_builder.hpp"
+#include "../src/parser.hpp"
+#include "../src/websockets.hpp"
+#include "../src/websockets/pseudo.hpp"
 
 #include <cassert>
 

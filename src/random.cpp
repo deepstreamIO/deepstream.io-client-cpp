@@ -17,8 +17,8 @@
 #include <limits>
 
 #include <deepstream/buffer.hpp>
-#include <deepstream/message_builder.hpp>
-#include <deepstream/random.hpp>
+#include "message_builder.hpp"
+#include "random.hpp"
 
 #include <cassert>
 

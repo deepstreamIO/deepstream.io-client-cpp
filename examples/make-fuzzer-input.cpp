@@ -24,8 +24,8 @@
 #include <vector>
 
 #include <deepstream/buffer.hpp>
-#include <deepstream/message_builder.hpp>
-#include <deepstream/random.hpp>
+#include "../src/message_builder.hpp"
+#include "../src/random.hpp"
 
 #include <cassert>
 

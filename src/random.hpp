@@ -18,7 +18,7 @@
 
 #include <random>
 
-#include <deepstream/message.hpp>
+#include "message.hpp"
 
 namespace deepstream {
 struct Buffer;

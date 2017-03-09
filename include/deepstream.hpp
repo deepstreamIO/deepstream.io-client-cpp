@@ -16,87 +16,11 @@
 #ifndef DEEPSTREAM_HPP
 #define DEEPSTREAM_HPP
 
-#include <cstdint>
-
-#include <functional>
-#include <string>
-
 #include <deepstream/buffer.hpp>
 #include <deepstream/client.hpp>
 #include <deepstream/version.hpp>
 #include <deepstream/event.hpp>
 #include <deepstream/presence.hpp>
-
-namespace deepstream {
-struct ErrorHandler;
-
-namespace client {
-    enum class State;
-}
-
-namespace impl {
-    struct Client;
-}
-
-// This class does not use `std::unique_ptr<impl::Client>` because it
-// prevents the use of the PIMPL idiom because the class attempts to
-// evaluate `sizeof(impl::Client)`; naturally, we must know the definition
-// of `impl::Client` meaning we have to include the appropriate header.
-struct Client {
-    Client(const std::string& uri);
-
-    Client(const std::string& uri, std::unique_ptr<ErrorHandler>);
-
-    ~Client();
-
-    Client() = delete;
-
-    Client(const Client&) = delete;
-
-    Client(Client&&) = default;
-
-public:
-    /**
-     * Given a client in `AWAIT_CONNECTION` state, this function attempts to
-     * log in anonymously.
-     *
-     * @return `true` if the log in attempt was successful, `false`
-     * otherwise
-     */
-    bool login();
-
-    /**
-     * Given a client in `AWAIT_CONNECTION` state, this function attempts to
-     * log in with the given authentication data.
-     *
-     * The format of the user authentication data depends on the <a
-     * href="https://deepstream.io/tutorials/core/security-overview/">authentication</a>
-     * method used by the server.
-     *
-     * @param[in] auth User authentication data
-     * @param[out] p_user_data On a successful reeturn, store the user data
-     * in `p_user_data` if the reference is not `NULL`.
-     *
-     * @return `true` if the log in attempt was successful, `false`
-     * otherwise
-     */
-    bool login(const std::string& auth, Buffer* p_user_data = nullptr);
-
-    void close();
-
-    client::State getConnectionState();
-
-    /**
-     * This function reads all incoming messages from the websocket and
-     * executes the appropriate callbacks; it returns when there are no
-     * messages left.
-     */
-    void process_messages();
-
-    impl::Client* const p_impl_;
-    Event event;
-    Presence presence;
-};
-}
+#include <deepstream/error_handler.hpp>
 
 #endif

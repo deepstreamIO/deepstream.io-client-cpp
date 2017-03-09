@@ -21,7 +21,7 @@
 
 #include <vector>
 
-#include <deepstream/parser.h>
+#include "../src/parser.h"
 
 extern "C" {
 #include <lexer.h>

@@ -21,11 +21,11 @@
 #include <ostream>
 
 #include <deepstream/buffer.hpp>
-#include <deepstream/message.hpp>
-#include <deepstream/parser.h>
-#include <deepstream/parser.hpp>
-#include <deepstream/scope_guard.hpp>
-#include <deepstream/use.hpp>
+#include "message.hpp"
+#include "parser.h"
+#include "parser.hpp"
+#include "scope_guard.hpp"
+#include "use.hpp"
 
 extern "C" {
 #include <lexer.h>

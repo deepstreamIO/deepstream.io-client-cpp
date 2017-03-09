@@ -19,7 +19,7 @@
 
 #include <deepstream/buffer.hpp>
 #include <deepstream/client.hpp>
-#include <deepstream/message_builder.hpp>
+#include "../src/message_builder.hpp"
 
 namespace deepstream {
 namespace client {

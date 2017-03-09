@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-#include <deepstream/message.hpp>
+#include "message.hpp"
 
 namespace deepstream {
 /**

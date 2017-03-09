@@ -20,7 +20,7 @@
 
 #include <vector>
 
-#include <deepstream/parser.hpp>
+#include "../src/parser.hpp"
 
 #include <cassert>
 

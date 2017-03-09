@@ -23,13 +23,13 @@
 #include <deepstream/client.hpp>
 #include <deepstream/error_handler.hpp>
 #include <deepstream/event.hpp>
-#include <deepstream/impl.hpp>
-#include <deepstream/message.hpp>
-#include <deepstream/message_builder.hpp>
+#include "impl.hpp"
+#include "message.hpp"
+#include "message_builder.hpp"
 #include <deepstream/presence.hpp>
-#include <deepstream/use.hpp>
-#include <deepstream/websockets.hpp>
-#include <deepstream/websockets/poco.hpp>
+#include "use.hpp"
+#include "websockets.hpp"
+#include "websockets/poco.hpp"
 
 #include <cassert>
 
