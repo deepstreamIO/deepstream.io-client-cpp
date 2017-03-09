@@ -18,7 +18,6 @@
 %option extra-type="struct deepstream_parser_state*"
 %option 8bit
 %option fast
-%option header-file="lexer.h"
 
 
 %{

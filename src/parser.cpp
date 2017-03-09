@@ -28,7 +28,7 @@
 #include <deepstream/use.hpp>
 
 extern "C" {
-#include "lexer.h"
+#include <lexer.h>
 }
 
 #include <cassert>
