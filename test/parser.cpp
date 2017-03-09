@@ -27,7 +27,7 @@
 #include <deepstream/buffer.hpp>
 #include <deepstream/message.hpp>
 #include <deepstream/message_builder.hpp>
-#include <deepstream/parser.hpp>
+#include "../src/parser.hpp"
 #include "../src/random.hpp"
 #include "../src/scope_guard.hpp"
 

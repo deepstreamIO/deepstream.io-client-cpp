@@ -22,7 +22,7 @@
 #include <memory>
 #include <string>
 
-#include <deepstream/parser.hpp>
+#include "parser.hpp"
 
 namespace deepstream {
 struct Buffer;

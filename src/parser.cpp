@@ -22,8 +22,8 @@
 
 #include <deepstream/buffer.hpp>
 #include <deepstream/message.hpp>
-#include <deepstream/parser.h>
-#include <deepstream/parser.hpp>
+#include "parser.h"
+#include "parser.hpp"
 #include "scope_guard.hpp"
 #include "use.hpp"
 
