@@ -28,7 +28,7 @@
 #include <deepstream/message.hpp>
 #include <deepstream/message_builder.hpp>
 #include <deepstream/parser.hpp>
-#include <deepstream/random.hpp>
+#include "../src/random.hpp"
 #include "../src/scope_guard.hpp"
 
 extern "C" {

@@ -19,7 +19,7 @@
 
 #include <deepstream/buffer.hpp>
 #include <deepstream/message_builder.hpp>
-#include <deepstream/random.hpp>
+#include "../src/random.hpp"
 #include "../src/use.hpp"
 
 namespace deepstream {
