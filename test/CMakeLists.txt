@@ -31,9 +31,18 @@ function(add_boost_test FILENAME DEPENDENCY_LIB)
 	endforeach()
 endfunction()
 
-flex_target(test_lexer
-  ${CMAKE_SOURCE_DIR}/src/lexer.l
-  ${CMAKE_CURRENT_BINARY_DIR}/lexer.c)
+add_custom_command(
+	OUTPUT
+		${CMAKE_CURRENT_BINARY_DIR}/lexer.c
+		${CMAKE_CURRENT_BINARY_DIR}/lexer.h
+	DEPENDS ${CMAKE_SOURCE_DIR}/src/lexer.l
+	COMMAND ${FLEX_EXECUTABLE}
+		--outfile=${CMAKE_CURRENT_BINARY_DIR}/lexer.c
+		--header-file=${CMAKE_CURRENT_BINARY_DIR}/lexer.h
+		-- ${CMAKE_SOURCE_DIR}/src/lexer.l
+	COMMENT "[FLEX][src] Building lexer with Flex ${FLEX_VERSION}"
+	VERBATIM
+)
 
 set_source_files_properties(
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c"
@@ -42,8 +51,8 @@ set_source_files_properties(
 		COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter -Wno-type-limits -Wno-sign-compare"
 )
 
-add_library(test_lexer ${FLEX_test_lexer_OUTPUTS})
-
+add_library(test_lexer ${CMAKE_CURRENT_BINARY_DIR}/lexer.c)
+target_include_directories(test_lexer PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)
 
 add_boost_test(lexer.cpp test_lexer)

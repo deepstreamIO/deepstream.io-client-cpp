@@ -24,7 +24,7 @@
 #include <deepstream/parser.h>
 
 extern "C" {
-#include "lexer.h"
+#include <lexer.h>
 }
 
 struct State {
