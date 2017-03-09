@@ -19,7 +19,7 @@
 #include <chrono>
 #include <stdexcept>
 
-#include <deepstream.hpp>
+#include <deepstream/client.hpp>
 #include <deepstream/error_handler.hpp>
 #include "impl.hpp"
 #include "websockets.hpp"
