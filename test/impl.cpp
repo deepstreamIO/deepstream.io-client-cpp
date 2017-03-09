@@ -26,7 +26,7 @@
 #include <deepstream/client.hpp>
 #include <deepstream/error_handler.hpp>
 #include "../src/impl.hpp"
-#include <deepstream/message_builder.hpp>
+#include "../src/message_builder.hpp"
 #include "../src/parser.hpp"
 #include "../src/websockets.hpp"
 #include "../src/websockets/pseudo.hpp"

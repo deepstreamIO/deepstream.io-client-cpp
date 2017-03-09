@@ -24,8 +24,8 @@
 #include <deepstream/error_handler.hpp>
 #include <deepstream/event.hpp>
 #include "impl.hpp"
-#include <deepstream/message.hpp>
-#include <deepstream/message_builder.hpp>
+#include "message.hpp"
+#include "message_builder.hpp"
 #include <deepstream/presence.hpp>
 #include "use.hpp"
 #include "websockets.hpp"

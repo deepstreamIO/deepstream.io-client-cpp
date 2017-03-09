@@ -21,8 +21,8 @@
 
 #include <deepstream/buffer.hpp>
 #include <deepstream/event.hpp>
-#include <deepstream/message.hpp>
-#include <deepstream/message_builder.hpp>
+#include "../src/message.hpp"
+#include "../src/message_builder.hpp"
 #include "../src/scope_guard.hpp"
 
 namespace deepstream {

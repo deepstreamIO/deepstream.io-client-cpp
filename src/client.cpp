@@ -17,7 +17,7 @@
 #include <ostream>
 
 #include <deepstream/client.hpp>
-#include <deepstream/message.hpp>
+#include "message.hpp"
 #include "use.hpp"
 
 #include <cassert>

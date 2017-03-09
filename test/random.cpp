@@ -18,7 +18,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <deepstream/buffer.hpp>
-#include <deepstream/message_builder.hpp>
+#include "../src/message_builder.hpp"
 #include "../src/random.hpp"
 #include "../src/use.hpp"
 

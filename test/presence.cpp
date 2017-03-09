@@ -20,8 +20,8 @@
 #include <algorithm>
 
 #include <deepstream/buffer.hpp>
-#include <deepstream/message.hpp>
-#include <deepstream/message_builder.hpp>
+#include "../src/message.hpp"
+#include "../src/message_builder.hpp"
 #include <deepstream/presence.hpp>
 
 namespace deepstream {
