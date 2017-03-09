@@ -18,8 +18,6 @@
 
 #include <functional>
 
-#include <boost/preprocessor/cat.hpp>
-
 #include "use.hpp"
 
 namespace deepstream {
@@ -50,9 +48,10 @@ struct ScopeGuard {
 };
 }
 
-#define DEEPSTREAM_ON_EXIT(...)                                   \
-    const ::deepstream::ScopeGuard BOOST_PP_CAT(deepstream_guard, \
-        __LINE__)(__VA_ARGS__);                                   \
-    ::deepstream::use(BOOST_PP_CAT(deepstream_guard, __LINE__))
+#define DEEPSTREAM_TOKENPASTE(x, y) x##y
+#define DEEPSTREAM_TOKENPASTE2(x, y) DEEPSTREAM_TOKENPASTE(x, y)
+
+#define DEEPSTREAM_ON_EXIT(...) \
+    const ::deepstream::ScopeGuard DEEPSTREAM_TOKENPASTE2(_deepstream_guard_gensym_, __LINE__)(__VA_ARGS__)
 
 #endif
