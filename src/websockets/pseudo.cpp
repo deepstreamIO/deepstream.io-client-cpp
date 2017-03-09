@@ -15,7 +15,7 @@
  */
 #include <deepstream/buffer.hpp>
 #include "../websockets.hpp"
-#include <deepstream/websockets/pseudo.hpp>
+#include "pseudo.hpp"
 
 #include <cassert>
 

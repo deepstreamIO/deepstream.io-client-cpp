@@ -29,7 +29,7 @@
 #include <deepstream/message_builder.hpp>
 #include <deepstream/parser.hpp>
 #include "../src/websockets.hpp"
-#include <deepstream/websockets/pseudo.hpp>
+#include "../src/websockets/pseudo.hpp"
 
 #include <cassert>
 

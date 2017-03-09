@@ -33,7 +33,7 @@
 #include <deepstream/exception.hpp>
 #include <deepstream/time.hpp>
 #include "../websockets.hpp"
-#include <deepstream/websockets/poco.hpp>
+#include "poco.hpp"
 
 #include <cassert>
 

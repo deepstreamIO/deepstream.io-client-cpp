@@ -29,7 +29,7 @@
 #include <deepstream/presence.hpp>
 #include "use.hpp"
 #include "websockets.hpp"
-#include <deepstream/websockets/poco.hpp>
+#include "websockets/poco.hpp"
 
 #include <cassert>
 
