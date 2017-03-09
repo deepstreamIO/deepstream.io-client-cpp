@@ -28,7 +28,7 @@
 #include "../src/impl.hpp"
 #include <deepstream/message_builder.hpp>
 #include <deepstream/parser.hpp>
-#include <deepstream/websockets.hpp>
+#include "../src/websockets.hpp"
 #include <deepstream/websockets/pseudo.hpp>
 
 #include <cassert>

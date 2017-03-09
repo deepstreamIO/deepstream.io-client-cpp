@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include <deepstream/buffer.hpp>
-#include <deepstream/websockets.hpp>
+#include "../websockets.hpp"
 #include <deepstream/websockets/pseudo.hpp>
 
 #include <cassert>

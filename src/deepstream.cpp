@@ -22,7 +22,7 @@
 #include <deepstream.hpp>
 #include <deepstream/error_handler.hpp>
 #include "impl.hpp"
-#include <deepstream/websockets.hpp>
+#include "websockets.hpp"
 
 #include <cassert>
 

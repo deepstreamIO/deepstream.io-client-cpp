@@ -28,7 +28,7 @@
 #include <deepstream/message_builder.hpp>
 #include <deepstream/presence.hpp>
 #include "use.hpp"
-#include <deepstream/websockets.hpp>
+#include "websockets.hpp"
 #include <deepstream/websockets/poco.hpp>
 
 #include <cassert>
