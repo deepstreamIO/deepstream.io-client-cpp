@@ -25,7 +25,7 @@
 #include <deepstream/parser.h>
 #include <deepstream/parser.hpp>
 #include "scope_guard.hpp"
-#include <deepstream/use.hpp>
+#include "use.hpp"
 
 extern "C" {
 #include <lexer.h>
