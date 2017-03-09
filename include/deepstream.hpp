@@ -21,5 +21,6 @@
 #include <deepstream/version.hpp>
 #include <deepstream/event.hpp>
 #include <deepstream/presence.hpp>
+#include <deepstream/error_handler.hpp>
 
 #endif
