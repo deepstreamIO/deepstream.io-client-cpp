@@ -24,7 +24,7 @@
 #include <deepstream/message.hpp>
 #include <deepstream/parser.h>
 #include <deepstream/parser.hpp>
-#include <deepstream/scope_guard.hpp>
+#include "scope_guard.hpp"
 #include <deepstream/use.hpp>
 
 extern "C" {
