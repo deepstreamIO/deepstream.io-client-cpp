@@ -25,7 +25,7 @@
 #include <Poco/Net/WebSocket.h>
 #include <Poco/URI.h>
 
-#include <deepstream/time.hpp>
+#include "../time.hpp"
 
 namespace deepstream {
 struct Buffer;

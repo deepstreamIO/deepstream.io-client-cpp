@@ -31,7 +31,7 @@
 
 #include <deepstream/buffer.hpp>
 #include <deepstream/exception.hpp>
-#include <deepstream/time.hpp>
+#include "../time.hpp"
 #include "../websockets.hpp"
 #include "poco.hpp"
 
