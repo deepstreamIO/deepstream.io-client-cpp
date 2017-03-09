@@ -23,7 +23,7 @@
 #include <deepstream/client.hpp>
 #include <deepstream/error_handler.hpp>
 #include <deepstream/event.hpp>
-#include <deepstream/impl.hpp>
+#include "impl.hpp"
 #include <deepstream/message.hpp>
 #include <deepstream/message_builder.hpp>
 #include <deepstream/presence.hpp>
