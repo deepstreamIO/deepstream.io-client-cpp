@@ -23,7 +23,7 @@
 #include <numeric>
 
 #include <deepstream/buffer.hpp>
-#include "../src/message.hpp"
+#include "../core/message.hpp"
 
 namespace deepstream {
 

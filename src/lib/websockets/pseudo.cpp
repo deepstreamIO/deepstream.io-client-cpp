@@ -13,39 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef DEEPSTREAM_WEBSOCKETS_PSEUDO_HPP
-#define DEEPSTREAM_WEBSOCKETS_PSEUDO_HPP
+#include <deepstream/buffer.hpp>
+#include "../core/websockets.hpp"
+#include "pseudo.hpp"
 
-#include <memory>
-#include <string>
-#include <utility>
-
-#include "../time.hpp"
+#include <cassert>
 
 namespace deepstream {
-struct Buffer;
-
 namespace websockets {
-    enum class StatusCode;
-    struct Frame;
-    struct Client;
-
     namespace pseudo {
-        struct Client : public ::deepstream::websockets::Client {
-            explicit Client();
 
-            virtual std::string uri_impl() const override;
+        Client::Client()
+            : timeout_(time::Duration::max())
+        {
+        }
 
-            virtual time::Duration get_receive_timeout_impl() override;
+        std::string Client::uri_impl() const { return "pseudo"; }
 
-            virtual void set_receive_timeout_impl(time::Duration) override;
+        time::Duration Client::get_receive_timeout_impl() { return timeout_; }
 
-            virtual void close_impl() override;
+        void Client::set_receive_timeout_impl(time::Duration t) { timeout_ = t; }
 
-            time::Duration timeout_;
-        };
+        void Client::close_impl() {}
     }
 }
 }
-
-#endif

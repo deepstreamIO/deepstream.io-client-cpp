@@ -30,9 +30,9 @@
 #include <Poco/Timespan.h>
 
 #include <deepstream/buffer.hpp>
-#include "../exception.hpp"
-#include "../time.hpp"
-#include "../websockets.hpp"
+#include "../core/exception.hpp"
+#include "../core/time.hpp"
+#include "../core/websockets.hpp"
 #include "poco.hpp"
 
 #include <cassert>

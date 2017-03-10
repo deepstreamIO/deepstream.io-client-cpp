@@ -21,7 +21,7 @@
 
 
 %{
-#include "../src/parser.h"
+#include "../src/core/parser.h"
 %}
 
 /* message part separator */

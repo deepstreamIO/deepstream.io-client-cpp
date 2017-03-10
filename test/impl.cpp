@@ -22,11 +22,11 @@
 
 #include <arpa/inet.h>
 
-#include "../src/impl.hpp"
-#include "../src/message_builder.hpp"
-#include "../src/parser.hpp"
-#include "../src/websockets.hpp"
-#include "../src/websockets/pseudo.hpp"
+#include "../src/core/impl.hpp"
+#include "../src/core/message_builder.hpp"
+#include "../src/core/parser.hpp"
+#include "../src/core/websockets.hpp"
+#include "../src/lib/websockets/pseudo.hpp"
 #include <deepstream/buffer.hpp>
 #include <deepstream/client.hpp>
 #include <deepstream/error_handler.hpp>

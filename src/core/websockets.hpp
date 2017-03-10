@@ -24,7 +24,6 @@
 #include "time.hpp"
 
 namespace deepstream {
-struct Buffer;
 
 namespace websockets {
     /**

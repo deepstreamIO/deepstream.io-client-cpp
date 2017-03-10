@@ -24,7 +24,7 @@
 #include <stdexcept>
 
 #include <deepstream/buffer.hpp>
-#include "../src/message_builder.hpp"
+#include "../src/core/message_builder.hpp"
 
 namespace deepstream {
 

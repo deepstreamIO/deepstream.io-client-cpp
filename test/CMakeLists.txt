@@ -33,13 +33,13 @@ endfunction()
 
 add_custom_command(
 	OUTPUT
-		${CMAKE_CURRENT_BINARY_DIR}/lexer.c
-		${CMAKE_CURRENT_BINARY_DIR}/lexer.h
-	DEPENDS ${CMAKE_SOURCE_DIR}/src/lexer.l
+		lexer.c
+		lexer.h
+	DEPENDS ${CMAKE_SOURCE_DIR}/src/core/lexer.l
 	COMMAND ${FLEX_EXECUTABLE}
-		--outfile=${CMAKE_CURRENT_BINARY_DIR}/lexer.c
-		--header-file=${CMAKE_CURRENT_BINARY_DIR}/lexer.h
-		-- ${CMAKE_SOURCE_DIR}/src/lexer.l
+		--outfile=lexer.c
+		--header-file=lexer.h
+		-- ${CMAKE_SOURCE_DIR}/src/core/lexer.l
 	COMMENT "[FLEX][src] Building lexer with Flex ${FLEX_VERSION}"
 	VERBATIM
 )

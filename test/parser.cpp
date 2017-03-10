@@ -25,11 +25,11 @@
 #include <vector>
 
 #include <deepstream/buffer.hpp>
-#include "../src/message.hpp"
-#include "../src/message_builder.hpp"
-#include "../src/parser.hpp"
-#include "../src/random.hpp"
-#include "../src/scope_guard.hpp"
+#include "../src/core/message.hpp"
+#include "../src/core/message_builder.hpp"
+#include "../src/core/parser.hpp"
+#include "../src/core/random.hpp"
+#include "../src/core/scope_guard.hpp"
 
 extern "C" {
 #include "lexer.h"
