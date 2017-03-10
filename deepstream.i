@@ -17,10 +17,10 @@ namespace std {
 wrap_unique_ptr(deepstreamErrorHandlerUniquePtr, deepstream::ErrorHandler);
 wrap_unique_ptr(deepstreamClientUniquePtr, deepstream::Client);
 
-%include "deepstream/buffer.hpp"
-%include "deepstream/error_handler.hpp"
-%include "deepstream/presence.hpp"
-%include "deepstream/event.hpp"
-%include "deepstream/client.hpp"
-%include "deepstream/version.hpp"
+%include "deepstream/core/buffer.hpp"
+%include "deepstream/core/error_handler.hpp"
+%include "deepstream/core/presence.hpp"
+%include "deepstream/core/event.hpp"
+%include "deepstream/core/client.hpp"
+%include "deepstream/core/version.hpp"
 %include "deepstream.hpp"
