@@ -15,37 +15,42 @@
  */
 
 #include <deepstream/core/ws.hpp>
+#include <iostream>
 
 namespace deepstream {
 
 class PocoWS : public deepstream::websocket {
 public:
     PocoWS(const std::string& uri)
-	: uri_(uri) {};
+        : uri_(uri){};
 
-    ~PocoWS() {};
+    ~PocoWS(){};
 
-    std::string URI() const {
-	return uri_;
+    std::string URI() const
+    {
+        return uri_;
     }
 
-    bool send(const std::string&) {
-	return false;
+    bool send(const std::string&)
+    {
+        return false;
     }
 
-    bool open() {
-	return false;
+    bool open()
+    {
+        return false;
     };
 
     void close() {}
 
-    void onClose(deepstream::websocket::HandlerFn&){};
-    void onError(const deepstream::websocket::HandlerFn){};
-    void onMessage(const deepstream::websocket::HandlerFn){};
-    void onOpen(const deepstream::websocket::HandlerFn){};
+    void onClose(const HandlerFn&) const override {}
+    void onError(const HandlerWithMsgFn&) const override {}
+    void onMessage(const HandlerWithMsgFn&) const override {}
+    void onOpen(const HandlerFn&) const override {}
 
 private:
     PocoWS(){};
     std::string uri_;
 };
+
 }

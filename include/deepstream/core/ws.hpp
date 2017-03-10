@@ -22,7 +22,8 @@
 namespace deepstream {
 class websocket {
 public:
-    typedef std::function<void(const std::string&)> HandlerFn;
+    typedef std::function<void(const std::string&)> HandlerWithMsgFn;
+    typedef std::function<void()> HandlerFn;
 
     websocket() {};
     virtual ~websocket() {};
@@ -34,10 +35,10 @@ public:
     virtual bool open() = 0;
     virtual void close() = 0;
 
-    virtual void onClose(HandlerFn&) const = 0;
-    virtual void onError(HandlerFn&) const = 0;
-    virtual void onMessage(HandlerFn&) const = 0;
-    virtual void onOpen(HandlerFn&) const = 0;
+    virtual void onClose(const HandlerFn&) const = 0;
+    virtual void onError(const HandlerWithMsgFn&) const = 0;
+    virtual void onMessage(const HandlerWithMsgFn&) const = 0;
+    virtual void onOpen(const HandlerFn&) const = 0;
 protected:
     websocket(websocket const&);
     websocket& operator=(websocket const&);
