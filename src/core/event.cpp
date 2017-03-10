@@ -18,8 +18,8 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include <deepstream/buffer.hpp>
-#include <deepstream/event.hpp>
+#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/event.hpp>
 #include "message_builder.hpp"
 
 #include <cassert>

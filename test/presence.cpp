@@ -19,10 +19,10 @@
 
 #include <algorithm>
 
-#include <deepstream/buffer.hpp>
+#include <deepstream/core/buffer.hpp>
 #include "../src/core/message.hpp"
 #include "../src/core/message_builder.hpp"
-#include <deepstream/presence.hpp>
+#include <deepstream/core/presence.hpp>
 
 namespace deepstream {
 

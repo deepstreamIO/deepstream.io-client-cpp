@@ -29,7 +29,7 @@
 #include <Poco/Net/SSLManager.h>
 #include <Poco/Timespan.h>
 
-#include <deepstream/buffer.hpp>
+#include <deepstream/core/buffer.hpp>
 #include "../core/exception.hpp"
 #include "../core/time.hpp"
 #include "../core/websockets.hpp"

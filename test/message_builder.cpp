@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include <deepstream/buffer.hpp>
+#include <deepstream/core/buffer.hpp>
 #include "../src/core/message_builder.hpp"
 
 namespace deepstream {

@@ -27,9 +27,9 @@
 #include "../src/core/parser.hpp"
 #include "../src/core/websockets.hpp"
 #include "../src/lib/websockets/pseudo.hpp"
-#include <deepstream/buffer.hpp>
-#include <deepstream/client.hpp>
-#include <deepstream/error_handler.hpp>
+#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/client.hpp>
+#include <deepstream/core/error_handler.hpp>
 
 #include <cassert>
 

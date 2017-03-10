@@ -15,7 +15,7 @@ set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-configure_file(version.hpp.in ${CMAKE_BINARY_DIR}/include/deepstream/version.hpp @ONLY)
+configure_file(version.hpp.in ${CMAKE_BINARY_DIR}/include/deepstream/core/version.hpp @ONLY)
 
 # Put the libaries and binaries that get built into directories at the
 # top of the build tree rather than in hard-to-find leaf directories.
@@ -153,7 +153,7 @@ if(SWIG_FOUND AND FOOBAR_FOUND)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-#add_subdirectory(doc)
+add_subdirectory(doc)
 add_subdirectory(src/core)
 add_subdirectory(src/lib)
 add_subdirectory(examples)
@@ -169,8 +169,8 @@ install(
 )
 
 install(
-    FILES ${CMAKE_BINARY_DIR}/include/deepstream/version.hpp
-    DESTINATION include/deepstream
+    FILES ${CMAKE_BINARY_DIR}/include/deepstream/core/version.hpp
+    DESTINATION include/deepstream/core
 )
 
 message(STATUS "CMAKE_SYSTEM=${CMAKE_SYSTEM}")

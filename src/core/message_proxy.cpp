@@ -15,7 +15,7 @@
  */
 #include <ostream>
 
-#include <deepstream/buffer.hpp>
+#include <deepstream/core/buffer.hpp>
 #include "message_proxy.hpp"
 
 #include <cassert>

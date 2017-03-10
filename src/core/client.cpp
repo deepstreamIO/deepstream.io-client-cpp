@@ -16,8 +16,8 @@
 
 #include <ostream>
 
-#include <deepstream/buffer.hpp>
-#include <deepstream/client.hpp>
+#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/client.hpp>
 #include "message.hpp"
 #include "use.hpp"
 

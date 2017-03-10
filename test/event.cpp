@@ -19,8 +19,8 @@
 
 #include <algorithm>
 
-#include <deepstream/buffer.hpp>
-#include <deepstream/event.hpp>
+#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/event.hpp>
 #include "../src/core/message.hpp"
 #include "../src/core/message_builder.hpp"
 #include "../src/core/scope_guard.hpp"

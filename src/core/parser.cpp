@@ -20,7 +20,7 @@
 #include <new>
 #include <ostream>
 
-#include <deepstream/buffer.hpp>
+#include <deepstream/core/buffer.hpp>
 #include "message.hpp"
 #include "parser.h"
 #include "parser.hpp"

@@ -16,9 +16,9 @@
 #ifndef DEEPSTREAM_CLIENT_HPP
 #define DEEPSTREAM_CLIENT_HPP
 
-#include <deepstream/buffer.hpp>
-#include <deepstream/event.hpp>
-#include <deepstream/presence.hpp>
+#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/event.hpp>
+#include <deepstream/core/presence.hpp>
 
 #include <cstdint>
 

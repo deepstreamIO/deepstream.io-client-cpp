@@ -19,9 +19,9 @@
 #include <algorithm>
 #include <sstream>
 
-#include <deepstream/buffer.hpp>
-#include <deepstream/client.hpp>
-#include <deepstream/error_handler.hpp>
+#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/client.hpp>
+#include <deepstream/core/error_handler.hpp>
 #include "message.hpp"
 #include "parser.hpp"
 #if 0

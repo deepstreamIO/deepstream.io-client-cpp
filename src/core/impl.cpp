@@ -24,11 +24,11 @@
 #include "message_builder.hpp"
 #include "use.hpp"
 #include "websockets.hpp"
-#include <deepstream/buffer.hpp>
-#include <deepstream/client.hpp>
-#include <deepstream/error_handler.hpp>
-#include <deepstream/event.hpp>
-#include <deepstream/presence.hpp>
+#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/client.hpp>
+#include <deepstream/core/error_handler.hpp>
+#include <deepstream/core/event.hpp>
+#include <deepstream/core/presence.hpp>
 
 #include <cassert>
 

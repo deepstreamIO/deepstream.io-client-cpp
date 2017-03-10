@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <limits>
 
-#include <deepstream/buffer.hpp>
+#include <deepstream/core/buffer.hpp>
 #include "message_builder.hpp"
 #include "random.hpp"
 
