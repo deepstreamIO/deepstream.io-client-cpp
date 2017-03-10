@@ -27,7 +27,6 @@ add_library(
 	libdeepstream SHARED
 	client.cpp
 	deepstream.cpp
-	error_handler.cpp
 	event.cpp
 	exception.cpp
 	impl.cpp

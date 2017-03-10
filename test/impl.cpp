@@ -22,59 +22,22 @@
 
 #include <arpa/inet.h>
 
-#include <deepstream/buffer.hpp>
-#include <deepstream/client.hpp>
-#include <deepstream/error_handler.hpp>
 #include "../src/impl.hpp"
 #include "../src/message_builder.hpp"
 #include "../src/parser.hpp"
 #include "../src/websockets.hpp"
 #include "../src/websockets/pseudo.hpp"
+#include <deepstream/buffer.hpp>
+#include <deepstream/client.hpp>
+#include <deepstream/error_handler.hpp>
 
 #include <cassert>
 
 namespace deepstream {
 namespace impl {
 
-    struct FailHandler : public ErrorHandler {
-        virtual void parser_error_impl(const parser::Error&) override
-        {
-            BOOST_FAIL("There should be no errors");
-        }
-
-        virtual void invalid_state_transition_impl(client::State,
-            const Message&) override
-        {
-            BOOST_FAIL("There should be no errors");
-        }
-
-        virtual void system_error_impl(const std::system_error&) override
-        {
-            BOOST_FAIL("There should be no errors");
-        }
-
-        virtual void
-        invalid_close_frame_size_impl(const websockets::Frame&) override
-        {
-            BOOST_FAIL("There should be no errors");
-        }
-
-        virtual void websocket_exception_impl(const std::exception&) override
-        {
-            BOOST_FAIL("There should be no errors");
-        }
-
-        virtual void unexpected_websocket_frame_flags_impl(int) override
-        {
-            BOOST_FAIL("There should be no errors");
-        }
-
-        virtual void sudden_disconnect_impl(const std::string&) override
-        {
-            BOOST_FAIL("There should be no errors");
-        }
-
-        virtual void authentication_error_impl(const Message&) override
+    struct FailHandler : public deepstream::ErrorHandler {
+        virtual void onError(const deepstream::ErrorState&) const override
         {
             BOOST_FAIL("There should be no errors");
         }
