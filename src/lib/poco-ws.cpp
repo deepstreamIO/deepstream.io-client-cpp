@@ -14,32 +14,38 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <string>
-#include <functional>
+#include <deepstream/core/ws.hpp>
 
 namespace deepstream {
-class websocket {
+
+class PocoWS : public deepstream::websocket {
 public:
-    typedef std::function<void(const std::string&)> HandlerFn;
+    PocoWS(const std::string& uri)
+	: uri_(uri) {};
 
-    websocket() {};
-    virtual ~websocket() {};
+    ~PocoWS() {};
 
-    virtual std::string URI() const = 0;
+    std::string URI() const {
+	return uri_;
+    }
 
-    virtual bool send(const std::string& msg) = 0;
+    bool send(const std::string&) {
+	return false;
+    }
 
-    virtual bool open() = 0;
-    virtual void close() = 0;
+    bool open() {
+	return false;
+    };
 
-    virtual void onClose(HandlerFn&) const = 0;
-    virtual void onError(HandlerFn&) const = 0;
-    virtual void onMessage(HandlerFn&) const = 0;
-    virtual void onOpen(HandlerFn&) const = 0;
-protected:
-    websocket(websocket const&);
-    websocket& operator=(websocket const&);
+    void close() {}
+
+    void onClose(deepstream::websocket::HandlerFn&){};
+    void onError(const deepstream::websocket::HandlerFn){};
+    void onMessage(const deepstream::websocket::HandlerFn){};
+    void onOpen(const deepstream::websocket::HandlerFn){};
+
+private:
+    PocoWS(){};
+    std::string uri_;
 };
 }
