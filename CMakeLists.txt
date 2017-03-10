@@ -159,7 +159,7 @@ add_subdirectory(src/lib)
 add_subdirectory(examples)
 
 if(BUILD_TESTING AND Boost_FOUND)
-  add_subdirectory(test)
+  add_subdirectory(src/core/test)
 endif()
 
 install(

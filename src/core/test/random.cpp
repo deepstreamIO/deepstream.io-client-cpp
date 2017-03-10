@@ -18,9 +18,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <deepstream/core/buffer.hpp>
-#include "../src/core/message_builder.hpp"
-#include "../src/core/random.hpp"
-#include "../src/core/use.hpp"
+#include "../message_builder.hpp"
+#include "../random.hpp"
+#include "../use.hpp"
 
 namespace deepstream {
 namespace random {
