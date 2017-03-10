@@ -16,6 +16,7 @@
 #ifndef DEEPSTREAM_HPP
 #define DEEPSTREAM_HPP
 
+#include <deepstream/core/ws.hpp>
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/client.hpp>
 #include <deepstream/core/version.hpp>
