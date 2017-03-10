@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <deepstream/core/ws.hpp>
+#include <deepstream/core/websocket.hpp>
 #include <iostream>
 
 namespace deepstream {

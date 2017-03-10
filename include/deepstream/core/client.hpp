@@ -19,7 +19,6 @@
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/event.hpp>
 #include <deepstream/core/presence.hpp>
-#include <deepstream/core/ws.hpp>
 
 #include <cstdint>
 
@@ -74,8 +73,6 @@ namespace client {
 
 struct Client {
     Client(const std::string& uri);
-    Client(const std::string& uri, std::unique_ptr<websocket>);
-
     Client(const std::string& uri, std::unique_ptr<ErrorHandler>);
 
     ~Client();
