@@ -23,5 +23,4 @@ wrap_unique_ptr(deepstreamClientUniquePtr, deepstream::Client);
 %include "deepstream/core/event.hpp"
 %include "deepstream/core/client.hpp"
 %include "deepstream/core/version.hpp"
-%include "deepstream/core/ws.hpp"
 %include "deepstream.hpp"
