@@ -146,7 +146,7 @@ namespace impl {
 
     BOOST_AUTO_TEST_CASE(simple)
     {
-        std::unique_ptr<Client> p = Client::make(std::unique_ptr<websockets::Client>(new SimpleClient),
+        std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::Client>(new SimpleClient),
             std::unique_ptr<ErrorHandler>(new FailHandler));
 
         p->login("auth", nullptr);
@@ -265,7 +265,7 @@ namespace impl {
 
     BOOST_AUTO_TEST_CASE(redirections)
     {
-        std::unique_ptr<Client> p = Client::make(std::unique_ptr<websockets::Client>(new RedirectionClient),
+        std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::Client>(new RedirectionClient),
             std::unique_ptr<ErrorHandler>(new FailHandler));
 
         p->login("auth", nullptr);

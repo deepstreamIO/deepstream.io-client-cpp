@@ -41,24 +41,24 @@ namespace websockets {
 }
 
 namespace impl {
-    struct Client {
-        static std::unique_ptr<Client>
+    struct ClientImpl {
+        static std::unique_ptr<ClientImpl>
         make(std::unique_ptr<websockets::Client> p_websocket,
             std::unique_ptr<ErrorHandler> p_error_handler);
 
-        static std::unique_ptr<Client> make(const std::string& uri);
+        static std::unique_ptr<ClientImpl> make(const std::string& uri);
 
-        static std::unique_ptr<Client> make(const std::string& uri,
+        static std::unique_ptr<ClientImpl> make(const std::string& uri,
             std::unique_ptr<ErrorHandler>);
 
-        Client() = delete;
+        ClientImpl() = delete;
 
-        Client(const Client&) = delete;
+        ClientImpl(const ClientImpl&) = delete;
 
-        Client(Client&&) = delete;
+        ClientImpl(ClientImpl&&) = delete;
 
     protected:
-        explicit Client(std::unique_ptr<websockets::Client> p_websocket,
+        explicit ClientImpl(std::unique_ptr<websockets::Client> p_websocket,
             std::unique_ptr<ErrorHandler>);
 
     public:

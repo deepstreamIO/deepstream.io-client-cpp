@@ -35,8 +35,8 @@
 namespace deepstream {
 namespace impl {
 
-    std::unique_ptr<Client>
-    Client::make(std::unique_ptr<websockets::Client> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler)
+    std::unique_ptr<ClientImpl>
+    ClientImpl::make(std::unique_ptr<websockets::Client> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler)
     {
         assert(p_websocket);
         assert(p_error_handler);
@@ -49,7 +49,7 @@ namespace impl {
 
             const std::string uri = p_websocket->uri();
 
-            std::unique_ptr<Client> p(new Client(std::move(p_websocket), std::move(p_error_handler)));
+            std::unique_ptr<ClientImpl> p(new ClientImpl(std::move(p_websocket), std::move(p_error_handler)));
 
             Buffer buffer;
             parser::MessageList messages;
@@ -102,11 +102,11 @@ namespace impl {
         assert(p_error_handler);
         p_error_handler->onError(ErrorState::TOO_MANY_REDIRECTIONS);
 
-        return std::unique_ptr<Client>(
-            new Client(nullptr, std::move(p_error_handler)));
+        return std::unique_ptr<ClientImpl>(
+            new ClientImpl(nullptr, std::move(p_error_handler)));
     }
 
-    std::unique_ptr<Client> Client::make(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
+    std::unique_ptr<ClientImpl> ClientImpl::make(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
     {
         if (uri.empty())
             throw std::invalid_argument("URI must not be empty");
@@ -115,7 +115,7 @@ namespace impl {
         return nullptr;
     }
 
-    Client::Client(std::unique_ptr<websockets::Client> p_websocket,
+    ClientImpl::ClientImpl(std::unique_ptr<websockets::Client> p_websocket,
         std::unique_ptr<ErrorHandler> p_error_handler)
         : state_(p_websocket ? client::State::AWAIT_CONNECTION
                              : client::State::ERROR)
@@ -125,9 +125,9 @@ namespace impl {
         assert(p_error_handler_);
     }
 
-    bool Client::login() { return login("{}"); }
+    bool ClientImpl::login() { return login("{}"); }
 
-    bool Client::login(const std::string& auth, Buffer* p_user_data)
+    bool ClientImpl::login(const std::string& auth, Buffer* p_user_data)
     {
         if (!p_websocket_)
             return false;
@@ -188,7 +188,7 @@ namespace impl {
         return false;
     }
 
-    void Client::close()
+    void ClientImpl::close()
     {
         assert(p_websocket_ || state_ == client::State::ERROR);
 
@@ -199,9 +199,9 @@ namespace impl {
         p_websocket_->close();
     }
 
-    client::State Client::getConnectionState() { return state_; }
+    client::State ClientImpl::getConnectionState() { return state_; }
 
-    void Client::process_messages(Event* p_event, Presence* p_presence)
+    void ClientImpl::process_messages(Event* p_event, Presence* p_presence)
     {
         assert(p_event);
         assert(p_presence);
@@ -243,7 +243,7 @@ namespace impl {
         }
     }
 
-    websockets::State Client::receive_(Buffer* p_buffer,
+    websockets::State ClientImpl::receive_(Buffer* p_buffer,
         parser::MessageList* p_messages)
     {
         assert(p_buffer);
@@ -345,7 +345,7 @@ namespace impl {
         return ws_state;
     }
 
-    websockets::State Client::send_(const Message& message)
+    websockets::State ClientImpl::send_(const Message& message)
     {
         if (!p_websocket_)
             return websockets::State::ERROR;
@@ -361,12 +361,12 @@ namespace impl {
         return send_frame_(message.to_binary());
     }
 
-    websockets::State Client::send_frame_(const Buffer& buffer)
+    websockets::State ClientImpl::send_frame_(const Buffer& buffer)
     {
         return send_frame_(buffer, websockets::Frame::Bit::FIN | websockets::Frame::Opcode::TEXT_FRAME);
     }
 
-    websockets::State Client::send_frame_(const Buffer& buffer,
+    websockets::State ClientImpl::send_frame_(const Buffer& buffer,
         websockets::Frame::Flags flags)
     {
         if (!p_websocket_)

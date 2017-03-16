@@ -38,7 +38,7 @@ namespace client {
 }
 
 namespace impl {
-    struct Client;
+    struct ClientImpl;
 }
 
 namespace client {
@@ -121,7 +121,7 @@ public:
      */
     void process_messages();
 
-    impl::Client* const p_impl_;
+    impl::ClientImpl* const p_impl_;
     Event event;
     Presence presence;
 };
