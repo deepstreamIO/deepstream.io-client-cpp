@@ -50,8 +50,8 @@ script:
       ccache -s;
       cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON -DBUILD_POCO=ON;
       export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH;
-      export PYTHONPATH=$PWD/lib:$PWD/python;
     fi
+  - export PYTHONPATH=$PWD/lib:$PWD/python;
   - make -j $(nproc)
   - make test
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
