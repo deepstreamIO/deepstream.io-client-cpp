@@ -28,7 +28,6 @@
 #include <Poco/Net/WebSocket.h>
 #include <Poco/URI.h>
 
-#include <Poco/Net/HTTPSClientSession.h>
 #include <deepstream/poco/ws.hpp>
 
 class SSLManager {
