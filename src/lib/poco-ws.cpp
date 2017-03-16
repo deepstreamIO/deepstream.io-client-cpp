@@ -14,19 +14,43 @@
  * limitations under the License.
  */
 
+#include <Poco/Net/HTTPClientSession.h>
+#include <Poco/Net/HTTPRequest.h>
+#include <Poco/Net/HTTPResponse.h>
+#include <Poco/Net/WebSocket.h>
+#include <Poco/URI.h>
+
+#include <Poco/Net/HTTPSClientSession.h>
 #include <deepstream/poco/ws.hpp>
-#include <iostream>
 
-class PocoWS : public deepstream::WS {
+struct PocoWS : public deepstream::WS {
 public:
-    PocoWS(const std::string& uri)
-        : uri_(uri){};
+    static Poco::Net::HTTPClientSession* newSession(const std::string& uri_string)
+    {
+        Poco::URI uri(uri_string);
 
-    ~PocoWS(){};
+        if (uri.getScheme() == "wss") {
+            return new Poco::Net::HTTPSClientSession(uri.getHost(), uri.getPort());
+        } else {
+            return new Poco::Net::HTTPClientSession(uri.getHost(), uri.getPort());
+        }
+    }
+
+    explicit PocoWS(const std::string& uri)
+        : uri_(uri)
+        , session_(newSession(uri))
+        , websocket_(*session_, request_, response_)
+    {
+    }
+
+    virtual ~PocoWS()
+    {
+        delete session_;
+    }
 
     std::string URI() const
     {
-        return uri_;
+        return uri_.toString();
     }
 
     bool send(const std::string&)
@@ -47,8 +71,11 @@ public:
     void onOpen(const HandlerFn&) const override {}
 
 private:
-    PocoWS(){};
-    std::string uri_;
+    Poco::URI uri_;
+    Poco::Net::HTTPRequest request_;
+    Poco::Net::HTTPResponse response_;
+    Poco::Net::HTTPClientSession* session_;
+    Poco::Net::WebSocket websocket_;
 };
 
 deepstream::WS* PocoWSFactory::connect(const std::string& uri)
@@ -67,4 +94,4 @@ PocoWSFactory* PocoWSFactory::instance()
     return f;
 }
 
-static PocoWSFactory *instance = PocoWSFactory::instance();
+static PocoWSFactory* instance = PocoWSFactory::instance();

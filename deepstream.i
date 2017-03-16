@@ -17,6 +17,7 @@ namespace std {
 wrap_unique_ptr(deepstreamErrorHandlerUniquePtr, deepstream::ErrorHandler);
 wrap_unique_ptr(deepstreamClientUniquePtr, deepstream::Client);
 
+%include "deepstream/core/ws.hpp"
 %include "deepstream/core/buffer.hpp"
 %include "deepstream/core/error_handler.hpp"
 %include "deepstream/core/presence.hpp"
