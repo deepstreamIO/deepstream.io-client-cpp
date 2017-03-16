@@ -28,7 +28,7 @@ add_library(
 	error_handler.cpp
 	event.cpp
 	exception.cpp
-	impl.cpp
+	client-impl.cpp
 	message.cpp
 	message_builder.cpp
 	message_proxy.cpp

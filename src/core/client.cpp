@@ -27,7 +27,7 @@
 #include "use.hpp"
 #include <deepstream/core/client.hpp>
 #include <deepstream/core/error_handler.hpp>
-#include "impl.hpp"
+#include "client-impl.hpp"
 #include "websockets.hpp"
 
 #include <cassert>

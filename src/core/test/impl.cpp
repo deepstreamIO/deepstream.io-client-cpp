@@ -22,7 +22,7 @@
 
 #include <arpa/inet.h>
 
-#include "../impl.hpp"
+#include "../client-impl.hpp"
 #include "../message_builder.hpp"
 #include "../parser.hpp"
 #include "../websockets.hpp"

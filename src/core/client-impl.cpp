@@ -19,7 +19,7 @@
 #include <chrono>
 #include <stdexcept>
 
-#include "impl.hpp"
+#include "client-impl.hpp"
 #include "message.hpp"
 #include "message_builder.hpp"
 #include "use.hpp"
