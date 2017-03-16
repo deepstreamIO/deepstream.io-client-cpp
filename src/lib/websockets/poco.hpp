@@ -36,12 +36,12 @@ namespace websockets {
     struct Client;
 
     namespace poco {
-        struct Client : public ::deepstream::websockets::Client {
-            explicit Client(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session);
+        struct PocoClient : public ::deepstream::websockets::Client {
+            explicit PocoClient(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session);
 
 	    // Construct a client based on the URI scheme type. It
 	    // will use a HTTPS session if the scheme matches "wss".
-            static Client* makeClient(const std::string& uri);
+            static PocoClient* makeClient(const std::string& uri);
 
             std::size_t num_bytes_available();
 

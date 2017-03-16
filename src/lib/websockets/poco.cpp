@@ -43,7 +43,7 @@ namespace deepstream {
 namespace websockets {
 
     namespace poco {
-        Client* Client::makeClient(const std::string& uri_string)
+        PocoClient* PocoClient::makeClient(const std::string& uri_string)
         {
             Poco::URI uri(uri_string);
             Poco::Net::HTTPClientSession* session;
@@ -54,10 +54,10 @@ namespace websockets {
                 session = new Poco::Net::HTTPClientSession(uri.getHost(), uri.getPort());
             }
 
-            return new websockets::poco::Client(uri_string, std::unique_ptr<Poco::Net::HTTPClientSession>(session));
+            return new websockets::poco::PocoClient(uri_string, std::unique_ptr<Poco::Net::HTTPClientSession>(session));
         }
 
-        Client::Client(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session) try
+        PocoClient::PocoClient(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session) try
             : uri_(uri),
               request_(net::HTTPRequest::HTTP_GET, uri_.getPath(), net::HTTPRequest::HTTP_1_1),
               websocket_(*session, request_, response_) {
@@ -65,7 +65,7 @@ namespace websockets {
             throw Exception(e.displayText());
         }
 
-        std::size_t Client::num_bytes_available()
+        std::size_t PocoClient::num_bytes_available()
         {
             int num_bytes = websocket_.available();
             assert(num_bytes >= 0);
@@ -74,28 +74,28 @@ namespace websockets {
         }
 
         std::unique_ptr<websockets::Client>
-        Client::construct_impl(const std::string& uri) const
+        PocoClient::construct_impl(const std::string& uri) const
         {
-            return std::unique_ptr<websockets::Client>(Client::makeClient(uri));
+            return std::unique_ptr<websockets::Client>(PocoClient::makeClient(uri));
         }
 
-        std::string Client::uri_impl() const { return uri_.toString(); }
+        std::string PocoClient::uri_impl() const { return uri_.toString(); }
 
-        time::Duration Client::get_receive_timeout_impl()
+        time::Duration PocoClient::get_receive_timeout_impl()
         {
             Poco::Timespan t = websocket_.getReceiveTimeout();
 
             return std::chrono::milliseconds(t.totalMilliseconds());
         }
 
-        void Client::set_receive_timeout_impl(time::Duration t)
+        void PocoClient::set_receive_timeout_impl(time::Duration t)
         {
             Poco::Timespan u = std::chrono::duration_cast<std::chrono::microseconds>(t).count();
 
             websocket_.setReceiveTimeout(u);
         }
 
-        std::pair<State, std::unique_ptr<Frame> > Client::receive_frame_impl()
+        std::pair<State, std::unique_ptr<Frame> > PocoClient::receive_frame_impl()
         {
             typedef std::unique_ptr<Frame> FramePtr;
 
@@ -139,7 +139,7 @@ namespace websockets {
                 FramePtr(new Frame(flags, buffer.data(), ret)));
         }
 
-        State Client::send_frame_impl(const Buffer& buffer, Frame::Flags flags)
+        State PocoClient::send_frame_impl(const Buffer& buffer, Frame::Flags flags)
         {
             int ret = websocket_.sendFrame(buffer.data(), buffer.size(), flags);
 
@@ -157,7 +157,7 @@ namespace websockets {
             return State::OPEN;
         }
 
-        void Client::close_impl() { websocket_.shutdown(); }
+        void PocoClient::close_impl() { websocket_.shutdown(); }
     }
 }
 }
