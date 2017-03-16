@@ -1,3 +1,7 @@
+if(BUILD_TESTING)
+  find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
+endif()
+
 add_custom_command(
 	OUTPUT
 		lexer.c
@@ -33,8 +37,13 @@ add_library(
 	presence.cpp
 	random.cpp
 	websockets.cpp
+	websockets/pseudo.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
 set_target_properties(libdeepstream_core PROPERTIES OUTPUT_NAME deepstream-core)
 target_include_directories(libdeepstream_core PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 install(TARGETS libdeepstream_core DESTINATION "lib")
+
+if(BUILD_TESTING AND Boost_FOUND)
+  add_subdirectory(test)
+endif()

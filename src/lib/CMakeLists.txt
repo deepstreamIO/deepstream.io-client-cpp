@@ -3,21 +3,20 @@ find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 add_library(
-  libdeepstream SHARED
+  libdeepstream_poco SHARED
   poco-ws.cpp
-  websockets/poco.cpp
-  websockets/pseudo.cpp)
+  websockets/poco.cpp)
 
 if(BUILD_POCO)
   set(Poco_LIBRARIES PocoNetSSL PocoCrypto PocoNet PocoUtil PocoJSON PocoXML PocoFoundation)
 endif()
 
-set_target_properties(libdeepstream PROPERTIES OUTPUT_NAME deepstream)
-target_include_directories(libdeepstream PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(libdeepstream PUBLIC libdeepstream_core ${Poco_LIBRARIES} ${OPENSSL_LIBRARIES} Threads::Threads)
-install(TARGETS libdeepstream DESTINATION "lib")
+set_target_properties(libdeepstream_poco PROPERTIES OUTPUT_NAME deepstream-poco)
+target_include_directories(libdeepstream_poco PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(libdeepstream_poco PUBLIC libdeepstream_core ${Poco_LIBRARIES} ${OPENSSL_LIBRARIES} Threads::Threads)
+install(TARGETS libdeepstream_poco DESTINATION "lib")
 
-# Ensure parallel builds operate correctly.
 if(BUILD_POCO)
-  add_dependencies(libdeepstream poco)
+  add_dependencies(libdeepstream_poco poco)
 endif()
+add_dependencies(libdeepstream_poco libdeepstream_core)

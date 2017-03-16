@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <deepstream/core/ws.hpp>
+#include <deepstream/poco/ws.hpp>
 #include <iostream>
 
 class PocoWS : public deepstream::WS {
@@ -51,9 +51,20 @@ private:
     std::string uri_;
 };
 
-struct PocoWSFactory : public deepstream::WSFactory {
-    deepstream::WS* connect(const std::string& uri)
-    {
-        return new PocoWS(uri);
+deepstream::WS* PocoWSFactory::connect(const std::string& uri)
+{
+    return new PocoWS(uri);
+}
+
+PocoWSFactory* PocoWSFactory::instance()
+{
+    static PocoWSFactory* f = nullptr;
+
+    if (f == nullptr) {
+        f = new PocoWSFactory();
     }
-};
+
+    return f;
+}
+
+static PocoWSFactory *instance = PocoWSFactory::instance();

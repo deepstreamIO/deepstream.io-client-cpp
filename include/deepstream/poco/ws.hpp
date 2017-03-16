@@ -13,28 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <deepstream/core/buffer.hpp>
-#include "../core/websockets.hpp"
-#include "pseudo.hpp"
 
-#include <cassert>
+#pragma once
 
-namespace deepstream {
-namespace websockets {
-    namespace pseudo {
+#include <deepstream/core/ws.hpp>
+#include <iostream>
 
-        Client::Client()
-            : timeout_(time::Duration::max())
-        {
-        }
-
-        std::string Client::uri_impl() const { return "pseudo"; }
-
-        time::Duration Client::get_receive_timeout_impl() { return timeout_; }
-
-        void Client::set_receive_timeout_impl(time::Duration t) { timeout_ = t; }
-
-        void Client::close_impl() {}
-    }
-}
-}
+class PocoWSFactory : public deepstream::WSFactory {
+public:
+  deepstream::WS* connect(const std::string& uri);
+  static PocoWSFactory* instance();
+public:
+  PocoWSFactory() {
+    std::cout << "hmm" << std::endl;
+  }
+  ~PocoWSFactory() {
+    std::cout << "~hmm" << std::endl;
+  }
+};

@@ -64,10 +64,6 @@ else()
   message(FATAL_ERROR "Compiler ${CMAKE_C_COMPILER} has no C11 support.")
 endif()
 
-if(BUILD_TESTING)
-  find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
-endif()
-
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wall -pedantic")
 
@@ -118,6 +114,7 @@ find_package(SWIG 3)
 find_package(FLEX 2.5 REQUIRED)
 
 link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
+include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
@@ -143,7 +140,7 @@ if(SWIG_FOUND)
   set_source_files_properties(deepstream.i PROPERTIES CPLUSPLUS ON)
   set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx PROPERTIES COMPILE_FLAGS -Wno-self-assign)
   swig_add_module(deepstream python deepstream.i ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
-  swig_link_libraries(deepstream libdeepstream ${POCO_LIBS} ${PYTHON_LIBRARIES})
+  swig_link_libraries(deepstream libdeepstream_core ${POCO_LIBS} ${PYTHON_LIBRARIES})
 endif()
 
 if(SWIG_FOUND)
@@ -157,10 +154,6 @@ add_subdirectory(doc)
 add_subdirectory(src/core)
 add_subdirectory(src/lib)
 add_subdirectory(examples)
-
-if(BUILD_TESTING AND Boost_FOUND)
-  add_subdirectory(src/core/test)
-endif()
 
 install(
     DIRECTORY ${CMAKE_SOURCE_DIR}/include/
