@@ -40,39 +40,38 @@ namespace websockets {
     struct WebSocketClient;
 }
 
-namespace impl {
-    struct ClientImpl {
-        static std::unique_ptr<ClientImpl>
-        make(std::unique_ptr<websockets::WebSocketClient> p_websocket,
-            std::unique_ptr<ErrorHandler> p_error_handler);
+struct ClientImpl {
+    static std::unique_ptr<ClientImpl>
+    make(std::unique_ptr<websockets::WebSocketClient> p_websocket,
+        std::unique_ptr<ErrorHandler> p_error_handler);
 
-        static std::unique_ptr<ClientImpl> make(const std::string& uri);
+    static std::unique_ptr<ClientImpl> make(const std::string& uri);
 
-        static std::unique_ptr<ClientImpl> make(const std::string& uri,
-            std::unique_ptr<ErrorHandler>);
+    static std::unique_ptr<ClientImpl> make(const std::string& uri,
+        std::unique_ptr<ErrorHandler>);
 
-        ClientImpl() = delete;
+    ClientImpl() = delete;
 
-        ClientImpl(const ClientImpl&) = delete;
+    ClientImpl(const ClientImpl&) = delete;
 
-        ClientImpl(ClientImpl&&) = delete;
+    ClientImpl(ClientImpl&&) = delete;
 
-    protected:
-        explicit ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
-            std::unique_ptr<ErrorHandler>);
+protected:
+    explicit ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
+        std::unique_ptr<ErrorHandler>);
 
-    public:
-        bool login();
+public:
+    bool login();
 
-        bool login(const std::string& auth, Buffer* p_user_data = nullptr);
+    bool login(const std::string& auth, Buffer* p_user_data = nullptr);
 
-        void close();
+    void close();
 
-        client::State getConnectionState();
+    client::State getConnectionState();
 
-        void process_messages(Event*, Presence*);
+    void process_messages(Event*, Presence*);
 
-        /**
+    /**
 	 * This function reads messages from the websocket.
 	 *
 	 * @param[out] p_buffer A non-NULL pointer. After a successful exit,
@@ -80,31 +79,30 @@ namespace impl {
 	 * @param[out] p_messages A non-NULL pointer. After a successful exit,
 	 * the messages reference the storage of `p_buffer`.
 	 */
-        websockets::State receive_(Buffer* p_buffer, parser::MessageList* p_messages);
+    websockets::State receive_(Buffer* p_buffer, parser::MessageList* p_messages);
 
-        /**
+    /**
 	 * This method serializes the given messages and sends it as a
 	 * non-fragmented text frame to the server.
 	 */
-        websockets::State send_(const Message&);
+    websockets::State send_(const Message&);
 
-        /**
+    /**
 	 * This method sends a non-fragmented text frame with the contents of
 	 * the given buffer as payload.
 	 */
-        websockets::State send_frame_(const Buffer&);
+    websockets::State send_frame_(const Buffer&);
 
-        /**
+    /**
 	 * This method sends a frame with given flags and the contents of the
 	 * given buffer as payload.
 	 */
-        websockets::State send_frame_(const Buffer&, int);
+    websockets::State send_frame_(const Buffer&, int);
 
-        client::State state_;
-        std::unique_ptr<websockets::WebSocketClient> p_websocket_;
-        std::unique_ptr<ErrorHandler> p_error_handler_;
-    };
-}
+    client::State state_;
+    std::unique_ptr<websockets::WebSocketClient> p_websocket_;
+    std::unique_ptr<ErrorHandler> p_error_handler_;
+};
 }
 
 #endif

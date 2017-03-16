@@ -34,244 +34,242 @@
 #include <cassert>
 
 namespace deepstream {
-namespace impl {
 
-    struct FailHandler : public deepstream::ErrorHandler {
-        virtual void onError(const deepstream::ErrorState&) const override
-        {
-            BOOST_FAIL("There should be no errors");
-        }
-    };
-
-    std::unique_ptr<websockets::Frame> make_frame(const Buffer& buffer)
+struct FailHandler : public deepstream::ErrorHandler {
+    virtual void onError(const deepstream::ErrorState&) const override
     {
-        using Frame = websockets::Frame;
+        BOOST_FAIL("There should be no errors");
+    }
+};
 
-        return std::unique_ptr<Frame>(
-            new Frame(Frame::Bit::FIN | Frame::Opcode::TEXT_FRAME, buffer.data(),
-                buffer.size()));
+std::unique_ptr<websockets::Frame> make_frame(const Buffer& buffer)
+{
+    using Frame = websockets::Frame;
+
+    return std::unique_ptr<Frame>(
+        new Frame(Frame::Bit::FIN | Frame::Opcode::TEXT_FRAME, buffer.data(),
+            buffer.size()));
+}
+
+struct SimpleClient : public websockets::pseudo::Client {
+    typedef std::unique_ptr<websockets::Frame> FramePtr;
+
+    SimpleClient()
+        : state_(client::State::AWAIT_CONNECTION)
+    {
     }
 
-    struct SimpleClient : public websockets::pseudo::Client {
-        typedef std::unique_ptr<websockets::Frame> FramePtr;
-
-        SimpleClient()
-            : state_(client::State::AWAIT_CONNECTION)
-        {
-        }
-
-        virtual std::unique_ptr<websockets::WebSocketClient>
-        construct_impl(const std::string&) const override
-        {
-            BOOST_FAIL("This method should not be called");
-            return nullptr;
-        }
-
-        std::pair<websockets::State, FramePtr> f(Topic t, Action a,
-            bool ack = false)
-        {
-            Message::Header header(t, a, ack);
-            auto expected_num_args = Message::num_arguments(header);
-
-            MessageBuilder builder(header);
-
-            for (std::size_t i = 0; i < expected_num_args.first; ++i)
-                builder.add_argument("arg");
-
-            state_ = client::transition(state_, builder, Sender::SERVER);
-
-            return std::make_pair(websockets::State::OPEN,
-                make_frame(builder.to_binary()));
-        };
-
-        virtual std::pair<websockets::State, FramePtr> receive_frame_impl() override
-        {
-            using State = client::State;
-
-            if (state_ == State::AWAIT_CONNECTION)
-                return f(Topic::CONNECTION, Action::CHALLENGE);
-            if (state_ == State::CHALLENGING_WAIT)
-                return f(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true);
-            if (state_ == State::AUTHENTICATING)
-                return f(Topic::AUTH, Action::REQUEST, true);
-            if (state_ == State::CONNECTED) {
-                using Frame = websockets::Frame;
-
-                const std::uint16_t NORMAL_CLOSE = 1006;
-                const std::size_t size = sizeof(std::uint16_t);
-
-                union {
-                    std::uint16_t as_uint16_t;
-                    char as_char[size];
-                } payload;
-                payload.as_uint16_t = htons(NORMAL_CLOSE);
-
-                return std::make_pair(
-                    websockets::State::OPEN,
-                    FramePtr(
-                        new Frame(Frame::Bit::FIN | Frame::Opcode::CONNECTION_CLOSE_FRAME,
-                            payload.as_char, size)));
-            }
-
-            BOOST_FAIL("Improper state transition detected");
-            return std::make_pair(websockets::State::ERROR, nullptr);
-        }
-
-        virtual websockets::State send_frame_impl(const Buffer& frame,
-            websockets::Frame::Flags) override
-        {
-            Buffer input(frame);
-            input.push_back(0);
-            input.push_back(0);
-
-            auto parser_retvals = parser::execute(input.data(), input.size());
-            const parser::MessageList& messages = parser_retvals.first;
-            const parser::ErrorList& errors = parser_retvals.second;
-
-            BOOST_REQUIRE(errors.empty());
-
-            std::for_each(messages.cbegin(), messages.cend(),
-                [this](const Message& msg) {
-                    client::State old_state = this->state_;
-                    client::State new_state = client::transition(old_state, msg, Sender::CLIENT);
-
-                    this->state_ = new_state;
-                });
-
-            return websockets::State::OPEN;
-        }
-
-        client::State state_;
-    };
-
-    BOOST_AUTO_TEST_CASE(simple)
+    virtual std::unique_ptr<websockets::WebSocketClient>
+    construct_impl(const std::string&) const override
     {
-        std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::WebSocketClient>(new SimpleClient),
-            std::unique_ptr<ErrorHandler>(new FailHandler));
-
-        p->login("auth", nullptr);
-
-        BOOST_CHECK_EQUAL(p->getConnectionState(), client::State::CONNECTED);
+        BOOST_FAIL("This method should not be called");
+        return nullptr;
     }
 
-    struct RedirectionClient : public websockets::pseudo::Client {
-        typedef std::unique_ptr<websockets::Frame> FramePtr;
+    std::pair<websockets::State, FramePtr> f(Topic t, Action a,
+        bool ack = false)
+    {
+        Message::Header header(t, a, ack);
+        auto expected_num_args = Message::num_arguments(header);
 
-        static constexpr const char DEFAULT_URI[] = "ws://default-url";
-        static constexpr const char REDIRECTION_URI[] = "ws://redirect-url";
+        MessageBuilder builder(header);
 
-        RedirectionClient(const std::string& uri = DEFAULT_URI,
-            bool do_redirect = true)
-            : state_(client::State::AWAIT_CONNECTION)
-            , do_redirect_(do_redirect)
-            , uri_(uri)
-        {
-        }
+        for (std::size_t i = 0; i < expected_num_args.first; ++i)
+            builder.add_argument("arg");
 
-        virtual std::string uri_impl() const override { return uri_; }
+        state_ = client::transition(state_, builder, Sender::SERVER);
 
-        virtual std::unique_ptr<websockets::WebSocketClient>
-        construct_impl(const std::string& uri) const override
-        {
-            BOOST_CHECK(do_redirect_);
-            BOOST_CHECK_EQUAL(uri, REDIRECTION_URI);
-
-            return std::unique_ptr<websockets::WebSocketClient>(
-                new RedirectionClient(REDIRECTION_URI, false));
-        }
-
-        std::pair<websockets::State, FramePtr> f(Topic t, Action a,
-            bool ack = false)
-        {
-            Message::Header header(t, a, ack);
-
-            MessageBuilder builder(header);
-
-            if (a == Action::REDIRECT)
-                builder.add_argument(REDIRECTION_URI);
-
-            state_ = client::transition(state_, builder, Sender::SERVER);
-
-            return std::make_pair(websockets::State::OPEN,
-                make_frame(builder.to_binary()));
-        };
-
-        virtual std::pair<websockets::State, FramePtr> receive_frame_impl() override
-        {
-            using State = client::State;
-
-            if (state_ == State::AWAIT_CONNECTION)
-                return f(Topic::CONNECTION, Action::CHALLENGE);
-            if (state_ == State::CHALLENGING_WAIT && do_redirect_)
-                return f(Topic::CONNECTION, Action::REDIRECT);
-            if (state_ == State::CHALLENGING_WAIT && !do_redirect_)
-                return f(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true);
-            if (state_ == State::AUTHENTICATING)
-                return f(Topic::AUTH, Action::REQUEST, true);
-            if (state_ == State::CONNECTED) {
-                using Frame = websockets::Frame;
-
-                const std::uint16_t NORMAL_CLOSE = 1006;
-                const std::size_t size = sizeof(std::uint16_t);
-
-                union {
-                    std::uint16_t as_uint16_t;
-                    char as_char[size];
-                } payload;
-                payload.as_uint16_t = htons(NORMAL_CLOSE);
-
-                return std::make_pair(
-                    websockets::State::OPEN,
-                    FramePtr(
-                        new Frame(Frame::Bit::FIN | Frame::Opcode::CONNECTION_CLOSE_FRAME,
-                            payload.as_char, size)));
-            }
-
-            BOOST_FAIL("Improper state transition detected");
-            return std::make_pair(websockets::State::ERROR, nullptr);
-        }
-
-        virtual websockets::State send_frame_impl(const Buffer& frame,
-            websockets::Frame::Flags) override
-        {
-            Buffer input(frame);
-            input.push_back(0);
-            input.push_back(0);
-
-            auto parser_retvals = parser::execute(input.data(), input.size());
-            const parser::MessageList& messages = parser_retvals.first;
-            const parser::ErrorList& errors = parser_retvals.second;
-
-            BOOST_REQUIRE(errors.empty());
-
-            std::for_each(messages.cbegin(), messages.cend(),
-                [this](const Message& msg) {
-                    client::State old_state = this->state_;
-                    client::State new_state = client::transition(old_state, msg, Sender::CLIENT);
-
-                    this->state_ = new_state;
-                });
-
-            return websockets::State::OPEN;
-        }
-
-        client::State state_;
-        bool do_redirect_;
-        std::string uri_;
+        return std::make_pair(websockets::State::OPEN,
+            make_frame(builder.to_binary()));
     };
 
-    constexpr const char RedirectionClient::DEFAULT_URI[];
-    constexpr const char RedirectionClient::REDIRECTION_URI[];
-
-    BOOST_AUTO_TEST_CASE(redirections)
+    virtual std::pair<websockets::State, FramePtr> receive_frame_impl() override
     {
-        std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::WebSocketClient>(new RedirectionClient),
-            std::unique_ptr<ErrorHandler>(new FailHandler));
+        using State = client::State;
 
-        p->login("auth", nullptr);
+        if (state_ == State::AWAIT_CONNECTION)
+            return f(Topic::CONNECTION, Action::CHALLENGE);
+        if (state_ == State::CHALLENGING_WAIT)
+            return f(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true);
+        if (state_ == State::AUTHENTICATING)
+            return f(Topic::AUTH, Action::REQUEST, true);
+        if (state_ == State::CONNECTED) {
+            using Frame = websockets::Frame;
 
-        BOOST_CHECK_EQUAL(p->getConnectionState(), client::State::CONNECTED);
-        BOOST_CHECK_EQUAL(p->p_websocket_->uri(), RedirectionClient::REDIRECTION_URI);
+            const std::uint16_t NORMAL_CLOSE = 1006;
+            const std::size_t size = sizeof(std::uint16_t);
+
+            union {
+                std::uint16_t as_uint16_t;
+                char as_char[size];
+            } payload;
+            payload.as_uint16_t = htons(NORMAL_CLOSE);
+
+            return std::make_pair(
+                websockets::State::OPEN,
+                FramePtr(
+                    new Frame(Frame::Bit::FIN | Frame::Opcode::CONNECTION_CLOSE_FRAME,
+                        payload.as_char, size)));
+        }
+
+        BOOST_FAIL("Improper state transition detected");
+        return std::make_pair(websockets::State::ERROR, nullptr);
     }
+
+    virtual websockets::State send_frame_impl(const Buffer& frame,
+        websockets::Frame::Flags) override
+    {
+        Buffer input(frame);
+        input.push_back(0);
+        input.push_back(0);
+
+        auto parser_retvals = parser::execute(input.data(), input.size());
+        const parser::MessageList& messages = parser_retvals.first;
+        const parser::ErrorList& errors = parser_retvals.second;
+
+        BOOST_REQUIRE(errors.empty());
+
+        std::for_each(messages.cbegin(), messages.cend(),
+            [this](const Message& msg) {
+                client::State old_state = this->state_;
+                client::State new_state = client::transition(old_state, msg, Sender::CLIENT);
+
+                this->state_ = new_state;
+            });
+
+        return websockets::State::OPEN;
+    }
+
+    client::State state_;
+};
+
+BOOST_AUTO_TEST_CASE(simple)
+{
+    std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::WebSocketClient>(new SimpleClient),
+        std::unique_ptr<ErrorHandler>(new FailHandler));
+
+    p->login("auth", nullptr);
+
+    BOOST_CHECK_EQUAL(p->getConnectionState(), client::State::CONNECTED);
+}
+
+struct RedirectionClient : public websockets::pseudo::Client {
+    typedef std::unique_ptr<websockets::Frame> FramePtr;
+
+    static constexpr const char DEFAULT_URI[] = "ws://default-url";
+    static constexpr const char REDIRECTION_URI[] = "ws://redirect-url";
+
+    RedirectionClient(const std::string& uri = DEFAULT_URI,
+        bool do_redirect = true)
+        : state_(client::State::AWAIT_CONNECTION)
+        , do_redirect_(do_redirect)
+        , uri_(uri)
+    {
+    }
+
+    virtual std::string uri_impl() const override { return uri_; }
+
+    virtual std::unique_ptr<websockets::WebSocketClient>
+    construct_impl(const std::string& uri) const override
+    {
+        BOOST_CHECK(do_redirect_);
+        BOOST_CHECK_EQUAL(uri, REDIRECTION_URI);
+
+        return std::unique_ptr<websockets::WebSocketClient>(
+            new RedirectionClient(REDIRECTION_URI, false));
+    }
+
+    std::pair<websockets::State, FramePtr> f(Topic t, Action a,
+        bool ack = false)
+    {
+        Message::Header header(t, a, ack);
+
+        MessageBuilder builder(header);
+
+        if (a == Action::REDIRECT)
+            builder.add_argument(REDIRECTION_URI);
+
+        state_ = client::transition(state_, builder, Sender::SERVER);
+
+        return std::make_pair(websockets::State::OPEN,
+            make_frame(builder.to_binary()));
+    };
+
+    virtual std::pair<websockets::State, FramePtr> receive_frame_impl() override
+    {
+        using State = client::State;
+
+        if (state_ == State::AWAIT_CONNECTION)
+            return f(Topic::CONNECTION, Action::CHALLENGE);
+        if (state_ == State::CHALLENGING_WAIT && do_redirect_)
+            return f(Topic::CONNECTION, Action::REDIRECT);
+        if (state_ == State::CHALLENGING_WAIT && !do_redirect_)
+            return f(Topic::CONNECTION, Action::CHALLENGE_RESPONSE, true);
+        if (state_ == State::AUTHENTICATING)
+            return f(Topic::AUTH, Action::REQUEST, true);
+        if (state_ == State::CONNECTED) {
+            using Frame = websockets::Frame;
+
+            const std::uint16_t NORMAL_CLOSE = 1006;
+            const std::size_t size = sizeof(std::uint16_t);
+
+            union {
+                std::uint16_t as_uint16_t;
+                char as_char[size];
+            } payload;
+            payload.as_uint16_t = htons(NORMAL_CLOSE);
+
+            return std::make_pair(
+                websockets::State::OPEN,
+                FramePtr(
+                    new Frame(Frame::Bit::FIN | Frame::Opcode::CONNECTION_CLOSE_FRAME,
+                        payload.as_char, size)));
+        }
+
+        BOOST_FAIL("Improper state transition detected");
+        return std::make_pair(websockets::State::ERROR, nullptr);
+    }
+
+    virtual websockets::State send_frame_impl(const Buffer& frame,
+        websockets::Frame::Flags) override
+    {
+        Buffer input(frame);
+        input.push_back(0);
+        input.push_back(0);
+
+        auto parser_retvals = parser::execute(input.data(), input.size());
+        const parser::MessageList& messages = parser_retvals.first;
+        const parser::ErrorList& errors = parser_retvals.second;
+
+        BOOST_REQUIRE(errors.empty());
+
+        std::for_each(messages.cbegin(), messages.cend(),
+            [this](const Message& msg) {
+                client::State old_state = this->state_;
+                client::State new_state = client::transition(old_state, msg, Sender::CLIENT);
+
+                this->state_ = new_state;
+            });
+
+        return websockets::State::OPEN;
+    }
+
+    client::State state_;
+    bool do_redirect_;
+    std::string uri_;
+};
+
+constexpr const char RedirectionClient::DEFAULT_URI[];
+constexpr const char RedirectionClient::REDIRECTION_URI[];
+
+BOOST_AUTO_TEST_CASE(redirections)
+{
+    std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::WebSocketClient>(new RedirectionClient),
+        std::unique_ptr<ErrorHandler>(new FailHandler));
+
+    p->login("auth", nullptr);
+
+    BOOST_CHECK_EQUAL(p->getConnectionState(), client::State::CONNECTED);
+    BOOST_CHECK_EQUAL(p->p_websocket_->uri(), RedirectionClient::REDIRECTION_URI);
 }
 }

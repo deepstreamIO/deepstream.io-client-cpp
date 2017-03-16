@@ -37,9 +37,7 @@ namespace client {
     enum class State;
 }
 
-namespace impl {
-    struct ClientImpl;
-}
+struct ClientImpl;
 
 namespace client {
     /**
@@ -121,7 +119,7 @@ public:
      */
     void process_messages();
 
-    impl::ClientImpl* const p_impl_;
+    ClientImpl* const p_impl_;
     Event event;
     Presence presence;
 };

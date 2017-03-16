@@ -33,364 +33,362 @@
 #include <cassert>
 
 namespace deepstream {
-namespace impl {
 
-    std::unique_ptr<ClientImpl>
-    ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler)
-    {
-        assert(p_websocket);
-        assert(p_error_handler);
+std::unique_ptr<ClientImpl>
+ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler)
+{
+    assert(p_websocket);
+    assert(p_error_handler);
 
-        const unsigned MAX_NUM_REDIRECTIONS = 3;
+    const unsigned MAX_NUM_REDIRECTIONS = 3;
 
-        for (unsigned num_redirections = 0; num_redirections < MAX_NUM_REDIRECTIONS;
-             ++num_redirections) {
-            p_websocket->set_receive_timeout(std::chrono::seconds(10));
+    for (unsigned num_redirections = 0; num_redirections < MAX_NUM_REDIRECTIONS;
+         ++num_redirections) {
+        p_websocket->set_receive_timeout(std::chrono::seconds(10));
 
-            const std::string uri = p_websocket->uri();
+        const std::string uri = p_websocket->uri();
 
-            std::unique_ptr<ClientImpl> p(new ClientImpl(std::move(p_websocket), std::move(p_error_handler)));
+        std::unique_ptr<ClientImpl> p(new ClientImpl(std::move(p_websocket), std::move(p_error_handler)));
 
-            Buffer buffer;
-            parser::MessageList messages;
-            client::State& state = p->state_;
+        Buffer buffer;
+        parser::MessageList messages;
+        client::State& state = p->state_;
 
-            if (p->receive_(&buffer, &messages) != websockets::State::OPEN)
-                return p;
+        if (p->receive_(&buffer, &messages) != websockets::State::OPEN)
+            return p;
 
-            if (messages.size() != 1 || state != client::State::CHALLENGING) {
-                p->close();
-                return p;
-            }
-
-            {
-                MessageBuilder chr(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
-                chr.add_argument(uri);
-
-                if (p->send_(chr) != websockets::State::OPEN)
-                    return p;
-            }
-
-            if (p->receive_(&buffer, &messages) != websockets::State::OPEN)
-                return p;
-
-            if (messages.size() != 1) {
-                p->close();
-                return p;
-            }
-
-            if (state == client::State::AWAIT_AUTHENTICATION)
-                return p;
-
-            if (state == client::State::AWAIT_CONNECTION) {
-                const Message& redirect_msg = messages.front();
-                assert(redirect_msg.num_arguments() == 1);
-
-                const Buffer& uri_buffer = redirect_msg[0];
-                std::string new_uri(uri_buffer.cbegin(), uri_buffer.cend());
-
-                p_websocket = p->p_websocket_->construct(new_uri);
-                p_error_handler = std::move(p->p_error_handler_);
-
-                continue;
-            }
-
+        if (messages.size() != 1 || state != client::State::CHALLENGING) {
             p->close();
             return p;
         }
 
-        assert(p_error_handler);
-        p_error_handler->onError(ErrorState::TOO_MANY_REDIRECTIONS);
+        {
+            MessageBuilder chr(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
+            chr.add_argument(uri);
 
-        return std::unique_ptr<ClientImpl>(
-            new ClientImpl(nullptr, std::move(p_error_handler)));
-    }
+            if (p->send_(chr) != websockets::State::OPEN)
+                return p;
+        }
 
-    std::unique_ptr<ClientImpl> ClientImpl::make(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
-    {
-        if (uri.empty())
-            throw std::invalid_argument("URI must not be empty");
-
-        //return Client::make(std::unique_ptr<websockets::Client>(websockets::poco::Client::makeClient(uri)), std::move(p_eh));
-        return nullptr;
-    }
-
-    ClientImpl::ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
-        std::unique_ptr<ErrorHandler> p_error_handler)
-        : state_(p_websocket ? client::State::AWAIT_CONNECTION
-                             : client::State::ERROR)
-        , p_websocket_(std::move(p_websocket))
-        , p_error_handler_(std::move(p_error_handler))
-    {
-        assert(p_error_handler_);
-    }
-
-    bool ClientImpl::login() { return login("{}"); }
-
-    bool ClientImpl::login(const std::string& auth, Buffer* p_user_data)
-    {
-        if (!p_websocket_)
-            return false;
-
-        if (state_ != client::State::AWAIT_AUTHENTICATION)
-            throw std::logic_error("Cannot login() in current state");
-
-        MessageBuilder areq(Topic::AUTH, Action::REQUEST);
-        if (!auth.empty())
-            areq.add_argument(auth);
-
-        if (send_(areq) != websockets::State::OPEN)
-            return false;
-
-        Buffer buffer;
-        parser::MessageList messages;
-
-        if (receive_(&buffer, &messages) != websockets::State::OPEN)
-            return false;
+        if (p->receive_(&buffer, &messages) != websockets::State::OPEN)
+            return p;
 
         if (messages.size() != 1) {
-            close();
-            return false;
+            p->close();
+            return p;
         }
 
-        const Message& msg = messages.front();
+        if (state == client::State::AWAIT_AUTHENTICATION)
+            return p;
 
-        if (msg.topic() == Topic::AUTH && msg.action() == Action::REQUEST && msg.is_ack()) {
-            assert(state_ == client::State::CONNECTED);
+        if (state == client::State::AWAIT_CONNECTION) {
+            const Message& redirect_msg = messages.front();
+            assert(redirect_msg.num_arguments() == 1);
 
-            if (msg.num_arguments() == 0 && p_user_data)
-                p_user_data->clear();
-            else if (msg.num_arguments() == 1 && p_user_data)
-                *p_user_data = msg[0];
+            const Buffer& uri_buffer = redirect_msg[0];
+            std::string new_uri(uri_buffer.cbegin(), uri_buffer.cend());
 
-            return true;
+            p_websocket = p->p_websocket_->construct(new_uri);
+            p_error_handler = std::move(p->p_error_handler_);
+
+            continue;
         }
 
-        if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_INVALID_AUTH_DATA) {
-            assert(state_ == client::State::AWAIT_AUTHENTICATION);
-            p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
-            return false;
-        }
+        p->close();
+        return p;
+    }
 
-        if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_INVALID_AUTH_MSG) {
-            p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
-            close();
-            return false;
-        }
+    assert(p_error_handler);
+    p_error_handler->onError(ErrorState::TOO_MANY_REDIRECTIONS);
 
-        if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS) {
-            p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
-            close();
-            return false;
-        }
+    return std::unique_ptr<ClientImpl>(
+        new ClientImpl(nullptr, std::move(p_error_handler)));
+}
 
+std::unique_ptr<ClientImpl> ClientImpl::make(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
+{
+    if (uri.empty())
+        throw std::invalid_argument("URI must not be empty");
+
+    //return Client::make(std::unique_ptr<websockets::Client>(websockets::poco::Client::makeClient(uri)), std::move(p_eh));
+    return nullptr;
+}
+
+ClientImpl::ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
+    std::unique_ptr<ErrorHandler> p_error_handler)
+    : state_(p_websocket ? client::State::AWAIT_CONNECTION
+                         : client::State::ERROR)
+    , p_websocket_(std::move(p_websocket))
+    , p_error_handler_(std::move(p_error_handler))
+{
+    assert(p_error_handler_);
+}
+
+bool ClientImpl::login() { return login("{}"); }
+
+bool ClientImpl::login(const std::string& auth, Buffer* p_user_data)
+{
+    if (!p_websocket_)
+        return false;
+
+    if (state_ != client::State::AWAIT_AUTHENTICATION)
+        throw std::logic_error("Cannot login() in current state");
+
+    MessageBuilder areq(Topic::AUTH, Action::REQUEST);
+    if (!auth.empty())
+        areq.add_argument(auth);
+
+    if (send_(areq) != websockets::State::OPEN)
+        return false;
+
+    Buffer buffer;
+    parser::MessageList messages;
+
+    if (receive_(&buffer, &messages) != websockets::State::OPEN)
+        return false;
+
+    if (messages.size() != 1) {
         close();
         return false;
     }
 
-    void ClientImpl::close()
-    {
-        assert(p_websocket_ || state_ == client::State::ERROR);
+    const Message& msg = messages.front();
 
-        if (!p_websocket_)
-            return;
+    if (msg.topic() == Topic::AUTH && msg.action() == Action::REQUEST && msg.is_ack()) {
+        assert(state_ == client::State::CONNECTED);
 
-        state_ = client::State::DISCONNECTED;
-        p_websocket_->close();
+        if (msg.num_arguments() == 0 && p_user_data)
+            p_user_data->clear();
+        else if (msg.num_arguments() == 1 && p_user_data)
+            *p_user_data = msg[0];
+
+        return true;
     }
 
-    client::State ClientImpl::getConnectionState() { return state_; }
+    if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_INVALID_AUTH_DATA) {
+        assert(state_ == client::State::AWAIT_AUTHENTICATION);
+        p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
+        return false;
+    }
 
-    void ClientImpl::process_messages(Event* p_event, Presence* p_presence)
-    {
-        assert(p_event);
-        assert(p_presence);
+    if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_INVALID_AUTH_MSG) {
+        p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
+        close();
+        return false;
+    }
 
-        if (!p_websocket_)
-            return;
+    if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS) {
+        p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
+        close();
+        return false;
+    }
 
-        Buffer buffer;
-        parser::MessageList messages;
+    close();
+    return false;
+}
 
-        p_websocket_->set_receive_timeout(std::chrono::milliseconds(1));
+void ClientImpl::close()
+{
+    assert(p_websocket_ || state_ == client::State::ERROR);
 
-        while (receive_(&buffer, &messages) == websockets::State::OPEN) {
-            if (messages.empty())
+    if (!p_websocket_)
+        return;
+
+    state_ = client::State::DISCONNECTED;
+    p_websocket_->close();
+}
+
+client::State ClientImpl::getConnectionState() { return state_; }
+
+void ClientImpl::process_messages(Event* p_event, Presence* p_presence)
+{
+    assert(p_event);
+    assert(p_presence);
+
+    if (!p_websocket_)
+        return;
+
+    Buffer buffer;
+    parser::MessageList messages;
+
+    p_websocket_->set_receive_timeout(std::chrono::milliseconds(1));
+
+    while (receive_(&buffer, &messages) == websockets::State::OPEN) {
+        if (messages.empty())
+            break;
+
+        for (const Message& message : messages) {
+            if (message.topic() == Topic::CONNECTION && message.action() == Action::PING) {
+                MessageBuilder pong(Topic::CONNECTION, Action::PONG);
+                send_(pong);
+                continue;
+            }
+
+            switch (message.topic()) {
+            case Topic::EVENT:
+                p_event->notify_(message);
                 break;
 
-            for (const Message& message : messages) {
-                if (message.topic() == Topic::CONNECTION && message.action() == Action::PING) {
-                    MessageBuilder pong(Topic::CONNECTION, Action::PONG);
-                    send_(pong);
-                    continue;
-                }
+            case Topic::PRESENCE:
+                p_presence->notify_(message);
+                break;
 
-                switch (message.topic()) {
-                case Topic::EVENT:
-                    p_event->notify_(message);
-                    break;
-
-                case Topic::PRESENCE:
-                    p_presence->notify_(message);
-                    break;
-
-                default:
-                    assert(0);
-                    close();
-                    return;
-                }
+            default:
+                assert(0);
+                close();
+                return;
             }
         }
     }
+}
 
-    websockets::State ClientImpl::receive_(Buffer* p_buffer,
-        parser::MessageList* p_messages)
-    {
-        assert(p_buffer);
-        assert(p_messages);
+websockets::State ClientImpl::receive_(Buffer* p_buffer,
+    parser::MessageList* p_messages)
+{
+    assert(p_buffer);
+    assert(p_messages);
 
-        if (!p_websocket_)
-            return websockets::State::ERROR;
+    if (!p_websocket_)
+        return websockets::State::ERROR;
 
-        auto receive_ret = p_websocket_->receive_frame();
-        websockets::State ws_state = receive_ret.first;
-        std::unique_ptr<websockets::Frame> p_frame = std::move(receive_ret.second);
+    auto receive_ret = p_websocket_->receive_frame();
+    websockets::State ws_state = receive_ret.first;
+    std::unique_ptr<websockets::Frame> p_frame = std::move(receive_ret.second);
 
-        if (ws_state == websockets::State::OPEN && !p_frame) {
-            p_buffer->clear();
-            p_messages->clear();
-
-            return ws_state;
-        }
-
-        if (ws_state == websockets::State::CLOSED && p_frame) {
-            p_buffer->clear();
-            p_messages->clear();
-
-            close();
-
-            return ws_state;
-        }
-
-        if (ws_state == websockets::State::CLOSED && !p_frame) {
-            p_buffer->clear();
-            p_messages->clear();
-
-            close();
-            p_error_handler_->onError(ErrorState::SUDDEN_DISCONNECT);
-
-            return ws_state;
-        }
-
-        if (ws_state == websockets::State::ERROR) {
-            assert(p_frame);
-
-            close();
-            p_error_handler_->onError(ErrorState::INVALID_CLOSE_FRAME_SIZE);
-
-            return ws_state;
-        }
-
-        assert(ws_state == websockets::State::OPEN);
-        assert(p_frame);
-
-        if (p_frame->flags() != (websockets::Frame::Bit::FIN | websockets::Frame::Opcode::TEXT_FRAME)) {
-            p_error_handler_->onError(ErrorState::UNEXPECTED_WEBSOCKET_FRAME_FLAGS);
-            close();
-
-            return websockets::State::ERROR;
-        }
-
-        const Buffer& payload = p_frame->payload();
-        p_buffer->assign(payload.cbegin(), payload.cend());
-        p_buffer->push_back(0);
-        p_buffer->push_back(0);
-
-        auto parser_ret = parser::execute(p_buffer->data(), p_buffer->size());
-        const parser::ErrorList& errors = parser_ret.second;
-
-        std::for_each(errors.cbegin(), errors.cend(), [this](const parser::Error&) {
-            this->p_error_handler_->onError(ErrorState::PARSER_ERROR);
-        });
-
-        if (!errors.empty()) {
-            p_buffer->clear();
-            p_messages->clear();
-
-            close();
-            return websockets::State::ERROR;
-        }
-
-        *p_messages = std::move(parser_ret.first);
-
-        for (auto it = p_messages->cbegin(); it != p_messages->cend(); ++it) {
-            const Message& msg = *it;
-
-            client::State old_state = state_;
-            client::State new_state = client::transition(old_state, msg, Sender::SERVER);
-
-            if (new_state == client::State::ERROR) {
-                close();
-                p_error_handler_->onError(ErrorState::INVALID_STATE_TRANSITION);
-
-                return websockets::State::ERROR;
-            }
-
-            if (new_state == client::State::DISCONNECTED)
-                return websockets::State::OPEN;
-
-            state_ = new_state;
-        }
+    if (ws_state == websockets::State::OPEN && !p_frame) {
+        p_buffer->clear();
+        p_messages->clear();
 
         return ws_state;
     }
 
-    websockets::State ClientImpl::send_(const Message& message)
-    {
-        if (!p_websocket_)
-            return websockets::State::ERROR;
+    if (ws_state == websockets::State::CLOSED && p_frame) {
+        p_buffer->clear();
+        p_messages->clear();
 
-        client::State new_state = client::transition(state_, message, Sender::CLIENT);
-        assert(new_state != client::State::ERROR);
+        close();
 
-        if (new_state == client::State::ERROR)
-            throw std::logic_error("Invalid client state transition");
-
-        state_ = new_state;
-
-        return send_frame_(message.to_binary());
+        return ws_state;
     }
 
-    websockets::State ClientImpl::send_frame_(const Buffer& buffer)
-    {
-        return send_frame_(buffer, websockets::Frame::Bit::FIN | websockets::Frame::Opcode::TEXT_FRAME);
+    if (ws_state == websockets::State::CLOSED && !p_frame) {
+        p_buffer->clear();
+        p_messages->clear();
+
+        close();
+        p_error_handler_->onError(ErrorState::SUDDEN_DISCONNECT);
+
+        return ws_state;
     }
 
-    websockets::State ClientImpl::send_frame_(const Buffer& buffer,
-        websockets::Frame::Flags flags)
-    {
-        if (!p_websocket_)
-            return websockets::State::ERROR;
+    if (ws_state == websockets::State::ERROR) {
+        assert(p_frame);
 
-        try {
-            websockets::State state = p_websocket_->send_frame(buffer, flags);
+        close();
+        p_error_handler_->onError(ErrorState::INVALID_CLOSE_FRAME_SIZE);
 
-            if (state != websockets::State::OPEN) {
-                close();
-                p_error_handler_->onError(ErrorState::SUDDEN_DISCONNECT);
+        return ws_state;
+    }
 
-                return websockets::State::CLOSED;
-            }
+    assert(ws_state == websockets::State::OPEN);
+    assert(p_frame);
 
-            return state;
-        } catch (std::system_error& e) {
-            p_error_handler_->onError(ErrorState::SYSTEM_ERROR);
-        } catch (std::exception& e) {
-            p_error_handler_->onError(ErrorState::WEBSOCKET_EXCEPTION);
-        }
+    if (p_frame->flags() != (websockets::Frame::Bit::FIN | websockets::Frame::Opcode::TEXT_FRAME)) {
+        p_error_handler_->onError(ErrorState::UNEXPECTED_WEBSOCKET_FRAME_FLAGS);
+        close();
+
+        return websockets::State::ERROR;
+    }
+
+    const Buffer& payload = p_frame->payload();
+    p_buffer->assign(payload.cbegin(), payload.cend());
+    p_buffer->push_back(0);
+    p_buffer->push_back(0);
+
+    auto parser_ret = parser::execute(p_buffer->data(), p_buffer->size());
+    const parser::ErrorList& errors = parser_ret.second;
+
+    std::for_each(errors.cbegin(), errors.cend(), [this](const parser::Error&) {
+        this->p_error_handler_->onError(ErrorState::PARSER_ERROR);
+    });
+
+    if (!errors.empty()) {
+        p_buffer->clear();
+        p_messages->clear();
 
         close();
         return websockets::State::ERROR;
     }
+
+    *p_messages = std::move(parser_ret.first);
+
+    for (auto it = p_messages->cbegin(); it != p_messages->cend(); ++it) {
+        const Message& msg = *it;
+
+        client::State old_state = state_;
+        client::State new_state = client::transition(old_state, msg, Sender::SERVER);
+
+        if (new_state == client::State::ERROR) {
+            close();
+            p_error_handler_->onError(ErrorState::INVALID_STATE_TRANSITION);
+
+            return websockets::State::ERROR;
+        }
+
+        if (new_state == client::State::DISCONNECTED)
+            return websockets::State::OPEN;
+
+        state_ = new_state;
+    }
+
+    return ws_state;
+}
+
+websockets::State ClientImpl::send_(const Message& message)
+{
+    if (!p_websocket_)
+        return websockets::State::ERROR;
+
+    client::State new_state = client::transition(state_, message, Sender::CLIENT);
+    assert(new_state != client::State::ERROR);
+
+    if (new_state == client::State::ERROR)
+        throw std::logic_error("Invalid client state transition");
+
+    state_ = new_state;
+
+    return send_frame_(message.to_binary());
+}
+
+websockets::State ClientImpl::send_frame_(const Buffer& buffer)
+{
+    return send_frame_(buffer, websockets::Frame::Bit::FIN | websockets::Frame::Opcode::TEXT_FRAME);
+}
+
+websockets::State ClientImpl::send_frame_(const Buffer& buffer,
+    websockets::Frame::Flags flags)
+{
+    if (!p_websocket_)
+        return websockets::State::ERROR;
+
+    try {
+        websockets::State state = p_websocket_->send_frame(buffer, flags);
+
+        if (state != websockets::State::OPEN) {
+            close();
+            p_error_handler_->onError(ErrorState::SUDDEN_DISCONNECT);
+
+            return websockets::State::CLOSED;
+        }
+
+        return state;
+    } catch (std::system_error& e) {
+        p_error_handler_->onError(ErrorState::SYSTEM_ERROR);
+    } catch (std::exception& e) {
+        p_error_handler_->onError(ErrorState::WEBSOCKET_EXCEPTION);
+    }
+
+    close();
+    return websockets::State::ERROR;
 }
 }

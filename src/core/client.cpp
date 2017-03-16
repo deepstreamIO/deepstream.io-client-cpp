@@ -22,20 +22,20 @@
 
 #include <ostream>
 
-#include <deepstream/core/buffer.hpp>
+#include "client-impl.hpp"
 #include "message.hpp"
 #include "use.hpp"
+#include "websockets.hpp"
+#include <deepstream/core/buffer.hpp>
 #include <deepstream/core/client.hpp>
 #include <deepstream/core/error_handler.hpp>
-#include "client-impl.hpp"
-#include "websockets.hpp"
 
 #include <cassert>
 
 namespace deepstream {
 
 Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
-    : p_impl_(impl::ClientImpl::make(uri, std::move(p_eh)).release())
+    : p_impl_(ClientImpl::make(uri, std::move(p_eh)).release())
     , event([this](const Message& message) -> bool {
         assert(p_impl_);
         return p_impl_->send_(message) == websockets::State::OPEN;
