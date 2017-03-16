@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include <deepstream/core/websocket.hpp>
+#include <deepstream/core/ws.hpp>
 #include <iostream>
 
-class PocoWS : public deepstream::websocket {
+class PocoWS : public deepstream::WS {
 public:
     PocoWS(const std::string& uri)
         : uri_(uri){};
@@ -51,8 +51,8 @@ private:
     std::string uri_;
 };
 
-struct PocoWSFactory : public deepstream::websocketFactory {
-    deepstream::websocket* connect(const std::string& uri)
+struct PocoWSFactory : public deepstream::WSFactory {
+    deepstream::WS* connect(const std::string& uri)
     {
         return new PocoWS(uri);
     }
