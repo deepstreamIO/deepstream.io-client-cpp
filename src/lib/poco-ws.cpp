@@ -14,14 +14,60 @@
  * limitations under the License.
  */
 
+#include <Poco/Exception.h>
+#include <Poco/Net/AcceptCertificateHandler.h>
 #include <Poco/Net/HTTPClientSession.h>
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
+#include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/Net/HTTPSStreamFactory.h>
+#include <Poco/Net/HTTPStreamFactory.h>
+#include <Poco/Net/KeyConsoleHandler.h>
+#include <Poco/Net/NetException.h>
+#include <Poco/Net/SSLManager.h>
 #include <Poco/Net/WebSocket.h>
 #include <Poco/URI.h>
 
 #include <Poco/Net/HTTPSClientSession.h>
 #include <deepstream/poco/ws.hpp>
+
+class SSLManager {
+public:
+    SSLManager()
+        : pAcceptCertHandler_(nullptr)
+        , pContext_(nullptr)
+    {
+        Poco::Net::HTTPStreamFactory::registerFactory();
+        Poco::Net::HTTPSStreamFactory::registerFactory();
+
+        pAcceptCertHandler_ = new Poco::Net::AcceptCertificateHandler(true);
+        pContext_ = new Poco::Net::Context(Poco::Net::Context::CLIENT_USE,
+            "",
+            "",
+            "",
+            // TODO(frobware) VERIFY_NONE is pointless. Should be VERIFY_STRICT.
+            Poco::Net::Context::VERIFY_NONE,
+            9,
+            true,
+            "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+        Poco::Net::SSLManager::instance().initializeClient(NULL, pAcceptCertHandler_, pContext_);
+    }
+
+    ~SSLManager() = default;
+
+    static SSLManager* instance()
+    {
+        static SSLManager* m = nullptr;
+        if (m == nullptr) {
+            m = new SSLManager();
+        }
+        return m;
+    }
+
+private:
+    Poco::SharedPtr<Poco::Net::InvalidCertificateHandler> pAcceptCertHandler_;
+    Poco::Net::Context::Ptr pContext_;
+};
 
 struct PocoWS : public deepstream::WS {
 public:
@@ -39,7 +85,7 @@ public:
     explicit PocoWS(const std::string& uri)
         : uri_(uri)
         , session_(newSession(uri))
-	, request_(Poco::Net::HTTPRequest::HTTP_GET, uri_.getPath(), Poco::Net::HTTPRequest::HTTP_1_1)
+        , request_(Poco::Net::HTTPRequest::HTTP_GET, uri_.getPath(), Poco::Net::HTTPRequest::HTTP_1_1)
         , websocket_(*session_, request_, response_)
     {
     }
@@ -96,3 +142,4 @@ PocoWSFactory* PocoWSFactory::instance()
 }
 
 static PocoWSFactory* instance = PocoWSFactory::instance();
+static SSLManager* sslManager = SSLManager::instance();

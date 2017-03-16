@@ -29,11 +29,11 @@
 #include <Poco/Net/SSLManager.h>
 #include <Poco/Timespan.h>
 
-#include <deepstream/core/buffer.hpp>
 #include "../core/exception.hpp"
 #include "../core/time.hpp"
 #include "../core/websockets.hpp"
 #include "poco.hpp"
+#include <deepstream/core/buffer.hpp>
 
 #include <cassert>
 
@@ -43,35 +43,6 @@ namespace deepstream {
 namespace websockets {
 
     namespace poco {
-        class SSLManager {
-        public:
-            SSLManager()
-                : pAcceptCertHandler_(nullptr)
-                , pContext_(nullptr)
-            {
-                Poco::Net::HTTPStreamFactory::registerFactory();
-                Poco::Net::HTTPSStreamFactory::registerFactory();
-
-                pAcceptCertHandler_ = new Poco::Net::AcceptCertificateHandler(true);
-                pContext_ = new Poco::Net::Context(Poco::Net::Context::CLIENT_USE,
-                    "",
-                    "",
-                    "",
-                    // TODO(frobware) VERIFY_NONE is pointless. Should be VERIFY_STRICT.
-                    Poco::Net::Context::VERIFY_NONE,
-                    9,
-                    true,
-                    "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
-                Poco::Net::SSLManager::instance().initializeClient(NULL, pAcceptCertHandler_, pContext_);
-            }
-
-            ~SSLManager() = default;
-
-        private:
-            Poco::SharedPtr<Poco::Net::InvalidCertificateHandler> pAcceptCertHandler_;
-            Poco::Net::Context::Ptr pContext_;
-        };
-
         Client* Client::makeClient(const std::string& uri_string)
         {
             Poco::URI uri(uri_string);
@@ -187,8 +158,6 @@ namespace websockets {
         }
 
         void Client::close_impl() { websocket_.shutdown(); }
-
-        static std::unique_ptr<poco::SSLManager> sslManager(new SSLManager());
     }
 }
 }

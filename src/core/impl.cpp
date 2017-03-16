@@ -36,8 +36,7 @@ namespace deepstream {
 namespace impl {
 
     std::unique_ptr<Client>
-    Client::make(std::unique_ptr<websockets::Client> p_websocket,
-        std::unique_ptr<ErrorHandler> p_error_handler)
+    Client::make(std::unique_ptr<websockets::Client> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler)
     {
         assert(p_websocket);
         assert(p_error_handler);
@@ -50,8 +49,7 @@ namespace impl {
 
             const std::string uri = p_websocket->uri();
 
-            std::unique_ptr<Client> p(
-                new Client(std::move(p_websocket), std::move(p_error_handler)));
+            std::unique_ptr<Client> p(new Client(std::move(p_websocket), std::move(p_error_handler)));
 
             Buffer buffer;
             parser::MessageList messages;
@@ -114,7 +112,7 @@ namespace impl {
             throw std::invalid_argument("URI must not be empty");
 
         //return Client::make(std::unique_ptr<websockets::Client>(websockets::poco::Client::makeClient(uri)), std::move(p_eh));
-	return nullptr;
+        return nullptr;
     }
 
     Client::Client(std::unique_ptr<websockets::Client> p_websocket,

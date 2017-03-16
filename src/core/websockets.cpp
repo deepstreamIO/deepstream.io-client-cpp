@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <deepstream/core/buffer.hpp>
 #include "websockets.hpp"
+#include <deepstream/core/buffer.hpp>
 
 #include <cassert>
 
@@ -51,20 +51,9 @@ namespace websockets {
         set_receive_timeout_impl(t);
     }
 
-    time::Duration Client::get_receive_timeout()
-    {
-        return get_receive_timeout_impl();
-    }
-
     std::pair<State, std::unique_ptr<Frame> > Client::receive_frame()
     {
         return receive_frame_impl();
-    }
-
-    State Client::send_frame(const Buffer& buffer)
-    {
-        Frame::Flags f = Frame::Bit::FIN | Frame::Opcode::TEXT_FRAME;
-        return send_frame(buffer, f);
     }
 
     State Client::send_frame(const Buffer& buffer, Frame::Flags flags)
