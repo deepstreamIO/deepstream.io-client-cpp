@@ -20,27 +20,39 @@
 #include <functional>
 
 namespace deepstream {
-class websocket {
-public:
-    typedef std::function<void(const std::string&)> HandlerWithMsgFn;
-    typedef std::function<void()> HandlerFn;
+    class websocket {
+    public:
+        typedef std::function<void(const std::string &)> HandlerWithMsgFn;
+        typedef std::function<void()> HandlerFn;
 
-    websocket() {};
-    virtual ~websocket() {};
+        websocket() {};
 
-    virtual std::string URI() const = 0;
+        virtual ~websocket() {};
 
-    virtual bool send(const std::string& msg) = 0;
+        virtual std::string URI() const = 0;
 
-    virtual bool open() = 0;
-    virtual void close() = 0;
+        virtual bool send(const std::string &msg) = 0;
 
-    virtual void onClose(const HandlerFn&) const = 0;
-    virtual void onError(const HandlerWithMsgFn&) const = 0;
-    virtual void onMessage(const HandlerWithMsgFn&) const = 0;
-    virtual void onOpen(const HandlerFn&) const = 0;
-protected:
-    websocket(websocket const&);
-    websocket& operator=(websocket const&);
-};
+        virtual bool open() = 0;
+
+        virtual void close() = 0;
+
+        virtual void onClose(const HandlerFn &) const = 0;
+
+        virtual void onError(const HandlerWithMsgFn &) const = 0;
+
+        virtual void onMessage(const HandlerWithMsgFn &) const = 0;
+
+        virtual void onOpen(const HandlerFn &) const = 0;
+
+    protected:
+        websocket(websocket const &);
+
+        websocket &operator=(websocket const &);
+    };
+
+    class websocketFactory {
+    public:
+      virtual websocket* connect(const std::string &uri) = 0;
+    };
 }

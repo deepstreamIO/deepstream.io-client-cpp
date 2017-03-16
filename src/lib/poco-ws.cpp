@@ -17,8 +17,6 @@
 #include <deepstream/core/websocket.hpp>
 #include <iostream>
 
-namespace deepstream {
-
 class PocoWS : public deepstream::websocket {
 public:
     PocoWS(const std::string& uri)
@@ -53,4 +51,9 @@ private:
     std::string uri_;
 };
 
-}
+struct PocoWSFactory : public deepstream::websocketFactory {
+    deepstream::websocket* connect(const std::string& uri)
+    {
+        return new PocoWS(uri);
+    }
+};
