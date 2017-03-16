@@ -20,8 +20,8 @@
 #include <string>
 #include <utility>
 
-#include <deepstream/core/buffer.hpp>
 #include "time.hpp"
+#include <deepstream/core/buffer.hpp>
 
 namespace deepstream {
 
@@ -68,13 +68,6 @@ namespace websockets {
 
         Flags flags_;
         Buffer payload_;
-    };
-
-    enum class StatusCode {
-        UNKNOWN,
-        NONE,
-        NORMAL_CLOSE = 1000,
-        ABNORMAL_CLOSE = 1006
     };
 
     enum class State { ERROR,
