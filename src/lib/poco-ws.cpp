@@ -39,6 +39,7 @@ public:
     explicit PocoWS(const std::string& uri)
         : uri_(uri)
         , session_(newSession(uri))
+	, request_(Poco::Net::HTTPRequest::HTTP_GET, uri_.getPath(), Poco::Net::HTTPRequest::HTTP_1_1)
         , websocket_(*session_, request_, response_)
     {
     }
@@ -72,9 +73,9 @@ public:
 
 private:
     Poco::URI uri_;
+    Poco::Net::HTTPClientSession* session_;
     Poco::Net::HTTPRequest request_;
     Poco::Net::HTTPResponse response_;
-    Poco::Net::HTTPClientSession* session_;
     Poco::Net::WebSocket websocket_;
 };
 
