@@ -43,11 +43,11 @@ addons:
       - wget
 
 script:
-  - ccache -s
   - cmake --version
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       cmake -DBUILD_TESTING=ON -DOPENSSL_INCLUDE_DIR=/usr/local/opt/openssl/include/ -DPoco_LIBRARIES='/usr/local/opt/poco/lib/libPocoFoundation.dylib;/usr/local/opt/poco/lib/libPocoCrypto.dylib;/usr/local/opt/poco/lib/libPocoNet.dylib;/usr/local/opt/poco/lib/libPocoNetSSL.dylib';
     else
+      ccache -s;
       cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON -DBUILD_POCO=ON;
       export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH;
       export PYTHONPATH=$PWD/lib:$PWD/python;
@@ -57,8 +57,8 @@ script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       make NightlyMemCheck;
       if [ "$CXX" == "g++" ]; then make NightlyCoverage; fi;
+      ccache -s;
     fi
-  - ccache -s
 
 after_success:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
