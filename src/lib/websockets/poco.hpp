@@ -33,10 +33,10 @@ struct Buffer;
 namespace websockets {
     enum class StatusCode;
     struct Frame;
-    struct Client;
+    struct WebSocketClient;
 
     namespace poco {
-        struct PocoClient : public ::deepstream::websockets::Client {
+        struct PocoClient : public ::deepstream::websockets::WebSocketClient {
             explicit PocoClient(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session);
 
 	    // Construct a client based on the URI scheme type. It
@@ -45,7 +45,7 @@ namespace websockets {
 
             std::size_t num_bytes_available();
 
-            virtual std::unique_ptr<websockets::Client>
+            virtual std::unique_ptr<websockets::WebSocketClient>
             construct_impl(const std::string&) const override;
 
             virtual std::string uri_impl() const override;

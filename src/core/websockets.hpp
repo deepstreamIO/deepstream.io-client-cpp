@@ -74,15 +74,15 @@ namespace websockets {
         OPEN,
         CLOSED };
 
-    struct Client {
-        virtual ~Client() = default;
+    struct WebSocketClient {
+        virtual ~WebSocketClient() = default;
 
         /**
 	 * This method returns a new object of the concrete class
 	 * implementing this interface with the new object being connected
 	 * to the given URI.
 	 */
-        std::unique_ptr<Client> construct(const std::string& uri) const;
+        std::unique_ptr<WebSocketClient> construct(const std::string& uri) const;
 
         std::string uri() const;
 
@@ -116,7 +116,7 @@ namespace websockets {
         void close();
 
     protected:
-        virtual std::unique_ptr<websockets::Client>
+        virtual std::unique_ptr<websockets::WebSocketClient>
         construct_impl(const std::string&) const = 0;
 
         virtual std::string uri_impl() const = 0;

@@ -60,7 +60,7 @@ namespace impl {
         {
         }
 
-        virtual std::unique_ptr<websockets::Client>
+        virtual std::unique_ptr<websockets::WebSocketClient>
         construct_impl(const std::string&) const override
         {
             BOOST_FAIL("This method should not be called");
@@ -146,7 +146,7 @@ namespace impl {
 
     BOOST_AUTO_TEST_CASE(simple)
     {
-        std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::Client>(new SimpleClient),
+        std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::WebSocketClient>(new SimpleClient),
             std::unique_ptr<ErrorHandler>(new FailHandler));
 
         p->login("auth", nullptr);
@@ -170,13 +170,13 @@ namespace impl {
 
         virtual std::string uri_impl() const override { return uri_; }
 
-        virtual std::unique_ptr<websockets::Client>
+        virtual std::unique_ptr<websockets::WebSocketClient>
         construct_impl(const std::string& uri) const override
         {
             BOOST_CHECK(do_redirect_);
             BOOST_CHECK_EQUAL(uri, REDIRECTION_URI);
 
-            return std::unique_ptr<websockets::Client>(
+            return std::unique_ptr<websockets::WebSocketClient>(
                 new RedirectionClient(REDIRECTION_URI, false));
         }
 
@@ -265,7 +265,7 @@ namespace impl {
 
     BOOST_AUTO_TEST_CASE(redirections)
     {
-        std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::Client>(new RedirectionClient),
+        std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::WebSocketClient>(new RedirectionClient),
             std::unique_ptr<ErrorHandler>(new FailHandler));
 
         p->login("auth", nullptr);

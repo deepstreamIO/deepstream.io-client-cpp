@@ -28,7 +28,7 @@ namespace websockets {
         assert(payload);
     }
 
-    std::unique_ptr<Client> Client::construct(const std::string& uri) const
+    std::unique_ptr<WebSocketClient> WebSocketClient::construct(const std::string& uri) const
     {
         assert(!uri.empty());
 
@@ -38,7 +38,7 @@ namespace websockets {
         return p;
     }
 
-    std::string Client::uri() const
+    std::string WebSocketClient::uri() const
     {
         std::string ret = uri_impl();
         assert(!ret.empty());
@@ -46,23 +46,23 @@ namespace websockets {
         return ret;
     }
 
-    void Client::set_receive_timeout(time::Duration t)
+    void WebSocketClient::set_receive_timeout(time::Duration t)
     {
         set_receive_timeout_impl(t);
     }
 
-    std::pair<State, std::unique_ptr<Frame> > Client::receive_frame()
+    std::pair<State, std::unique_ptr<Frame> > WebSocketClient::receive_frame()
     {
         return receive_frame_impl();
     }
 
-    State Client::send_frame(const Buffer& buffer, Frame::Flags flags)
+    State WebSocketClient::send_frame(const Buffer& buffer, Frame::Flags flags)
     {
         assert(!buffer.empty());
 
         return send_frame_impl(buffer, flags);
     }
 
-    void Client::close() { close_impl(); }
+    void WebSocketClient::close() { close_impl(); }
 }
 }

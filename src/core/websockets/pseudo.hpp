@@ -28,10 +28,10 @@ struct Buffer;
 namespace websockets {
     enum class StatusCode;
     struct Frame;
-    struct Client;
+    struct WebSocketClient;
 
     namespace pseudo {
-        struct Client : public ::deepstream::websockets::Client {
+        struct Client : public ::deepstream::websockets::WebSocketClient {
             explicit Client();
 
             virtual std::string uri_impl() const override;

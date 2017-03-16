@@ -73,10 +73,10 @@ namespace websockets {
             return num_bytes;
         }
 
-        std::unique_ptr<websockets::Client>
+        std::unique_ptr<websockets::WebSocketClient>
         PocoClient::construct_impl(const std::string& uri) const
         {
-            return std::unique_ptr<websockets::Client>(PocoClient::makeClient(uri));
+            return std::unique_ptr<websockets::WebSocketClient>(PocoClient::makeClient(uri));
         }
 
         std::string PocoClient::uri_impl() const { return uri_.toString(); }

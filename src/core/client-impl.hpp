@@ -37,13 +37,13 @@ namespace client {
 
 namespace websockets {
     enum class State;
-    struct Client;
+    struct WebSocketClient;
 }
 
 namespace impl {
     struct ClientImpl {
         static std::unique_ptr<ClientImpl>
-        make(std::unique_ptr<websockets::Client> p_websocket,
+        make(std::unique_ptr<websockets::WebSocketClient> p_websocket,
             std::unique_ptr<ErrorHandler> p_error_handler);
 
         static std::unique_ptr<ClientImpl> make(const std::string& uri);
@@ -58,7 +58,7 @@ namespace impl {
         ClientImpl(ClientImpl&&) = delete;
 
     protected:
-        explicit ClientImpl(std::unique_ptr<websockets::Client> p_websocket,
+        explicit ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
             std::unique_ptr<ErrorHandler>);
 
     public:
@@ -101,7 +101,7 @@ namespace impl {
         websockets::State send_frame_(const Buffer&, int);
 
         client::State state_;
-        std::unique_ptr<websockets::Client> p_websocket_;
+        std::unique_ptr<websockets::WebSocketClient> p_websocket_;
         std::unique_ptr<ErrorHandler> p_error_handler_;
     };
 }

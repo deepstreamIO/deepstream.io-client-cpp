@@ -36,7 +36,7 @@ namespace deepstream {
 namespace impl {
 
     std::unique_ptr<ClientImpl>
-    ClientImpl::make(std::unique_ptr<websockets::Client> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler)
+    ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler)
     {
         assert(p_websocket);
         assert(p_error_handler);
@@ -115,7 +115,7 @@ namespace impl {
         return nullptr;
     }
 
-    ClientImpl::ClientImpl(std::unique_ptr<websockets::Client> p_websocket,
+    ClientImpl::ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
         std::unique_ptr<ErrorHandler> p_error_handler)
         : state_(p_websocket ? client::State::AWAIT_CONNECTION
                              : client::State::ERROR)
