@@ -105,15 +105,6 @@ namespace websockets {
         std::pair<State, std::unique_ptr<Frame> > receive_frame();
 
         /**
-	 * This function sends a non-fragmented text frame with the contents
-	 * of the buffer as payload.
-	 *
-	 * @return 0 on connection close or the number of bytes sent
-	 * otherwise
-	 */
-        State send_frame(const Buffer&);
-
-        /**
 	 * This function sends a frame with the given flags and with the
 	 * contents of the buffer as payload.
 	 *
