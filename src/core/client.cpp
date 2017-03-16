@@ -14,14 +14,65 @@
  * limitations under the License.
  */
 
+#include <cstdint>
+
+#include <algorithm>
+#include <chrono>
+#include <stdexcept>
+
 #include <ostream>
 
 #include <deepstream/core/buffer.hpp>
-#include <deepstream/core/client.hpp>
 #include "message.hpp"
 #include "use.hpp"
+#include <deepstream/core/client.hpp>
+#include <deepstream/core/error_handler.hpp>
+#include "impl.hpp"
+#include "websockets.hpp"
 
 #include <cassert>
+
+namespace deepstream {
+
+Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
+    : p_impl_(impl::Client::make(uri, std::move(p_eh)).release())
+    , event([this](const Message& message) -> bool {
+        assert(p_impl_);
+        return p_impl_->send_(message) == websockets::State::OPEN;
+    })
+    , presence([this](const Message& message) -> bool {
+        assert(p_impl_);
+        return p_impl_->send_(message) == websockets::State::OPEN;
+    })
+{
+}
+
+Client::Client(const std::string& uri)
+    : Client(uri, std::unique_ptr<ErrorHandler>(new ErrorHandler()))
+{
+}
+
+Client::~Client() { delete p_impl_; }
+
+bool Client::login() { return p_impl_->login("{}"); }
+
+bool Client::login(const std::string& auth, Buffer* p_user_data)
+{
+    return p_impl_->login(auth, p_user_data);
+}
+
+void Client::close() { return p_impl_->close(); }
+
+client::State Client::getConnectionState()
+{
+    return p_impl_->getConnectionState();
+}
+
+void Client::process_messages()
+{
+    return p_impl_->process_messages(&event, &presence);
+}
+}
 
 namespace deepstream {
 namespace client {
