@@ -28,8 +28,6 @@
 #include <string>
 
 namespace deepstream {
-enum class Sender;
-struct Message;
 
 struct ErrorHandler;
 
