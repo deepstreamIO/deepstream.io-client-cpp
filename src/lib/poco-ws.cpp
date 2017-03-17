@@ -122,10 +122,6 @@ public:
     void onMessage(const HandlerWithMsgFn&) const override {}
     void onOpen(const HandlerFn&) const override {}
 
-    int available() const override {
-	return 0;
-    }
-
 private:
     Poco::URI uri_;
     Poco::Net::HTTPClientSession* session_;
