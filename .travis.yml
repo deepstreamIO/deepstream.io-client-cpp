@@ -53,7 +53,7 @@ script:
       export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH;
     fi
   - export PYTHONPATH=$PWD/lib:$PWD/python;
-  - make -j $(nproc 2>/dev/null || sysctl -n hw.ncpu)
+  - make
   - make test
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       make NightlyMemCheck;
