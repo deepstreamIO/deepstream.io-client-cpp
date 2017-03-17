@@ -36,8 +36,7 @@
 namespace deepstream {
 
 std::unique_ptr<ClientImpl>
-ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler,
-    WSFactory* wsFactory)
+ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler, WSFactory* wsFactory)
 {
     assert(p_websocket);
     assert(p_error_handler);
@@ -116,8 +115,7 @@ std::unique_ptr<ClientImpl> ClientImpl::make(const std::string& uri, std::unique
     return nullptr;
 }
 
-ClientImpl::ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
-    std::unique_ptr<ErrorHandler> p_error_handler)
+ClientImpl::ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler)
     : state_(p_websocket ? State::AWAIT_CONNECTION
                          : State::ERROR)
     , p_websocket_(std::move(p_websocket))

@@ -99,9 +99,14 @@ public:
         return uri_.toString();
     }
 
-    bool send(const std::string&)
+    int send(const void *buffer, int length) const
     {
-        return false;
+        return 0;
+    }
+
+    int recv(void *buffer, int length, int& flags) const
+    {
+        return 0;
     }
 
     bool open()
@@ -110,11 +115,16 @@ public:
     };
 
     void close() {}
+    void shutdown() {}
 
     void onClose(const HandlerFn&) const override {}
     void onError(const HandlerWithMsgFn&) const override {}
     void onMessage(const HandlerWithMsgFn&) const override {}
     void onOpen(const HandlerFn&) const override {}
+
+    int available() const override {
+	return 0;
+    }
 
 private:
     Poco::URI uri_;

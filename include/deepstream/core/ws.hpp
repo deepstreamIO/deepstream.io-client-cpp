@@ -19,6 +19,9 @@
 #include <functional>
 #include <string>
 
+// Note: send() and recv() semantics are copied from
+// Poco::Net:WebSocket.
+
 namespace deepstream {
 class WS {
 public:
@@ -31,11 +34,47 @@ public:
 
     virtual std::string URI() const = 0;
 
-    virtual bool send(const std::string& msg) = 0;
+    // Sends the contents of the given buffer through the socket as a
+    // single frame.
+    //
+    // The frame should always be sent as FRAME_TEXT.
+    //
+    // Returns the number of bytes sent, which may be less than the
+    // number of bytes specified.
+    //
+    // Certain socket implementations may also return a negative value
+    // denoting a certain condition.
+    virtual int send(const void* buffer, int length) const = 0;
+
+    // Receives a frame from the socket and stores it in buffer. Up to
+    // length bytes are received. If the frame's payload is larger, a
+    // WebSocketException is thrown and the WebSocket connection must
+    // be terminated.
+    //
+    // Returns the number of bytes received. A return value of 0 means
+    // that the peer has shut down or closed the connection.
+    //
+    // Throws a TimeoutException if a receive timeout has been set and
+    // nothing is received within that interval. Throws a NetException
+    // (or a subclass) in case of other errors.
+    //
+    // The frame flags and opcode (FrameFlags and FrameOpcodes)
+    // are stored in flags.
+    virtual int recv(void* buffer, int length, int& flags) const = 0;
+
+    // Returns the number of bytes available that can be read without
+    // causing the socket to block.
+    //
+    // For an SSL connection, returns the number of bytes that can be
+    // read from the currently buffered SSL record, before a new
+    // record is read from the underlying socket.
+    virtual int available() const = 0;
 
     virtual bool open() = 0;
 
     virtual void close() = 0;
+
+    virtual void shutdown() = 0;
 
     virtual void onClose(const HandlerFn&) const = 0;
 
