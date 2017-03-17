@@ -54,19 +54,6 @@ namespace client {
         CONNECTED,
         DISCONNECTED
     };
-
-    std::ostream& operator<<(std::ostream&, State);
-
-    /**
-     * Given the current client state, a message, and a sender, this
-     * function returns the next state of the client's finite state machine.
-     */
-    State transition(State s, const Message& message, Sender sender);
-
-    // This class does not use `std::unique_ptr<impl::Client>` because it
-    // prevents the use of the PIMPL idiom because the class attempts to
-    // evaluate `sizeof(impl::Client)`; naturally, we must know the definition
-    // of `impl::Client` meaning we have to include the appropriate header.
 }
 
 struct Client {

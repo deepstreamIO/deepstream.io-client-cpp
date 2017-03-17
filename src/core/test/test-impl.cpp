@@ -30,6 +30,7 @@
 #include "../message_builder.hpp"
 #include "../parser.hpp"
 #include "../websockets.hpp"
+#include "../state.hpp"
 #include "pseudo-websocket.hpp"
 
 #include <cassert>

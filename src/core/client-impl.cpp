@@ -23,6 +23,7 @@
 #include "message.hpp"
 #include "message_builder.hpp"
 #include "use.hpp"
+#include "state.hpp"
 #include "websockets.hpp"
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/client.hpp>

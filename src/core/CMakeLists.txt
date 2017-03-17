@@ -34,6 +34,7 @@ add_library(
 	parser.cpp
 	presence.cpp
 	random.cpp
+	state.cpp
 	websockets.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
