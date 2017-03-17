@@ -24,12 +24,12 @@
 
 #include "client-impl.hpp"
 #include "message.hpp"
+#include "state.hpp"
 #include "use.hpp"
 #include "websockets.hpp"
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/client.hpp>
 #include <deepstream/core/error_handler.hpp>
-#include "state.hpp"
 
 #include <cassert>
 
@@ -64,7 +64,7 @@ bool Client::login(const std::string& auth, Buffer* p_user_data)
 
 void Client::close() { return p_impl_->close(); }
 
-client::State Client::getConnectionState()
+State Client::getConnectionState()
 {
     return p_impl_->getConnectionState();
 }

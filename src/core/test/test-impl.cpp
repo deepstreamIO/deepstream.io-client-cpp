@@ -29,8 +29,8 @@
 #include "../client-impl.hpp"
 #include "../message_builder.hpp"
 #include "../parser.hpp"
-#include "../websockets.hpp"
 #include "../state.hpp"
+#include "../websockets.hpp"
 #include "pseudo-websocket.hpp"
 
 #include <cassert>
@@ -57,7 +57,7 @@ struct SimpleClient : public websockets::pseudo::Client {
     typedef std::unique_ptr<websockets::Frame> FramePtr;
 
     SimpleClient()
-        : state_(client::State::AWAIT_CONNECTION)
+        : state_(State::AWAIT_CONNECTION)
     {
     }
 
@@ -79,7 +79,7 @@ struct SimpleClient : public websockets::pseudo::Client {
         for (std::size_t i = 0; i < expected_num_args.first; ++i)
             builder.add_argument("arg");
 
-        state_ = client::transition(state_, builder, Sender::SERVER);
+        state_ = transition(state_, builder, Sender::SERVER);
 
         return std::make_pair(websockets::State::OPEN,
             make_frame(builder.to_binary()));
@@ -87,8 +87,6 @@ struct SimpleClient : public websockets::pseudo::Client {
 
     virtual std::pair<websockets::State, FramePtr> receive_frame_impl() override
     {
-        using State = client::State;
-
         if (state_ == State::AWAIT_CONNECTION)
             return f(Topic::CONNECTION, Action::CHALLENGE);
         if (state_ == State::CHALLENGING_WAIT)
@@ -133,8 +131,8 @@ struct SimpleClient : public websockets::pseudo::Client {
 
         std::for_each(messages.cbegin(), messages.cend(),
             [this](const Message& msg) {
-                client::State old_state = this->state_;
-                client::State new_state = client::transition(old_state, msg, Sender::CLIENT);
+                State old_state = this->state_;
+                State new_state = transition(old_state, msg, Sender::CLIENT);
 
                 this->state_ = new_state;
             });
@@ -142,7 +140,7 @@ struct SimpleClient : public websockets::pseudo::Client {
         return websockets::State::OPEN;
     }
 
-    client::State state_;
+    State state_;
 };
 
 BOOST_AUTO_TEST_CASE(simple)
@@ -152,7 +150,7 @@ BOOST_AUTO_TEST_CASE(simple)
 
     p->login("auth", nullptr);
 
-    BOOST_CHECK_EQUAL(p->getConnectionState(), client::State::CONNECTED);
+    BOOST_CHECK_EQUAL(p->getConnectionState(), State::CONNECTED);
 }
 
 struct RedirectionClient : public websockets::pseudo::Client {
@@ -163,7 +161,7 @@ struct RedirectionClient : public websockets::pseudo::Client {
 
     RedirectionClient(const std::string& uri = DEFAULT_URI,
         bool do_redirect = true)
-        : state_(client::State::AWAIT_CONNECTION)
+        : state_(State::AWAIT_CONNECTION)
         , do_redirect_(do_redirect)
         , uri_(uri)
     {
@@ -191,7 +189,7 @@ struct RedirectionClient : public websockets::pseudo::Client {
         if (a == Action::REDIRECT)
             builder.add_argument(REDIRECTION_URI);
 
-        state_ = client::transition(state_, builder, Sender::SERVER);
+        state_ = transition(state_, builder, Sender::SERVER);
 
         return std::make_pair(websockets::State::OPEN,
             make_frame(builder.to_binary()));
@@ -199,8 +197,6 @@ struct RedirectionClient : public websockets::pseudo::Client {
 
     virtual std::pair<websockets::State, FramePtr> receive_frame_impl() override
     {
-        using State = client::State;
-
         if (state_ == State::AWAIT_CONNECTION)
             return f(Topic::CONNECTION, Action::CHALLENGE);
         if (state_ == State::CHALLENGING_WAIT && do_redirect_)
@@ -247,8 +243,8 @@ struct RedirectionClient : public websockets::pseudo::Client {
 
         std::for_each(messages.cbegin(), messages.cend(),
             [this](const Message& msg) {
-                client::State old_state = this->state_;
-                client::State new_state = client::transition(old_state, msg, Sender::CLIENT);
+                State old_state = this->state_;
+                State new_state = transition(old_state, msg, Sender::CLIENT);
 
                 this->state_ = new_state;
             });
@@ -256,7 +252,7 @@ struct RedirectionClient : public websockets::pseudo::Client {
         return websockets::State::OPEN;
     }
 
-    client::State state_;
+    State state_;
     bool do_redirect_;
     std::string uri_;
 };
@@ -271,7 +267,7 @@ BOOST_AUTO_TEST_CASE(redirections)
 
     p->login("auth", nullptr);
 
-    BOOST_CHECK_EQUAL(p->getConnectionState(), client::State::CONNECTED);
+    BOOST_CHECK_EQUAL(p->getConnectionState(), State::CONNECTED);
     BOOST_CHECK_EQUAL(p->p_websocket_->uri(), RedirectionClient::REDIRECTION_URI);
 }
 }

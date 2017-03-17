@@ -33,28 +33,27 @@ struct Message;
 
 struct ErrorHandler;
 
-namespace client {
-    enum class State;
-}
-
 struct ClientImpl;
 
-namespace client {
-    /**
-     * This enumeration stores the different client states of a deepstream
-     * 2.x client.
-     */
-    enum class State {
-        ERROR,
-        AWAIT_CONNECTION,
-        CHALLENGING,
-        CHALLENGING_WAIT,
-        AWAIT_AUTHENTICATION,
-        AUTHENTICATING,
-        CONNECTED,
-        DISCONNECTED
-    };
-}
+/**
+ * This enumeration stores the different client states of a deepstream
+ * 2.x client.
+ */
+enum class State {
+    ERROR,
+    AWAIT_CONNECTION,
+    CHALLENGING,
+    CHALLENGING_WAIT,
+    AWAIT_AUTHENTICATION,
+    AUTHENTICATING,
+    CONNECTED,
+    DISCONNECTED
+};
+
+// This class does not use `std::unique_ptr<impl::Client>` because it
+// prevents the use of the PIMPL idiom because the class attempts to
+// evaluate `sizeof(impl::Client)`; naturally, we must know the definition
+// of `impl::Client` meaning we have to include the appropriate header.
 
 struct Client {
     Client(const std::string& uri);
@@ -97,7 +96,7 @@ public:
 
     void close();
 
-    client::State getConnectionState();
+    State getConnectionState();
 
     /**
      * This function reads all incoming messages from the websocket and

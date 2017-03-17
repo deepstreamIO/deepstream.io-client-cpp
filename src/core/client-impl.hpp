@@ -23,6 +23,8 @@
 #include <string>
 
 #include "parser.hpp"
+#include "state.hpp"
+#include <deepstream/core/client.hpp>
 
 namespace deepstream {
 struct Buffer;
@@ -30,10 +32,6 @@ struct ErrorHandler;
 struct Event;
 struct Message;
 struct Presence;
-
-namespace client {
-    enum class State;
-}
 
 namespace websockets {
     enum class State;
@@ -67,7 +65,7 @@ public:
 
     void close();
 
-    client::State getConnectionState();
+    State getConnectionState();
 
     void process_messages(Event*, Presence*);
 
@@ -99,7 +97,7 @@ public:
 	 */
     websockets::State send_frame_(const Buffer&, int);
 
-    client::State state_;
+    State state_;
     std::unique_ptr<websockets::WebSocketClient> p_websocket_;
     std::unique_ptr<ErrorHandler> p_error_handler_;
 };

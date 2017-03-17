@@ -22,8 +22,8 @@
 #include "client-impl.hpp"
 #include "message.hpp"
 #include "message_builder.hpp"
-#include "use.hpp"
 #include "state.hpp"
+#include "use.hpp"
 #include "websockets.hpp"
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/client.hpp>
@@ -53,12 +53,12 @@ ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::
 
         Buffer buffer;
         parser::MessageList messages;
-        client::State& state = p->state_;
+        State& state = p->state_;
 
         if (p->receive_(&buffer, &messages) != websockets::State::OPEN)
             return p;
 
-        if (messages.size() != 1 || state != client::State::CHALLENGING) {
+        if (messages.size() != 1 || state != State::CHALLENGING) {
             p->close();
             return p;
         }
@@ -79,10 +79,10 @@ ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::
             return p;
         }
 
-        if (state == client::State::AWAIT_AUTHENTICATION)
+        if (state == State::AWAIT_AUTHENTICATION)
             return p;
 
-        if (state == client::State::AWAIT_CONNECTION) {
+        if (state == State::AWAIT_CONNECTION) {
             const Message& redirect_msg = messages.front();
             assert(redirect_msg.num_arguments() == 1);
 
@@ -117,8 +117,8 @@ std::unique_ptr<ClientImpl> ClientImpl::make(const std::string& uri, std::unique
 
 ClientImpl::ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
     std::unique_ptr<ErrorHandler> p_error_handler)
-    : state_(p_websocket ? client::State::AWAIT_CONNECTION
-                         : client::State::ERROR)
+    : state_(p_websocket ? State::AWAIT_CONNECTION
+                         : State::ERROR)
     , p_websocket_(std::move(p_websocket))
     , p_error_handler_(std::move(p_error_handler))
 {
@@ -132,7 +132,7 @@ bool ClientImpl::login(const std::string& auth, Buffer* p_user_data)
     if (!p_websocket_)
         return false;
 
-    if (state_ != client::State::AWAIT_AUTHENTICATION)
+    if (state_ != State::AWAIT_AUTHENTICATION)
         throw std::logic_error("Cannot login() in current state");
 
     MessageBuilder areq(Topic::AUTH, Action::REQUEST);
@@ -156,7 +156,7 @@ bool ClientImpl::login(const std::string& auth, Buffer* p_user_data)
     const Message& msg = messages.front();
 
     if (msg.topic() == Topic::AUTH && msg.action() == Action::REQUEST && msg.is_ack()) {
-        assert(state_ == client::State::CONNECTED);
+        assert(state_ == State::CONNECTED);
 
         if (msg.num_arguments() == 0 && p_user_data)
             p_user_data->clear();
@@ -167,7 +167,7 @@ bool ClientImpl::login(const std::string& auth, Buffer* p_user_data)
     }
 
     if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_INVALID_AUTH_DATA) {
-        assert(state_ == client::State::AWAIT_AUTHENTICATION);
+        assert(state_ == State::AWAIT_AUTHENTICATION);
         p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
         return false;
     }
@@ -190,16 +190,16 @@ bool ClientImpl::login(const std::string& auth, Buffer* p_user_data)
 
 void ClientImpl::close()
 {
-    assert(p_websocket_ || state_ == client::State::ERROR);
+    assert(p_websocket_ || state_ == State::ERROR);
 
     if (!p_websocket_)
         return;
 
-    state_ = client::State::DISCONNECTED;
+    state_ = State::DISCONNECTED;
     p_websocket_->close();
 }
 
-client::State ClientImpl::getConnectionState() { return state_; }
+State ClientImpl::getConnectionState() { return state_; }
 
 void ClientImpl::process_messages(Event* p_event, Presence* p_presence)
 {
@@ -326,17 +326,17 @@ websockets::State ClientImpl::receive_(Buffer* p_buffer,
     for (auto it = p_messages->cbegin(); it != p_messages->cend(); ++it) {
         const Message& msg = *it;
 
-        client::State old_state = state_;
-        client::State new_state = client::transition(old_state, msg, Sender::SERVER);
+        State old_state = state_;
+        State new_state = transition(old_state, msg, Sender::SERVER);
 
-        if (new_state == client::State::ERROR) {
+        if (new_state == State::ERROR) {
             close();
             p_error_handler_->onError(ErrorState::INVALID_STATE_TRANSITION);
 
             return websockets::State::ERROR;
         }
 
-        if (new_state == client::State::DISCONNECTED)
+        if (new_state == State::DISCONNECTED)
             return websockets::State::OPEN;
 
         state_ = new_state;
@@ -350,10 +350,10 @@ websockets::State ClientImpl::send_(const Message& message)
     if (!p_websocket_)
         return websockets::State::ERROR;
 
-    client::State new_state = client::transition(state_, message, Sender::CLIENT);
-    assert(new_state != client::State::ERROR);
+    State new_state = transition(state_, message, Sender::CLIENT);
+    assert(new_state != State::ERROR);
 
-    if (new_state == client::State::ERROR)
+    if (new_state == State::ERROR)
         throw std::logic_error("Invalid client state transition");
 
     state_ = new_state;

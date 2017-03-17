@@ -23,7 +23,6 @@
 #include "../state.hpp"
 
 namespace deepstream {
-namespace client {
 
     BOOST_AUTO_TEST_CASE(lifetime)
     {
@@ -58,5 +57,4 @@ namespace client {
         State s5 = transition(s4, msg4, Sender::SERVER);
         BOOST_CHECK_EQUAL(s5, State::CONNECTED);
     }
-}
 }
