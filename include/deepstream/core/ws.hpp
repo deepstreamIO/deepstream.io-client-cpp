@@ -35,8 +35,7 @@ public:
     typedef std::function<void(const std::string&)> HandlerWithMsgFn;
     typedef std::function<void()> HandlerFn;
 
-    WS(){};
-
+    WS(const std::string&){};
     virtual ~WS(){};
 
     virtual std::string URI() const = 0;
@@ -51,7 +50,7 @@ public:
     //
     // Certain socket implementations may also return a negative value
     // denoting a certain condition.
-    virtual int send(const void* buffer, int length) const = 0;
+    virtual int send(const void* buffer, int length) = 0;
 
     // Receives a frame from the socket and stores it in buffer. Up to
     // length bytes are received. If the frame's payload is larger, a
@@ -67,7 +66,7 @@ public:
     //
     // The frame flags and opcode (FrameFlags and FrameOpcodes)
     // are stored in flags.
-    virtual int recv(void* buffer, int length, int& flags) const = 0;
+    virtual int recv(void* buffer, int length, int& flags) = 0;
 
     // Returns the number of bytes available that can be read without
     // causing the socket to block.
@@ -75,9 +74,7 @@ public:
     // For an SSL connection, returns the number of bytes that can be
     // read from the currently buffered SSL record, before a new
     // record is read from the underlying socket.
-    virtual int available() const = 0;
-
-    virtual bool open() = 0;
+    virtual int available() = 0;
 
     virtual void close() = 0;
 

@@ -81,10 +81,12 @@ public:
     }
 
     explicit PocoWS(const std::string& uri)
-        : uri_(uri)
+        : WS(uri)
+        , uri_(uri)
         , session_(newSession(uri))
         , request_(Poco::Net::HTTPRequest::HTTP_GET, uri_.getPath(), Poco::Net::HTTPRequest::HTTP_1_1)
         , websocket_(*session_, request_, response_)
+        , state_(deepstream::WSState::OPEN)
     {
     }
 
@@ -98,36 +100,42 @@ public:
         return uri_.toString();
     }
 
-    int send(const void *buffer, int length) const
+    int send(const void* buffer, int length) override
     {
-        return 0;
+        return websocket_.sendFrame(buffer, length);
     }
 
-    int recv(void *buffer, int length, int& flags) const
+    int recv(void* buffer, int length, int& flags) override
     {
-        return 0;
+        return websocket_.receiveFrame(buffer, length, flags);
     }
-
-    bool open()
-    {
-        return false;
-    };
 
     deepstream::WSState getState() const
     {
         return deepstream::WSState::CLOSED;
     };
 
-    void close() {}
-    void shutdown() {}
+    void close()
+    {
+        if (state_ == deepstream::WSState::OPEN) {
+            websocket_.close();
+            state_ = deepstream::WSState::CLOSED;
+        }
+    }
+
+    void shutdown()
+    {
+        websocket_.shutdown();
+    }
 
     void onClose(const HandlerFn&) const override {}
     void onError(const HandlerWithMsgFn&) const override {}
     void onMessage(const HandlerWithMsgFn&) const override {}
     void onOpen(const HandlerFn&) const override {}
 
-    int available() const override {
-	return 0;
+    int available() override
+    {
+        return websocket_.available();
     }
 
 private:
@@ -136,6 +144,7 @@ private:
     Poco::Net::HTTPRequest request_;
     Poco::Net::HTTPResponse response_;
     Poco::Net::WebSocket websocket_;
+    deepstream::WSState state_;
 };
 
 deepstream::WS* PocoWSFactory::connect(const std::string& uri)
