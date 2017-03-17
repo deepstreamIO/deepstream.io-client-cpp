@@ -40,13 +40,11 @@ namespace websockets {
 
 struct ClientImpl {
     static std::unique_ptr<ClientImpl>
-    make(std::unique_ptr<websockets::WebSocketClient> p_websocket,
-        std::unique_ptr<ErrorHandler> p_error_handler);
+    make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler,
+        WSFactory* wsFactory);
 
-    static std::unique_ptr<ClientImpl> make(const std::string& uri);
-
-    static std::unique_ptr<ClientImpl> make(const std::string& uri,
-        std::unique_ptr<ErrorHandler>);
+    static std::unique_ptr<ClientImpl>
+    make(const std::string& uri, std::unique_ptr<ErrorHandler>, WSFactory* wsFactory);
 
     ClientImpl() = delete;
 
@@ -59,8 +57,6 @@ protected:
         std::unique_ptr<ErrorHandler>);
 
 public:
-    bool login();
-
     bool login(const std::string& auth, Buffer* p_user_data = nullptr);
 
     void close();
@@ -100,6 +96,7 @@ public:
     State state_;
     std::unique_ptr<websockets::WebSocketClient> p_websocket_;
     std::unique_ptr<ErrorHandler> p_error_handler_;
+    WSFactory* wsFactory_;
 };
 }
 

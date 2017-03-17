@@ -36,7 +36,8 @@
 namespace deepstream {
 
 std::unique_ptr<ClientImpl>
-ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler)
+ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler,
+    WSFactory* wsFactory)
 {
     assert(p_websocket);
     assert(p_error_handler);
@@ -106,7 +107,7 @@ ClientImpl::make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::
         new ClientImpl(nullptr, std::move(p_error_handler)));
 }
 
-std::unique_ptr<ClientImpl> ClientImpl::make(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
+std::unique_ptr<ClientImpl> ClientImpl::make(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh, WSFactory* wsFactory)
 {
     if (uri.empty())
         throw std::invalid_argument("URI must not be empty");
@@ -124,8 +125,6 @@ ClientImpl::ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
 {
     assert(p_error_handler_);
 }
-
-bool ClientImpl::login() { return login("{}"); }
 
 bool ClientImpl::login(const std::string& auth, Buffer* p_user_data)
 {
