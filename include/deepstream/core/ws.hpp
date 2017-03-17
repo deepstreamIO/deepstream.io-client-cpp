@@ -62,6 +62,14 @@ public:
     // are stored in flags.
     virtual int recv(void* buffer, int length, int& flags) const = 0;
 
+    // Returns the number of bytes available that can be read without
+    // causing the socket to block.
+    //
+    // For an SSL connection, returns the number of bytes that can be
+    // read from the currently buffered SSL record, before a new
+    // record is read from the underlying socket.
+    virtual int available() const = 0;
+
     virtual bool open() = 0;
 
     virtual void close() = 0;
