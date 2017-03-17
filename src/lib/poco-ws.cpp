@@ -104,7 +104,7 @@ public:
         return 0;
     }
 
-    int recv(void *buffer, int length) const
+    int recv(void *buffer, int length, int& flags) const
     {
         return 0;
     }

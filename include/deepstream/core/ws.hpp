@@ -57,7 +57,10 @@ public:
     // Throws a TimeoutException if a receive timeout has been set and
     // nothing is received within that interval. Throws a NetException
     // (or a subclass) in case of other errors.
-    virtual int recv(void* buffer, int length) const = 0;
+    //
+    // The frame flags and opcode (FrameFlags and FrameOpcodes)
+    // are stored in flags.
+    virtual int recv(void* buffer, int length, int& flags) const = 0;
 
     virtual bool open() = 0;
 
