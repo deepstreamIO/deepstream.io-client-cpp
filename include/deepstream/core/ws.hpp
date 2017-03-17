@@ -51,8 +51,8 @@ protected:
     WS& operator=(WS const&);
 };
 
-class WSFactory {
-public:
+struct WSFactory {
     virtual WS* connect(const std::string& uri) = 0;
+    virtual ~WSFactory() {}
 };
 }

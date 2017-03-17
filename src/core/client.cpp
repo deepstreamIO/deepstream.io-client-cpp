@@ -32,10 +32,11 @@
 #include <deepstream/core/error_handler.hpp>
 
 #include <cassert>
+#include <include/deepstream.hpp>
 
 namespace deepstream {
 
-Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
+Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh, WSFactory* f)
     : p_impl_(ClientImpl::make(uri, std::move(p_eh)).release())
     , event([this](const Message& message) -> bool {
         assert(p_impl_);
@@ -48,8 +49,8 @@ Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh)
 {
 }
 
-Client::Client(const std::string& uri)
-    : Client(uri, std::unique_ptr<ErrorHandler>(new ErrorHandler()))
+Client::Client(const std::string& uri, WSFactory* wsFactory)
+    : Client(uri, std::unique_ptr<ErrorHandler>(new ErrorHandler()), wsFactory)
 {
 }
 

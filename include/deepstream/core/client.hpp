@@ -19,6 +19,7 @@
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/event.hpp>
 #include <deepstream/core/presence.hpp>
+#include <deepstream/core/ws.hpp>
 
 #include <cstdint>
 
@@ -54,8 +55,8 @@ enum class State {
 // of `impl::Client` meaning we have to include the appropriate header.
 
 struct Client {
-    Client(const std::string& uri);
-    Client(const std::string& uri, std::unique_ptr<ErrorHandler>);
+    Client(const std::string& uri, WSFactory* wsFactory = nullptr);
+    Client(const std::string& uri, std::unique_ptr<ErrorHandler>, WSFactory* wsFactory = nullptr);
 
     ~Client();
 
