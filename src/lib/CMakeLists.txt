@@ -5,7 +5,7 @@ find_package(OpenSSL REQUIRED)
 add_library(
   libdeepstream_poco SHARED
   poco-ws.cpp
-  websockets/poco.cpp)
+  poco-client.cpp)
 
 if(BUILD_POCO)
   set(Poco_LIBRARIES PocoNetSSL PocoCrypto PocoNet PocoUtil PocoJSON PocoXML PocoFoundation)

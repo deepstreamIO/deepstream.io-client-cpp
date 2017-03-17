@@ -32,7 +32,7 @@
 #include "../src/core/exception.hpp"
 #include "../src/core/time.hpp"
 #include "../src/core/websockets.hpp"
-#include "poco.hpp"
+#include "poco-client.hpp"
 #include <deepstream/core/buffer.hpp>
 
 #include <cassert>
