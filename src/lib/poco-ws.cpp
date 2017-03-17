@@ -114,6 +114,11 @@ public:
         return false;
     };
 
+    deepstream::WSState getState() const
+    {
+        return deepstream::WSState::CLOSED;
+    };
+
     void close() {}
     void shutdown() {}
 
