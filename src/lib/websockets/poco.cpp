@@ -29,9 +29,9 @@
 #include <Poco/Net/SSLManager.h>
 #include <Poco/Timespan.h>
 
-#include "../core/exception.hpp"
-#include "../core/time.hpp"
-#include "../core/websockets.hpp"
+#include "../src/core/exception.hpp"
+#include "../src/core/time.hpp"
+#include "../src/core/websockets.hpp"
 #include "poco.hpp"
 #include <deepstream/core/buffer.hpp>
 
