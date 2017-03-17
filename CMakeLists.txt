@@ -114,7 +114,6 @@ find_package(SWIG 3)
 find_package(FLEX 2.5 REQUIRED)
 
 link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
-include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
