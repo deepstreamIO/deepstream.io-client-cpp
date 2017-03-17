@@ -125,7 +125,10 @@ public:
 
     void shutdown()
     {
-        websocket_.shutdown();
+        if (state_ == deepstream::WSState::OPEN) {
+            websocket_.shutdown();
+            state_ = deepstream::WSState::CLOSED;
+        }
     }
 
     void onClose(const HandlerFn&) const override {}
