@@ -29,7 +29,7 @@ enum class WSState {
     OPEN,
     CLOSED
 };
-  
+
 class WS {
 public:
     typedef std::function<void(const std::string&)> HandlerWithMsgFn;
@@ -92,7 +92,7 @@ public:
     virtual void onOpen(const HandlerFn&) const = 0;
 
     virtual WSState getState() const = 0;
-    
+
 protected:
     WS(WS const&);
 

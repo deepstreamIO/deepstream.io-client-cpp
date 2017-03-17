@@ -19,9 +19,9 @@
 #include <string>
 #include <utility>
 
+#include <Poco/Net/HTTPClientSession.h>
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
-#include <Poco/Net/HTTPClientSession.h>
 #include <Poco/Net/WebSocket.h>
 #include <Poco/URI.h>
 
@@ -39,8 +39,8 @@ namespace websockets {
         struct PocoClient : public ::deepstream::websockets::WebSocketClient {
             explicit PocoClient(const std::string& uri, std::unique_ptr<Poco::Net::HTTPClientSession> session);
 
-	    // Construct a client based on the URI scheme type. It
-	    // will use a HTTPS session if the scheme matches "wss".
+            // Construct a client based on the URI scheme type. It
+            // will use a HTTPS session if the scheme matches "wss".
             static PocoClient* makeClient(const std::string& uri);
 
             std::size_t num_bytes_available();

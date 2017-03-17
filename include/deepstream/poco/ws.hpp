@@ -21,13 +21,10 @@
 
 class PocoWSFactory : public deepstream::WSFactory {
 public:
-  deepstream::WS* connect(const std::string& uri);
-  static PocoWSFactory* instance();
+    deepstream::WS* connect(const std::string& uri);
+    static PocoWSFactory* instance();
+
 public:
-  PocoWSFactory() {
-    std::cout << "hmm" << std::endl;
-  }
-  ~PocoWSFactory() {
-    std::cout << "~hmm" << std::endl;
-  }
+    PocoWSFactory() {}
+    virtual ~PocoWSFactory() {}
 };

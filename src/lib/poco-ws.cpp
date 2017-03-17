@@ -44,7 +44,6 @@ public:
             "",
             "",
             "",
-            // TODO(frobware) VERIFY_NONE is pointless. Should be VERIFY_STRICT.
             Poco::Net::Context::VERIFY_NONE,
             9,
             true,
