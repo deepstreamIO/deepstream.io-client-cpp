@@ -1,19 +1,22 @@
-dist: trusty
-sudo: required
-
 language: cpp
 
 cache: ccache
 
-compiler:
-  - clang
-  - gcc
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      compiler:
+        - clang
+        - gcc
+    - os: osx
+      compiler:
+        - clang
 
 git:
-    depth: 1
-
-before_install:
-  - sudo sh -x ubuntu-prerequisites.sh
+  depth: 1
 
 addons:
   apt:
@@ -31,17 +34,33 @@ addons:
       - valgrind
       - wget
 
+before_install:
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      brew update;
+      brew install openssl poco flex ccache;
+    else
+      sudo sh -x ubuntu-prerequisites.sh;
+    fi
+
 script:
-  - ccache -s
   - cmake --version
-  - cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON -DBUILD_POCO=ON
-  - export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH
-  - export PYTHONPATH=$PWD/lib:$PWD/python
-  - make -j $(nproc)
+  - ccache -s
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      cmake -DBUILD_TESTING=ON -DOPENSSL_INCLUDE_DIR=/usr/local/opt/openssl/include/ -DPoco_LIBRARIES='/usr/local/opt/poco/lib/libPocoFoundation.dylib;/usr/local/opt/poco/lib/libPocoCrypto.dylib;/usr/local/opt/poco/lib/libPocoNet.dylib;/usr/local/opt/poco/lib/libPocoNetSSL.dylib';
+    else
+      cmake -DBUILD_TESTING=ON -DBUILD_COVERAGE=ON -DBUILD_POCO=ON;
+      export LD_LIBRARY_PATH=$PWD/lib:$PWD/thirdparty/lib:$PWD/python:$LD_LIBRARY_PATH;
+    fi
+  - export PYTHONPATH=$PWD/lib:$PWD/python;
+  - make
   - make test
-  - make NightlyMemCheck
-  - if [ "$CXX" == "g++" ]; then make NightlyCoverage; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      make NightlyMemCheck;
+      if [ "$CXX" == "g++" ]; then make NightlyCoverage; fi;
+    fi
   - ccache -s
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      bash <(curl -s https://codecov.io/bash);
+    fi
