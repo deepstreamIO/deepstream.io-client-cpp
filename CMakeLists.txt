@@ -117,6 +117,7 @@ link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
 include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if(SWIG_FOUND)
   # We need to fix the generated Swig wrapper as the current version
@@ -133,7 +134,6 @@ if(SWIG_FOUND)
   include(${SWIG_USE_FILE})
   find_package(PythonLibs REQUIRED)
   include_directories(${PYTHON_INCLUDE_PATH})
-  include_directories(${CMAKE_CURRENT_SOURCE_DIR})
   set(CMAKE_SWIG_FLAGS "")
   set(CMAKE_SWIG_OUTDIR python)
   set_source_files_properties(deepstream.i PROPERTIES CPLUSPLUS ON)
