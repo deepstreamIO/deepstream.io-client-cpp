@@ -38,22 +38,22 @@ namespace websockets {
     struct WebSocketClient;
 }
 
-struct ClientImpl {
-    static std::unique_ptr<ClientImpl>
+struct Connection {
+    static std::unique_ptr<Connection>
     make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler,
         WSFactory* wsFactory);
 
-    static std::unique_ptr<ClientImpl>
+    static std::unique_ptr<Connection>
     make(const std::string& uri, std::unique_ptr<ErrorHandler>, WSFactory* wsFactory);
 
-    ClientImpl() = delete;
+    Connection() = delete;
 
-    ClientImpl(const ClientImpl&) = delete;
+    Connection(const Connection&) = delete;
 
-    ClientImpl(ClientImpl&&) = delete;
+    Connection(Connection&&) = delete;
 
 protected:
-    explicit ClientImpl(std::unique_ptr<websockets::WebSocketClient> p_websocket,
+    explicit Connection(std::unique_ptr<websockets::WebSocketClient> p_websocket,
         std::unique_ptr<ErrorHandler>);
 
 public:

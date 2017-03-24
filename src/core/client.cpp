@@ -22,7 +22,7 @@
 
 #include <ostream>
 
-#include "client-impl.hpp"
+#include "connection.hpp"
 #include "message.hpp"
 #include "state.hpp"
 #include "use.hpp"
@@ -37,7 +37,7 @@
 namespace deepstream {
 
 Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh, WSFactory* wsFactory)
-    : p_impl_(ClientImpl::make(uri, std::move(p_eh), nullptr).release())
+    : p_impl_(Connection::make(uri, std::move(p_eh), nullptr).release())
     , event([this](const Message& message) -> bool {
         assert(p_impl_);
         return p_impl_->send_(message) == websockets::State::OPEN;

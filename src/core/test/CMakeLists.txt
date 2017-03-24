@@ -63,7 +63,7 @@ install(TARGETS libdeepstream_core_test DESTINATION "lib")
 add_boost_test(test-lexer.cpp test_lexer)
 
 add_boost_test(test-client.cpp libdeepstream_core_test)
-add_boost_test(test-impl.cpp libdeepstream_core_test)
+add_boost_test(test-connection.cpp libdeepstream_core_test)
 add_boost_test(test-event.cpp libdeepstream_core_test)
 add_boost_test(test-message.cpp libdeepstream_core_test)
 add_boost_test(test-message_builder.cpp libdeepstream_core_test)

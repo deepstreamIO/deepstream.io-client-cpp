@@ -32,7 +32,7 @@ namespace deepstream {
 
 struct ErrorHandler;
 
-struct ClientImpl;
+struct Connection;
 
 /**
  * This enumeration stores the different client states of a deepstream
@@ -104,7 +104,7 @@ public:
      */
     void process_messages();
 
-    ClientImpl* const p_impl_;
+    Connection* const p_impl_;
     Event event;
     Presence presence;
 };

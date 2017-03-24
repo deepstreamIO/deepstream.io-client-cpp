@@ -27,7 +27,7 @@ add_library(
 	client.cpp
 	event.cpp
 	exception.cpp
-	client-impl.cpp
+	connection.cpp
 	message.cpp
 	message_builder.cpp
 	message_proxy.cpp

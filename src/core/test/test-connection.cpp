@@ -26,7 +26,7 @@
 #include <deepstream/core/client.hpp>
 #include <deepstream/core/error_handler.hpp>
 
-#include "../client-impl.hpp"
+#include "../connection.hpp"
 #include "../message_builder.hpp"
 #include "../parser.hpp"
 #include "../state.hpp"
@@ -145,7 +145,7 @@ struct SimpleClient : public websockets::pseudo::Client {
 
 BOOST_AUTO_TEST_CASE(simple)
 {
-    std::unique_ptr<ClientImpl> p = ClientImpl::make(std::unique_ptr<websockets::WebSocketClient>(new SimpleClient),
+    std::unique_ptr<Connection> p = Connection::make(std::unique_ptr<websockets::WebSocketClient>(new SimpleClient),
         std::unique_ptr<ErrorHandler>(new FailHandler), nullptr);
 
     p->login("auth", nullptr);
@@ -262,7 +262,7 @@ constexpr const char RedirectionClient::REDIRECTION_URI[];
 
 BOOST_AUTO_TEST_CASE(redirections)
 {
-    std::unique_ptr<ClientImpl> p = ClientImpl::make(
+    std::unique_ptr<Connection> p = Connection::make(
         std::unique_ptr<websockets::WebSocketClient>(new RedirectionClient),
         std::unique_ptr<ErrorHandler>(new FailHandler), nullptr);
 
