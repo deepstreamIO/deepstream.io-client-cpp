@@ -6,3 +6,12 @@ deepstream.io-client-cpp [![Build Status](https://travis-ci.org/deepstreamIO/dee
 The C++ client for [deepstream.io](http://deepstream.io/)
 
 ## Documentation Coming Soon!
+
+Installation
+------------
+
+# OSX (requires homebrew)
+
+```bash
+./osx-build.sh
+```
