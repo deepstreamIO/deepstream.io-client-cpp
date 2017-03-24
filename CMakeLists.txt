@@ -128,7 +128,7 @@ if(SWIG_FOUND)
   add_custom_command(
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx
-    COMMAND ${CMAKE_SOURCE_DIR}/fix-deepstream-swig.pl ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
+    COMMAND ${CMAKE_SOURCE_DIR}/swig/fix-deepstream-swig.pl ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
     COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
 
   include(${SWIG_USE_FILE})
@@ -136,9 +136,9 @@ if(SWIG_FOUND)
   include_directories(${PYTHON_INCLUDE_PATH})
   set(CMAKE_SWIG_FLAGS "")
   set(CMAKE_SWIG_OUTDIR python)
-  set_source_files_properties(deepstream.i PROPERTIES CPLUSPLUS ON)
+  set_source_files_properties(swig/deepstream.i PROPERTIES CPLUSPLUS ON)
   set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx PROPERTIES COMPILE_FLAGS -Wno-self-assign)
-  swig_add_module(deepstream python deepstream.i ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
+  swig_add_module(deepstream python swig/deepstream.i ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
   swig_link_libraries(deepstream libdeepstream_core ${POCO_LIBS} ${PYTHON_LIBRARIES})
 endif()
 
