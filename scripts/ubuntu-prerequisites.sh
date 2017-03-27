@@ -9,22 +9,23 @@ apt update -yq
 apt-get install eatmydata
 
 eatmydata apt-get -yq --no-install-suggests --no-install-recommends install \
-	build-essential \
-	flex \
-	gcc \
-	lcov \
-	libboost-dev \
-	libboost-test-dev \
-	libssl-dev \
-	python3 \
-        python3-dev \
-	valgrind \
-	wget
+  build-essential \
+  flex \
+  gcc \
+  lcov \
+  libboost-dev \
+  libboost-test-dev \
+  libssl-dev \
+  python3 \
+  python3-dev \
+  valgrind \
+  wget
 
-if [ "$(lsb_release -cs)" = "trusty" ]; then
-    eatmydata apt-get -yq -t trusty-backports install swig3.0
-    eatmydata apt-get -yq -t trusty-backports install cmake
-else
-    eatmydata apt-get -yq install swig3.0
-    eatmydata apt-get -yq install cmake
-fi
+# Temporarily disabled 27/03/17
+# if [ "$(lsb_release -cs)" = "trusty" ]; then
+#     eatmydata apt-get -yq -t trusty-backports install swig3.0
+#     eatmydata apt-get -yq -t trusty-backports install cmake
+# else
+#     eatmydata apt-get -yq install swig3.0
+#     eatmydata apt-get -yq install cmake
+# fi
