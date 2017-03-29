@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef DEEPSTREAM_IMPL_HPP
-#define DEEPSTREAM_IMPL_HPP
+#ifndef DEEPSTREAM_CONNECTION_HPP
+#define DEEPSTREAM_CONNECTION_HPP
 
 #include <cstdint>
 
@@ -27,77 +27,51 @@
 #include <deepstream/core/client.hpp>
 
 namespace deepstream {
-struct Buffer;
-struct ErrorHandler;
-struct Event;
-struct Message;
-struct Presence;
+    struct Buffer;
+    struct ErrorHandler;
+    struct Event;
+    struct Message;
+    struct Presence;
 
-namespace websockets {
-    enum class State;
-    struct WebSocketClient;
-}
+    struct Connection {
 
-struct Connection {
-    static std::unique_ptr<Connection>
-    make(std::unique_ptr<websockets::WebSocketClient> p_websocket, std::unique_ptr<ErrorHandler> p_error_handler,
-        WSFactory* wsFactory);
+        Connection() = delete;
 
-    static std::unique_ptr<Connection>
-    make(const std::string& uri, std::unique_ptr<ErrorHandler>, WSFactory* wsFactory);
+        Connection(const Connection&) = delete;
 
-    Connection() = delete;
+        Connection(Connection&&) = delete;
 
-    Connection(const Connection&) = delete;
+    public:
 
-    Connection(Connection&&) = delete;
+        explicit Connection(const std::string &, WSHandler &, ErrorHandler &);
 
-protected:
-    explicit Connection(std::unique_ptr<websockets::WebSocketClient> p_websocket,
-        std::unique_ptr<ErrorHandler>);
+        void login(const std::string& auth, const Client::LoginCallback &callback);
 
-public:
-    bool login(const std::string& auth, Buffer* p_user_data = nullptr);
+        void close();
 
-    void close();
+        ConnectionState get_connection_state();
 
-    State getConnectionState();
+        /**
+         * This method serializes the given message and sends it as a
+         * non-fragmented text frame to the server.
+         */
+        void send_(const Message&);
 
-    void process_messages(Event*, Presence*);
+    private:
 
-    /**
-	 * This function reads messages from the websocket.
-	 *
-	 * @param[out] p_buffer A non-NULL pointer. After a successful exit,
-	 * the buffer stores the unparsed messages.
-	 * @param[out] p_messages A non-NULL pointer. After a successful exit,
-	 * the messages reference the storage of `p_buffer`.
-	 */
-    websockets::State receive_(Buffer* p_buffer, parser::MessageList* p_messages);
+        void on_message(const Buffer &message);
+        void on_error(const std::string &error);
+        void on_open();
+        void on_close();
 
-    /**
-	 * This method serializes the given messages and sends it as a
-	 * non-fragmented text frame to the server.
-	 */
-    websockets::State send_(const Message&);
+        ConnectionState state_;
 
-    /**
-	 * This method sends a non-fragmented text frame with the contents of
-	 * the given buffer as payload.
-	 */
-    websockets::State send_frame_(const Buffer&);
+        ErrorHandler &error_handler_;
+        WSHandler &ws_handler_;
 
-    /**
-	 * This method sends a frame with given flags and the contents of the
-	 * given buffer as payload.
-	 */
-    websockets::State send_frame_(const Buffer&, int);
+        std::unique_ptr<Client::LoginCallback> p_login_callback_;
 
-    State state_;
-    std::unique_ptr<websockets::WebSocketClient> p_websocket_;
-    std::unique_ptr<ErrorHandler> p_error_handler_;
-    WSFactory* wsFactory_;
-};
+    };
 }
 
 #endif

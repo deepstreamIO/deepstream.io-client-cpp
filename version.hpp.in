@@ -23,17 +23,17 @@
 
 namespace deepstream {
 
-struct version {
-    version() = delete;
+    struct version {
+        version() = delete;
 
-    enum {
-        MAJOR = DEEPSTREAM_VERSION_MAJOR,
-        MINOR = DEEPSTREAM_VERSION_MINOR,
-        PATCH = DEEPSTREAM_VERSION_PATCH
+        enum {
+            MAJOR = DEEPSTREAM_VERSION_MAJOR,
+            MINOR = DEEPSTREAM_VERSION_MINOR,
+            PATCH = DEEPSTREAM_VERSION_PATCH
+        };
+
+        static constexpr const char* to_string() { return DEEPSTREAM_VERSION; }
     };
-
-    static constexpr const char* to_string() { return DEEPSTREAM_VERSION; }
-};
 
 }
 

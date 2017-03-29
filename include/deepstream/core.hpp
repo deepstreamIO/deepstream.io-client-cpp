@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef DEEPSTREAM_HPP
+#define DEEPSTREAM_HPP
 
-#pragma once
-
+#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/client.hpp>
+#include <deepstream/core/error_handler.hpp>
+#include <deepstream/core/event.hpp>
+#include <deepstream/core/presence.hpp>
+#include <deepstream/core/version.hpp>
 #include <deepstream/core/ws.hpp>
-#include <iostream>
 
-class PocoWSFactory : public deepstream::WSFactory {
-public:
-    deepstream::WS* connect(const std::string& uri);
-    static PocoWSFactory* instance();
-
-public:
-    PocoWSFactory() {}
-    virtual ~PocoWSFactory() {}
-};
+#endif

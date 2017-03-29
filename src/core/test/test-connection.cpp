@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(simple)
 
     p->login("auth", nullptr);
 
-    BOOST_CHECK_EQUAL(p->getConnectionState(), State::CONNECTED);
+    BOOST_CHECK_EQUAL(p->get_connection_state(), State::CONNECTED);
 }
 
 struct RedirectionClient : public websockets::pseudo::Client {
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(redirections)
 
     p->login("auth", nullptr);
 
-    BOOST_CHECK_EQUAL(p->getConnectionState(), State::CONNECTED);
+    BOOST_CHECK_EQUAL(p->get_connection_state(), State::CONNECTED);
     BOOST_CHECK_EQUAL(p->p_websocket_->uri(), RedirectionClient::REDIRECTION_URI);
 }
 }

@@ -38,7 +38,7 @@ struct Connection;
  * This enumeration stores the different client states of a deepstream
  * 2.x client.
  */
-enum class State {
+enum class ConnectionState {
     ERROR,
     AWAIT_CONNECTION,
     CHALLENGING,
@@ -49,14 +49,16 @@ enum class State {
     DISCONNECTED
 };
 
-// This class does not use `std::unique_ptr<impl::Client>` because it
-// prevents the use of the PIMPL idiom because the class attempts to
-// evaluate `sizeof(impl::Client)`; naturally, we must know the definition
-// of `impl::Client` meaning we have to include the appropriate header.
+// This class does not use `std::unique_ptr<Connection>` because it
+// prevents the use of the PIMPL idiom since the class attempts to
+// evaluate `sizeof(Connection)`; naturally, we must know the definition
+// of `Connection` meaning we have to include the appropriate header.
 
 struct Client {
-    Client(const std::string& uri, WSFactory* wsFactory = nullptr);
-    Client(const std::string& uri, std::unique_ptr<ErrorHandler>, WSFactory* wsFactory = nullptr);
+
+    typedef std::function<void(const Buffer &)> LoginCallback;
+
+    Client(const std::string &, WSHandler &, ErrorHandler &);
 
     ~Client();
 
@@ -65,16 +67,6 @@ struct Client {
     Client(const Client&) = delete;
 
     Client(Client&&) = default;
-
-public:
-    /**
-     * Given a client in `AWAIT_CONNECTION` state, this function attempts to
-     * log in anonymously.
-     *
-     * @return `true` if the log in attempt was successful, `false`
-     * otherwise
-     */
-    bool login();
 
     /**
      * Given a client in `AWAIT_CONNECTION` state, this function attempts to
@@ -87,24 +79,17 @@ public:
      * @param[in] auth User authentication data
      * @param[out] p_user_data On a successful reeturn, store the user data
      * in `p_user_data` if the reference is not `NULL`.
-     *
-     * @return `true` if the log in attempt was successful, `false`
-     * otherwise
      */
-    bool login(const std::string& auth, Buffer* p_user_data = nullptr);
+    void login(const std::string &auth, const LoginCallback &);
 
     void close();
 
-    State getConnectionState();
+    ConnectionState get_connection_state();
 
-    /**
-     * This function reads all incoming messages from the websocket and
-     * executes the appropriate callbacks; it returns when there are no
-     * messages left.
-     */
-    void process_messages();
+private:
+    const std::unique_ptr<Connection> p_connection_;
 
-    Connection* const p_impl_;
+public:
     Event event;
     Presence presence;
 };

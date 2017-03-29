@@ -18,86 +18,54 @@
 
 #include <functional>
 #include <string>
-
-// Note: send() and recv() semantics are copied from
-// Poco::Net:WebSocket.
+#include <deepstream/core/buffer.hpp>
 
 namespace deepstream {
 
-enum class WSState {
-    ERROR,
-    OPEN,
-    CLOSED
-};
+    enum class WSState {
+        ERROR,
+        OPEN,
+        CLOSED
+    };
 
-class WS {
-public:
-    typedef std::function<void(const std::string&)> HandlerWithMsgFn;
-    typedef std::function<void()> HandlerFn;
+    class WSHandler {
+    public:
+        typedef std::function<void(const std::string&)> HandlerWithMsgFn;
+        typedef std::function<void(const Buffer&)> HandlerWithBufFn;
+        typedef std::function<void()> HandlerFn;
 
-    WS(const std::string&){};
-    virtual ~WS(){};
+        WSHandler(){};
+        WSHandler(WSHandler const&) = delete;
+        WSHandler(WSHandler const&&) = delete;
+        WSHandler& operator=(WSHandler const&) = delete;
 
-    virtual std::string URI() const = 0;
+        virtual ~WSHandler(){};
 
-    // Sends the contents of the given buffer through the socket as a
-    // single frame.
-    //
-    // The frame should always be sent as FRAME_TEXT.
-    //
-    // Returns the number of bytes sent, which may be less than the
-    // number of bytes specified.
-    //
-    // Certain socket implementations may also return a negative value
-    // denoting a certain condition.
-    virtual int send(const void* buffer, int length) = 0;
+        virtual std::string URI() const = 0;
+        virtual void URI(std::string URI) = 0;
 
-    // Receives a frame from the socket and stores it in buffer. Up to
-    // length bytes are received. If the frame's payload is larger, a
-    // WebSocketException is thrown and the WebSocket connection must
-    // be terminated.
-    //
-    // Returns the number of bytes received. A return value of 0 means
-    // that the peer has shut down or closed the connection.
-    //
-    // Throws a TimeoutException if a receive timeout has been set and
-    // nothing is received within that interval. Throws a NetException
-    // (or a subclass) in case of other errors.
-    //
-    // The frame flags and opcode (FrameFlags and FrameOpcodes)
-    // are stored in flags.
-    virtual int recv(void* buffer, int length, int& flags) = 0;
+        // Sends the contents of the given buffer through the socket as a
+        // single frame.
+        //
+        // The frame should always be sent as FRAME_TEXT.
+        virtual void send(const Buffer&) = 0;
 
-    // Returns the number of bytes available that can be read without
-    // causing the socket to block.
-    //
-    // For an SSL connection, returns the number of bytes that can be
-    // read from the currently buffered SSL record, before a new
-    // record is read from the underlying socket.
-    virtual int available() = 0;
+        virtual void open() = 0;
 
-    virtual void close() = 0;
+        virtual void close() = 0;
 
-    virtual void shutdown() = 0;
+        virtual void reconnect() = 0;
 
-    virtual void onClose(const HandlerFn&) const = 0;
+        virtual void shutdown() = 0;
 
-    virtual void onError(const HandlerWithMsgFn&) const = 0;
+        virtual void on_open(const HandlerFn&) = 0;
 
-    virtual void onMessage(const HandlerWithMsgFn&) const = 0;
+        virtual void on_close(const HandlerFn&) = 0;
 
-    virtual void onOpen(const HandlerFn&) const = 0;
+        virtual void on_error(const HandlerWithMsgFn&) = 0;
 
-    virtual WSState getState() const = 0;
+        virtual void on_message(const HandlerWithBufFn&) = 0;
 
-protected:
-    WS(WS const&);
-
-    WS& operator=(WS const&);
-};
-
-struct WSFactory {
-    virtual WS* connect(const std::string& uri) = 0;
-    virtual ~WSFactory() {}
-};
+        virtual WSState state() const = 0;
+    };
 }
