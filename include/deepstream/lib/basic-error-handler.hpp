@@ -13,17 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
 
-#include <deepstream/core/client.hpp>
+#ifndef DEEPSTREAM_BASIC_ERROR_HANDLER_HPP
+#define DEEPSTREAM_BASIC_ERROR_HANDLER_HPP
+
+#include <deepstream/core/error_handler.hpp>
+
+#include <iostream>
+#include <string>
+#include <system_error>
 
 namespace deepstream {
 
-std::ostream& operator<<(std::ostream&, ConnectionState);
+    /**
+     * This basic error handler simply logs the error message to stderr
+     */
+    struct BasicErrorHandler : public ErrorHandler {
+        BasicErrorHandler();
+        ~BasicErrorHandler() = default;
 
-/**
- * Given the current client state, a message, and a sender, this
- * function returns the next state of the client's finite state machine.
- */
-ConnectionState transition(ConnectionState s, const Message& message, Sender sender);
+        void on_error(const std::string &what) const
+        {
+            std::cout << " –– DS CLIENT ERROR –– " << what;
+        }
+    };
 }
+
+#endif

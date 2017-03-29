@@ -26,52 +26,42 @@
 #include "message.hpp"
 #include "state.hpp"
 #include "use.hpp"
-#include "websockets.hpp"
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/client.hpp>
-#include <deepstream/core/error_handler.hpp>
 
 #include <cassert>
 #include <include/deepstream.hpp>
 
 namespace deepstream {
 
-Client::Client(const std::string& uri, std::unique_ptr<ErrorHandler> p_eh, WSFactory* wsFactory)
-    : p_impl_(Connection::make(uri, std::move(p_eh), nullptr).release())
+Client::Client(const std::string &uri, WSHandler &ws_handler, ErrorHandler &error_handler)
+    : p_connection_(new Connection(uri, ws_handler, error_handler))
     , event([this](const Message& message) -> bool {
-        assert(p_impl_);
-        return p_impl_->send_(message) == websockets::State::OPEN;
+        assert(p_connection_);
+        p_connection_->send_(message);
+        return true;
     })
     , presence([this](const Message& message) -> bool {
-        assert(p_impl_);
-        return p_impl_->send_(message) == websockets::State::OPEN;
+        assert(p_connection_);
+        p_connection_->send_(message);
+        return true;
     })
 {
 }
 
-Client::Client(const std::string& uri, WSFactory* wsFactory)
-    : Client(uri, std::unique_ptr<ErrorHandler>(new ErrorHandler()), wsFactory)
+Client::~Client()
 {
 }
 
-Client::~Client() { delete p_impl_; }
-
-bool Client::login() { return p_impl_->login("{}"); }
-
-bool Client::login(const std::string& auth, Buffer* p_user_data)
+void Client::login(const std::string& auth, const LoginCallback &callback)
 {
-    return p_impl_->login(auth, p_user_data);
+    p_connection_->login(auth, callback);
 }
 
-void Client::close() { return p_impl_->close(); }
+void Client::close() { return p_connection_->close(); }
 
-State Client::getConnectionState()
+ConnectionState Client::get_connection_state()
 {
-    return p_impl_->getConnectionState();
-}
-
-void Client::process_messages()
-{
-    return p_impl_->process_messages(&event, &presence);
+    return p_connection_->get_connection_state();
 }
 }

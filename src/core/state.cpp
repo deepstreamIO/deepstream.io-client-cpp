@@ -21,16 +21,16 @@
 
 namespace deepstream {
 
-std::ostream& operator<<(std::ostream& os, State state)
+std::ostream& operator<<(std::ostream& os, ConnectionState state)
 {
     os << static_cast<int>(state);
     return os;
 }
 
-State transition(State state, const Message& message, Sender sender)
+ConnectionState transition(ConnectionState state, const Message& message, Sender sender)
 {
-    assert(state != State::ERROR);
-    assert(state != State::DISCONNECTED);
+    assert(state != ConnectionState::ERROR);
+    assert(state != ConnectionState::DISCONNECTED);
 
     const Topic topic = message.topic();
     const Action action = message.action();
@@ -60,61 +60,61 @@ State transition(State state, const Message& message, Sender sender)
     }
 
     // actual state transitions
-    if (state == State::AWAIT_CONNECTION && topic == Topic::CONNECTION && action == Action::CHALLENGE && sender == Sender::SERVER) {
+    if (state == ConnectionState::AWAIT_CONNECTION && topic == Topic::CONNECTION && action == Action::CHALLENGE && sender == Sender::SERVER) {
         assert(!is_ack);
 
-        return State::CHALLENGING;
+        return ConnectionState::CHALLENGING;
     }
 
-    if (state == State::CHALLENGING && topic == Topic::CONNECTION && action == Action::CHALLENGE_RESPONSE && !is_ack && sender == Sender::CLIENT) {
-        return State::CHALLENGING_WAIT;
+    if (state == ConnectionState::CHALLENGING && topic == Topic::CONNECTION && action == Action::CHALLENGE_RESPONSE && !is_ack && sender == Sender::CLIENT) {
+        return ConnectionState::CHALLENGING_WAIT;
     }
 
-    if (state == State::CHALLENGING_WAIT && topic == Topic::CONNECTION && action == Action::CHALLENGE_RESPONSE && is_ack && sender == Sender::SERVER) {
-        return State::AWAIT_AUTHENTICATION;
+    if (state == ConnectionState::CHALLENGING_WAIT && topic == Topic::CONNECTION && action == Action::CHALLENGE_RESPONSE && is_ack && sender == Sender::SERVER) {
+        return ConnectionState::AWAIT_AUTHENTICATION;
     }
 
-    if (state == State::CHALLENGING_WAIT && topic == Topic::CONNECTION && action == Action::REDIRECT && sender == Sender::SERVER) {
+    if (state == ConnectionState::CHALLENGING_WAIT && topic == Topic::CONNECTION && action == Action::REDIRECT && sender == Sender::SERVER) {
         assert(!is_ack);
 
-        return State::AWAIT_CONNECTION;
+        return ConnectionState::AWAIT_CONNECTION;
     }
 
-    if (state == State::CHALLENGING_WAIT && topic == Topic::CONNECTION && action == Action::REJECT && sender == Sender::SERVER) {
+    if (state == ConnectionState::CHALLENGING_WAIT && topic == Topic::CONNECTION && action == Action::REJECT && sender == Sender::SERVER) {
         assert(!is_ack);
 
-        return State::DISCONNECTED;
+        return ConnectionState::DISCONNECTED;
     }
 
-    if (state == State::AWAIT_AUTHENTICATION && topic == Topic::AUTH && action == Action::REQUEST && !is_ack && sender == Sender::CLIENT) {
-        return State::AUTHENTICATING;
+    if (state == ConnectionState::AWAIT_AUTHENTICATION && topic == Topic::AUTH && action == Action::REQUEST && !is_ack && sender == Sender::CLIENT) {
+        return ConnectionState::AUTHENTICATING;
     }
 
-    if (state == State::AUTHENTICATING && topic == Topic::AUTH && action == Action::REQUEST && is_ack && sender == Sender::SERVER) {
-        return State::CONNECTED;
+    if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH && action == Action::REQUEST && is_ack && sender == Sender::SERVER) {
+        return ConnectionState::CONNECTED;
     }
 
-    if (state == State::AUTHENTICATING && topic == Topic::AUTH && action == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS && sender == Sender::SERVER) {
+    if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH && action == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS && sender == Sender::SERVER) {
         assert(!is_ack);
 
-        return State::DISCONNECTED;
+        return ConnectionState::DISCONNECTED;
     }
 
-    if (state == State::AUTHENTICATING && topic == Topic::AUTH && action == Action::ERROR_INVALID_AUTH_DATA && sender == Sender::SERVER) {
+    if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH && action == Action::ERROR_INVALID_AUTH_DATA && sender == Sender::SERVER) {
         assert(!is_ack);
 
-        return State::AWAIT_AUTHENTICATION;
+        return ConnectionState::AWAIT_AUTHENTICATION;
     }
 
-    if (state == State::AUTHENTICATING && topic == Topic::AUTH && action == Action::ERROR_INVALID_AUTH_MSG && sender == Sender::SERVER) {
+    if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH && action == Action::ERROR_INVALID_AUTH_MSG && sender == Sender::SERVER) {
         assert(!is_ack);
 
-        return State::DISCONNECTED;
+        return ConnectionState::DISCONNECTED;
     }
 
-    if (state == State::CONNECTED)
+    if (state == ConnectionState::CONNECTED)
         return state;
 
-    return State::ERROR;
+    return ConnectionState::ERROR;
 }
 }

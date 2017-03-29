@@ -18,7 +18,6 @@
 #define DEEPSTREAM_ERROR_HANDLER_HPP
 
 #include <string>
-#include <system_error>
 
 namespace deepstream {
 
@@ -40,7 +39,7 @@ enum class ErrorState {
  */
 struct ErrorHandler {
     virtual ~ErrorHandler() = default;
-    virtual void onError(const ErrorState&) const {};
+    virtual void on_error(const std::string &) const {};
 };
 }
 
