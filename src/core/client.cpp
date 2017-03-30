@@ -35,15 +35,15 @@
 namespace deepstream {
 
 Client::Client(const std::string &uri, WSHandler &ws_handler, ErrorHandler &error_handler)
-    : p_connection_(new Connection(uri, ws_handler, error_handler))
+    : p_connection_(new Connection(*this, uri, ws_handler, error_handler))
     , event([this](const Message& message) -> bool {
         assert(p_connection_);
-        p_connection_->send_(message);
+        p_connection_->send(message);
         return true;
     })
     , presence([this](const Message& message) -> bool {
         assert(p_connection_);
-        p_connection_->send_(message);
+        p_connection_->send(message);
         return true;
     })
 {

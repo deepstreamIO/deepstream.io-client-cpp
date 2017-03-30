@@ -34,20 +34,23 @@ struct ErrorHandler;
 
 struct Connection;
 
-/**
- * This enumeration stores the different client states of a deepstream
- * 2.x client.
- */
 enum class ConnectionState {
-    ERROR,
+    CLOSED,
     AWAIT_CONNECTION,
     CHALLENGING,
-    CHALLENGING_WAIT,
     AWAIT_AUTHENTICATION,
     AUTHENTICATING,
-    CONNECTED,
-    DISCONNECTED
+    OPEN,
+    ERROR,
+    RECONNECTING,
 };
+
+/*
+ *std::ostream &operator<<(std::ostream &os, ConnectionState state) {
+ *    os << static_cast<int>(state);
+ *    return os;
+ *}
+ */
 
 // This class does not use `std::unique_ptr<Connection>` because it
 // prevents the use of the PIMPL idiom since the class attempts to
@@ -56,7 +59,7 @@ enum class ConnectionState {
 
 struct Client {
 
-    typedef std::function<void(const Buffer &)> LoginCallback;
+    typedef std::function<void(const std::unique_ptr<Buffer> &)> LoginCallback;
 
     Client(const std::string &, WSHandler &, ErrorHandler &);
 

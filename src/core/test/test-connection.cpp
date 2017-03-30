@@ -36,13 +36,18 @@
 
 namespace deepstream {
 
-    struct FailHandler : public deepstream::ErrorHandler {
+    struct FailHandler : public ErrorHandler {
         virtual void on_error(const std::string &) const override
         {
             BOOST_FAIL("There should be no errors");
         }
     };
 
+    struct SimpleClient : public Client {
+         SimpleClient() : Client()
+         {
+         }
+    }
     /*
      *struct SimpleClient : public websockets::pseudo::Client {
      *    typedef std::unique_ptr<websockets::Frame> FramePtr;

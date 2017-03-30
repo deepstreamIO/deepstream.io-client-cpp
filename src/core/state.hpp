@@ -13,17 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
-
-#include <deepstream/core/client.hpp>
-
-namespace deepstream {
-
-std::ostream& operator<<(std::ostream&, ConnectionState);
-
-/**
- * Given the current client state, a message, and a sender, this
- * function returns the next state of the client's finite state machine.
- */
-ConnectionState transition(ConnectionState s, const Message& message, Sender sender);
-}
