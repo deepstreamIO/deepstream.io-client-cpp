@@ -28,7 +28,7 @@
 #include <Poco/Net/WebSocket.h>
 #include <Poco/URI.h>
 
-#include <deepstream/core/ws.hpp>
+#include <deepstream/lib/poco-ws.hpp>
 
 #include <algorithm> // std::max
 
@@ -80,176 +80,166 @@ namespace deepstream {
     };
 
     using namespace Poco::Net;
-    struct PocoWSHandler : public WSHandler {
 
-        explicit PocoWSHandler()
-            : WSHandler()
-            , uri_()
-            , session_(nullptr)
-            , websocket_(nullptr)
-            , state_(WSState::CLOSED)
-            , on_open_(nullptr)
-            , on_close_(nullptr)
-            , on_message_(nullptr)
-            , on_error_(nullptr)
-        {
-        }
+    PocoWSHandler::PocoWSHandler()
+        : WSHandler()
+        , uri_()
+        , session_(nullptr)
+        , websocket_(nullptr)
+        , state_(WSState::CLOSED)
+        , on_open_(nullptr)
+        , on_close_(nullptr)
+        , on_message_(nullptr)
+        , on_error_(nullptr)
+    {
+    }
 
-        virtual ~PocoWSHandler()
-        {
-        }
+    PocoWSHandler::~PocoWSHandler()
+    {
+    }
 
-        void process_messages()
-        {
-            int bytes_received = 0;
-            int flags = 0;
+    void PocoWSHandler::process_messages()
+    {
+        int bytes_received = 0;
+        int flags = 0;
 
-            const std::size_t min_buffer_size = 256;
-            const std::size_t bytes_available = websocket_->available();
-            Buffer buffer(std::max(bytes_available, min_buffer_size), 0);
+        const std::size_t min_buffer_size = 256;
+        const std::size_t bytes_available = websocket_->available();
+        Buffer buffer(std::max(bytes_available, min_buffer_size), 0);
 
-            try {
-                bytes_received = websocket_->receiveFrame(buffer.data(), buffer.size(), flags);
-            } catch (Poco::TimeoutException &e) {
-                // Received nothing before timeout occurred, but why did we try to
-                // read from a socket without any data?
-                DEBUG_MSG("Socket read timeout");
-                return;
-            } catch (WebSocketException &e) {
-                state_ = WSState::CLOSED;
-                if (on_error_callback) {
-                    WSHandler::HandlerWithMsgFn on_error_callback = *on_error_;
-                    on_error_callback(e.displayText());
-                }
-                return;
+        try {
+            bytes_received = websocket_->receiveFrame(buffer.data(), buffer.size(), flags);
+        } catch (Poco::TimeoutException &e) {
+            // Received nothing before timeout occurred, but why did we try to
+            // read from a socket without any data?
+            DEBUG_MSG("Socket read timeout");
+            return;
+        } catch (WebSocketException &e) {
+            state_ = WSState::CLOSED;
+            if (on_error_) {
+                WSHandler::HandlerWithMsgFn on_error_callback = *on_error_;
+                on_error_callback(e.displayText());
             }
+            return;
+        }
 
-            if (bytes_received == 0) {
-                state_ = WSState::ERROR;
+        if (bytes_received == 0) {
+            state_ = WSState::ERROR;
+            if (on_error_) {
+                WSHandler::HandlerWithMsgFn on_error_callback = *on_error_;
                 on_error_callback("Tried to read from closed socket");
-                return;
             }
+            return;
+        }
 
-            const int eof_flags = WebSocket::FrameFlags::FRAME_FLAG_FIN
-                                | WebSocket::FrameOpcodes::FRAME_OP_CLOSE;
+        const int eof_flags = WebSocket::FrameFlags::FRAME_FLAG_FIN
+                            | WebSocket::FrameOpcodes::FRAME_OP_CLOSE;
 
-            if (flags == eof_flags) {
-                state_ = WSState::CLOSED;
-                if (on_close_) {
-                    const auto on_close_callback = *on_close_;
-                    on_close_callback();
-                }
-                return;
+        if (flags == eof_flags) {
+            state_ = WSState::CLOSED;
+            if (on_close_) {
+                const auto on_close_callback = *on_close_;
+                on_close_callback();
             }
-
-            assert(on_message_);
-            WSHandler::HandlerWithBufFn on_message_callback = *on_message_;
-            on_message_callback(buffer);
+            return;
         }
 
-        std::string URI() const override
-        {
-            return uri_.toString();
+        assert(on_message_);
+        WSHandler::HandlerWithBufFn on_message_callback = *on_message_;
+        on_message_callback(buffer);
+    }
+
+    std::string PocoWSHandler::URI() const
+    {
+        return uri_.toString();
+    }
+
+    void PocoWSHandler::URI(std::string uri)
+    {
+        uri_ = uri;
+    }
+
+    void PocoWSHandler::send(const Buffer& buffer)
+    {
+        const int bytes_sent = websocket_->sendFrame(buffer.data(), buffer.size());
+        auto on_error_callback = *on_error_;
+        if (bytes_sent != static_cast<int>(buffer.size())) {
+            on_error_callback("Failed to send full buffer. Sent " +
+                    std::to_string(bytes_sent) + " of " + std::to_string(buffer.size()));
         }
+    }
 
-        void URI(std::string uri) override
-        {
-            uri_ = uri;
-        }
-
-        void send(const Buffer& buffer) override
-        {
-            const int bytes_sent = websocket_->sendFrame(buffer.data(), buffer.size());
-            auto on_error_callback = *on_error_;
-            if (bytes_sent != static_cast<int>(buffer.size())) {
-                on_error_callback("Failed to send full buffer. Sent " +
-                        std::to_string(bytes_sent) + " of " + std::to_string(buffer.size()));
-            }
-        }
-
-        WSState state() const override
-        {
-            return state_;
-        };
-
-        void open() override
-        {
-            assert(on_message_);
-            if (uri_.empty()) {
-                throw std::runtime_error("Cannot open websocket when no URI is set");
-            }
-            if (uri_.getScheme() == "wss") {
-                session_ = std::unique_ptr<HTTPClientSession>(
-                        new HTTPSClientSession(uri_.getHost(), uri_.getPort()));
-            } else {
-                session_ = std::unique_ptr<HTTPClientSession>(
-                        new HTTPClientSession(uri_.getHost(), uri_.getPort()));
-            }
-            HTTPRequest request(HTTPRequest::HTTP_GET, uri_.getPath(), HTTPRequest::HTTP_1_1);
-            HTTPResponse response;
-            websocket_ = std::unique_ptr<WebSocket>(new WebSocket(*session_, request, response));
-            if (on_open_) {
-                const auto on_open_callback = *on_open_;
-                on_open_callback();
-            }
-        }
-
-        void close() override
-        {
-            if (state_ == WSState::OPEN) {
-                websocket_->close();
-                state_ = WSState::CLOSED;
-                if (on_close_) {
-                    const auto on_close_callback = *on_close_;
-                    on_close_callback();
-                }
-            }
-        }
-
-        void reconnect() override
-        {
-            close();
-            open();
-        }
-
-        void shutdown() override
-        {
-            if (state_ == WSState::OPEN) {
-                websocket_->shutdown();
-            }
-        }
-
-        void on_close(const HandlerFn& on_close) override
-        {
-            on_close_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_close));
-        }
-
-        void on_error(const HandlerWithMsgFn& on_error) override
-        {
-            on_error_ = std::unique_ptr<HandlerWithMsgFn>(new HandlerWithMsgFn(on_error));
-        }
-
-        void on_message(const HandlerWithBufFn& on_message) override
-        {
-            on_message_ = std::unique_ptr<HandlerWithBufFn>(new HandlerWithBufFn(on_message));
-        }
-
-        void on_open(const HandlerFn& on_open) override
-        {
-            on_open_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_open));
-        }
-
-    private:
-        Poco::URI uri_;
-        std::unique_ptr<HTTPClientSession> session_;
-        std::unique_ptr<WebSocket> websocket_;
-        WSState state_;
-
-        std::unique_ptr<HandlerFn> on_open_;
-        std::unique_ptr<HandlerFn> on_close_;
-        std::unique_ptr<HandlerWithBufFn> on_message_;
-        std::unique_ptr<HandlerWithMsgFn> on_error_;
+    WSState PocoWSHandler::state() const
+    {
+        return state_;
     };
+
+    void PocoWSHandler::open()
+    {
+        assert(on_message_);
+        if (uri_.empty()) {
+            throw std::runtime_error("Cannot open websocket when no URI is set");
+        }
+        if (uri_.getScheme() == "wss") {
+            session_ = std::unique_ptr<HTTPClientSession>(
+                    new HTTPSClientSession(uri_.getHost(), uri_.getPort()));
+        } else {
+            session_ = std::unique_ptr<HTTPClientSession>(
+                    new HTTPClientSession(uri_.getHost(), uri_.getPort()));
+        }
+        HTTPRequest request(HTTPRequest::HTTP_GET, uri_.getPath(), HTTPRequest::HTTP_1_1);
+        HTTPResponse response;
+        websocket_ = std::unique_ptr<WebSocket>(new WebSocket(*session_, request, response));
+        if (on_open_) {
+            const auto on_open_callback = *on_open_;
+            on_open_callback();
+        }
+    }
+
+    void PocoWSHandler::close()
+    {
+        if (state_ == WSState::OPEN) {
+            websocket_->close();
+            state_ = WSState::CLOSED;
+            if (on_close_) {
+                const auto on_close_callback = *on_close_;
+                on_close_callback();
+            }
+        }
+    }
+
+    void PocoWSHandler::reconnect()
+    {
+        close();
+        open();
+    }
+
+    void PocoWSHandler::shutdown()
+    {
+        if (state_ == WSState::OPEN) {
+            websocket_->shutdown();
+        }
+    }
+
+    void PocoWSHandler::on_close(const HandlerFn& on_close)
+    {
+        on_close_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_close));
+    }
+
+    void PocoWSHandler::on_error(const HandlerWithMsgFn& on_error)
+    {
+        on_error_ = std::unique_ptr<HandlerWithMsgFn>(new HandlerWithMsgFn(on_error));
+    }
+
+    void PocoWSHandler::on_message(const HandlerWithBufFn& on_message)
+    {
+        on_message_ = std::unique_ptr<HandlerWithBufFn>(new HandlerWithBufFn(on_message));
+    }
+
+    void PocoWSHandler::on_open(const HandlerFn& on_open)
+    {
+        on_open_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_open));
+    }
 
     static SSLManager* sslManager = SSLManager::instance();
 

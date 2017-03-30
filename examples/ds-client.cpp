@@ -27,9 +27,9 @@ int main(int argc, char* argv[])
     }
 
     try {
-        deepstream::Client client(uri);
-
-        if (client.login()) {
+        deepstream::Deepstream client(uri);
+        client.login();
+        if (client.get_connection_state() == deepstream::ConnectionState::CONNECTED) {
             std::cout << "successfully logged in to " << uri << std::endl;
             return EXIT_SUCCESS;
         } else {

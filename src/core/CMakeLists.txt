@@ -35,7 +35,6 @@ add_library(
 	presence.cpp
 	random.cpp
 	state.cpp
-	websockets.cpp
 	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c")
 
 set_target_properties(libdeepstream_core PROPERTIES OUTPUT_NAME deepstream-core)

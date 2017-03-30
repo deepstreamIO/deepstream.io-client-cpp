@@ -20,17 +20,22 @@
 #include <string>
 #include <deepstream/core/ws.hpp>
 
+#include <Poco/URI.h>
+#include <Poco/Net/HTTPClientSession.h>
+#include <Poco/Net/WebSocket.h>
+
 namespace deepstream {
 
     class PocoWSHandler : public WSHandler {
     public:
 
-        PocoWSHandler(){};
-        virtual ~PocoWSHandler(){};
+        explicit PocoWSHandler();
+        virtual ~PocoWSHandler();
 
         void process_messages();
 
         std::string URI() const override;
+
         void URI(std::string URI) override;
 
         void send(const Buffer&) override;
@@ -52,5 +57,16 @@ namespace deepstream {
         void on_message(const HandlerWithBufFn&) override;
 
         WSState state() const override;
+
+    private:
+        Poco::URI uri_;
+        std::unique_ptr<Poco::Net::HTTPClientSession> session_;
+        std::unique_ptr<Poco::Net::WebSocket> websocket_;
+        WSState state_;
+
+        std::unique_ptr<HandlerFn> on_open_;
+        std::unique_ptr<HandlerFn> on_close_;
+        std::unique_ptr<HandlerWithBufFn> on_message_;
+        std::unique_ptr<HandlerWithMsgFn> on_error_;
     };
 }
