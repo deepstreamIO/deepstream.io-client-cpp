@@ -43,7 +43,7 @@ namespace deepstream {
 
     public:
 
-        explicit Connection(const std::string &, WSHandler &, ErrorHandler &);
+        explicit Connection(Client &client, const std::string &, WSHandler &, ErrorHandler &);
 
         void login(const std::string& auth, const Client::LoginCallback &callback);
 
@@ -55,14 +55,19 @@ namespace deepstream {
          * This method serializes the given message and sends it as a
          * non-fragmented text frame to the server.
          */
-        void send_(const Message&);
+        void send(const Message&);
 
     private:
+
+        void handle_connection_response(const Message &message);
+        void handle_authentication_response(const Message &message);
 
         void on_message(const Buffer &message);
         void on_error(const std::string &error);
         void on_open();
         void on_close();
+
+        Client &client_;
 
         ConnectionState state_;
 
@@ -71,6 +76,13 @@ namespace deepstream {
 
         std::unique_ptr<Client::LoginCallback> p_login_callback_;
 
+        /**
+         * Given the current client state and a message, return the next state
+         * of the client's finite state machine.
+         */
+        ConnectionState transition_incoming(ConnectionState s, const Message& message);
+
+        ConnectionState transition_outgoing(ConnectionState s, const Message& message);
     };
 }
 
