@@ -30,7 +30,7 @@
 #include <deepstream/core/client.hpp>
 
 #include <cassert>
-#include <include/deepstream.hpp>
+//#include <include/deepstream.hpp>
 
 namespace deepstream {
 

@@ -66,6 +66,8 @@ struct Client {
 
     Client(const Client&) = delete;
 
+    Client& operator=(const Client&) = delete;
+
     Client(Client&&) = default;
 
     /**

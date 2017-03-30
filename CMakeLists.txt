@@ -119,7 +119,7 @@ include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-if(SWIG_FOUND)
+if(SWIG_FOUND AND NOT(DISABLE_SWIG))
   # We need to fix the generated Swig wrapper as the current version
   # of Swig does not handle std::unique_ptr. Our fix directly calls
   # std::move() for the few cases where this smart pointer type is
@@ -142,7 +142,7 @@ if(SWIG_FOUND)
   swig_link_libraries(deepstream libdeepstream_core ${POCO_LIBS} ${PYTHON_LIBRARIES})
 endif()
 
-if(SWIG_FOUND)
+if(SWIG_FOUND AND NOT(DISABLE_SWIG))
   add_test(
     NAME    python-swig-test
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/src/core/test/python-swig-test.py

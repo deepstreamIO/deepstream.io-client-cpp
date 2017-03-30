@@ -20,32 +20,46 @@
 #include <string>
 #include <utility>
 
-#include "../time.hpp"
+#include <deepstream/core/ws.hpp>
+
 
 namespace deepstream {
-struct Buffer;
+    struct Buffer;
 
-namespace websockets {
-    enum class StatusCode;
-    struct Frame;
-    struct WebSocketClient;
+    struct PseudoWSHandler : WSHandler {
 
-    namespace pseudo {
-        struct Client : public ::deepstream::websockets::WebSocketClient {
-            explicit Client();
+        explicit PseudoWSHandler();
 
-            virtual std::string uri_impl() const override;
+        ~PseudoWSHandler();
 
-            virtual time::Duration get_receive_timeout_impl() override;
+        void process_messages();
 
-            virtual void set_receive_timeout_impl(time::Duration) override;
+        std::string URI() const override;
 
-            virtual void close_impl() override;
+        void URI(std::string URI) override;
 
-            time::Duration timeout_;
-        };
-    }
-}
+        void send(const Buffer&) override;
+
+        void open() override;
+
+        void close() override;
+
+        void reconnect() override;
+
+        void shutdown() override;
+
+        void on_open(const HandlerFn&) override;
+
+        void on_close(const HandlerFn&) override;
+
+        void on_error(const HandlerWithMsgFn&) override;
+
+        void on_message(const HandlerWithBufFn&) override;
+
+        WSState state() const override;
+
+    };
+
 }
 
 #endif

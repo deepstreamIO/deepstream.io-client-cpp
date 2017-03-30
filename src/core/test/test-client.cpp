@@ -33,28 +33,28 @@ namespace deepstream {
             return MessageBuilder(topic, action, true);
         };
 
-        State s0 = State::AWAIT_CONNECTION;
+        ConnectionState s0 = ConnectionState::AWAIT_CONNECTION;
 
         auto msg0 = make_msg(Topic::CONNECTION, Action::CHALLENGE);
-        State s1 = transition(s0, msg0, Sender::SERVER);
-        BOOST_CHECK_EQUAL(s1, State::CHALLENGING);
+        ConnectionState s1 = transition(s0, msg0, Sender::SERVER);
+        BOOST_CHECK_EQUAL(s1, ConnectionState::CHALLENGING);
 
         auto msg1 = make_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
         msg1.add_argument(Buffer("URL"));
-        State s2 = transition(s1, msg1, Sender::CLIENT);
-        BOOST_CHECK_EQUAL(s2, State::CHALLENGING_WAIT);
+        ConnectionState s2 = transition(s1, msg1, Sender::CLIENT);
+        BOOST_CHECK_EQUAL(s2, ConnectionState::CHALLENGING_WAIT);
 
         auto msg2 = make_ack_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
-        State s3 = transition(s2, msg2, Sender::SERVER);
-        BOOST_CHECK_EQUAL(s3, State::AWAIT_AUTHENTICATION);
+        ConnectionState s3 = transition(s2, msg2, Sender::SERVER);
+        BOOST_CHECK_EQUAL(s3, ConnectionState::AWAIT_AUTHENTICATION);
 
         auto msg3 = make_msg(Topic::AUTH, Action::REQUEST);
         msg3.add_argument(Buffer("{\"username\":\"u\",\"password\":\"p\"}"));
-        State s4 = transition(s3, msg3, Sender::CLIENT);
-        BOOST_CHECK_EQUAL(s4, State::AUTHENTICATING);
+        ConnectionState s4 = transition(s3, msg3, Sender::CLIENT);
+        BOOST_CHECK_EQUAL(s4, ConnectionState::AUTHENTICATING);
 
         auto msg4 = make_ack_msg(Topic::AUTH, Action::REQUEST);
-        State s5 = transition(s4, msg4, Sender::SERVER);
-        BOOST_CHECK_EQUAL(s5, State::CONNECTED);
+        ConnectionState s5 = transition(s4, msg4, Sender::SERVER);
+        BOOST_CHECK_EQUAL(s5, ConnectionState::CONNECTED);
     }
 }

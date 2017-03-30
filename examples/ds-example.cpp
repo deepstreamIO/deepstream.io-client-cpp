@@ -29,8 +29,11 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    deepstream::Client client(argv[1]);
-    if (!client.login()) {
+    std::string url(argv[1]);
+
+    deepstream::Deepstream client(url);
+    client.login();
+    if (client.get_connection_state() != deepstream::ConnectionState::CONNECTED) {
         std::cout << "Client not logged in" << std::endl;
         return 1;
     }

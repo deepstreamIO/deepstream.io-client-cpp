@@ -49,6 +49,10 @@ namespace deepstream {
             wsh_.process_messages();
         }
 
+        void login()
+        {
+            return login("{}", [](const Buffer &){});
+        }
 
         void login(const Client::LoginCallback &callback)
         {
@@ -74,7 +78,9 @@ namespace deepstream {
 
         void close();
 
-        ConnectionState get_connection_state();
+        ConnectionState get_connection_state(){
+            return client_.get_connection_state();
+        }
 
 
     private:

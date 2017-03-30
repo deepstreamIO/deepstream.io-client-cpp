@@ -13,28 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <deepstream/core/buffer.hpp>
-#include "../websockets.hpp"
 #include "pseudo-websocket.hpp"
 
-#include <cassert>
-
 namespace deepstream {
-namespace websockets {
-    namespace pseudo {
 
-        Client::Client()
-            : timeout_(time::Duration::max())
-        {
-        }
+    PseudoWSHandler::PseudoWSHandler() : WSHandler()
+    {}
 
-        std::string Client::uri_impl() const { return "pseudo"; }
+    PseudoWSHandler::~PseudoWSHandler(){}
 
-        time::Duration Client::get_receive_timeout_impl() { return timeout_; }
+    void PseudoWSHandler::process_messages(){}
 
-        void Client::set_receive_timeout_impl(time::Duration t) { timeout_ = t; }
-
-        void Client::close_impl() {}
+    std::string PseudoWSHandler::URI() const
+    {
+        return "";
     }
-}
+
+    void PseudoWSHandler::URI(std::string URI){}
+
+    void PseudoWSHandler::send(const Buffer&){}
+
+    void PseudoWSHandler::open(){}
+
+    void PseudoWSHandler::close(){}
+
+    void PseudoWSHandler::reconnect(){}
+
+    void PseudoWSHandler::shutdown(){}
+
+    void PseudoWSHandler::on_open(const HandlerFn&){}
+
+    void PseudoWSHandler::on_close(const HandlerFn&){}
+
+    void PseudoWSHandler::on_error(const HandlerWithMsgFn&){}
+
+    void PseudoWSHandler::on_message(const HandlerWithBufFn&){}
+
+    WSState PseudoWSHandler::state() const
+    {
+        return WSState::CLOSED;
+    }
+
 }

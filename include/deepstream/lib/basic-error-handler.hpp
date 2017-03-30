@@ -29,7 +29,9 @@ namespace deepstream {
      * This basic error handler simply logs the error message to stderr
      */
     struct BasicErrorHandler : public ErrorHandler {
-        BasicErrorHandler();
+        BasicErrorHandler() : ErrorHandler()
+        {}
+
         ~BasicErrorHandler() = default;
 
         void on_error(const std::string &what) const
