@@ -214,6 +214,17 @@ Buffer Message::from_human_readable(const char* p, std::size_t size)
     return xs;
 }
 
+std::string Message::to_human_readable(const Buffer &buff)
+{
+    Buffer nu_buff(buff);
+    std::replace(nu_buff.begin(), nu_buff.end(), '\0', '!');
+    std::string str(nu_buff.cbegin(), nu_buff.cend());
+    std::replace(str.begin(), str.end(), '\x1f', '|');
+    std::replace(str.begin(), str.end(), '\x1e', '+');
+
+    return str;
+}
+
 std::pair<std::size_t, std::size_t>
 Message::num_arguments(const Message::Header& header)
 {
@@ -238,7 +249,7 @@ Buffer Message::to_binary() const { return to_binary_impl_(); }
 std::ostream& operator<<(std::ostream& os, const Message::Header& header)
 {
     os << "Message::Header(" << header.topic() << ", " << header.action()
-       << (header.is_ack() ? ", true" : "") << ")";
+       << (header.is_ack() ? ", true" : "") << ") - " << header.to_string();
 
     return os;
 }

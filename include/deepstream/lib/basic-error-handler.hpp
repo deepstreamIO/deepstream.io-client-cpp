@@ -36,7 +36,7 @@ namespace deepstream {
 
         void on_error(const std::string &what) const
         {
-            std::cout << " –– DS CLIENT ERROR –– " << what;
+            std::cout << " –– DS CLIENT ERROR –– " << what << std::endl;
         }
     };
 }

@@ -30,12 +30,11 @@
 #include <deepstream/core/client.hpp>
 
 #include <cassert>
-//#include <include/deepstream.hpp>
 
 namespace deepstream {
 
 Client::Client(const std::string &uri, WSHandler &ws_handler, ErrorHandler &error_handler)
-    : p_connection_(new Connection(*this, uri, ws_handler, error_handler))
+    : p_connection_(new Connection(uri, ws_handler, error_handler, event, presence))
     , event([this](const Message& message) -> bool {
         assert(p_connection_);
         p_connection_->send(message);
@@ -62,6 +61,6 @@ void Client::close() { return p_connection_->close(); }
 
 ConnectionState Client::get_connection_state()
 {
-    return p_connection_->get_connection_state();
+    return p_connection_->state();
 }
 }

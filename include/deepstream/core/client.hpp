@@ -38,19 +38,29 @@ enum class ConnectionState {
     CLOSED,
     AWAIT_CONNECTION,
     CHALLENGING,
+    CHALLENGING_WAIT,
     AWAIT_AUTHENTICATION,
     AUTHENTICATING,
     OPEN,
-    ERROR,
     RECONNECTING,
+    ERROR
 };
 
-/*
- *std::ostream &operator<<(std::ostream &os, ConnectionState state) {
- *    os << static_cast<int>(state);
- *    return os;
- *}
- */
+inline std::ostream &operator<<(std::ostream &os, ConnectionState state) {
+    constexpr const char* states[] = {
+        "CLOSED",
+        "AWAIT_CONNECTION",
+        "CHALLENGING",
+        "CHALLENGING_WAIT",
+        "AWAIT_AUTHENTICATION",
+        "AUTHENTICATING",
+        "OPEN",
+        "RECONNECTING",
+        "ERROR"
+    };
+    os << states[static_cast<int>(state)];
+    return os;
+}
 
 // This class does not use `std::unique_ptr<Connection>` because it
 // prevents the use of the PIMPL idiom since the class attempts to

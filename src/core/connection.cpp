@@ -34,7 +34,7 @@
 #include <cassert>
 
 #ifndef NDEBUG
-#include <ostream>
+#include <iostream>
 #define DEBUG_MSG(str) do { std::cout << str << std::endl; } while( false )
 #else
 #define DEBUG_MSG(str) do { } while ( false )
@@ -42,17 +42,15 @@
 
 namespace deepstream {
 
-    std::ostream &operator<<(std::ostream &os, ConnectionState state) {
-        os << static_cast<int>(state);
-        return os;
-    }
-
-    Connection::Connection(Client &client, const std::string &uri, WSHandler &ws_handler, ErrorHandler &error_handler)
-        : client_(client)
-        , state_(ConnectionState::CLOSED)
+    Connection::Connection(const std::string &uri, WSHandler &ws_handler,
+            ErrorHandler &error_handler, Event &event, Presence &presence)
+        : state_(ConnectionState::CLOSED)
         , error_handler_(error_handler)
         , ws_handler_(ws_handler)
         , p_login_callback_(nullptr)
+        , p_auth_params_(nullptr)
+        , event_(event)
+        , presence_(presence)
     {
         assert(ws_handler.state() == WSState::CLOSED);
 
@@ -152,78 +150,52 @@ namespace deepstream {
      *}
      */
 
-    void Connection::login(const std::string& auth, const Client::LoginCallback &callback)
+    void Connection::login(const std::string& auth_params, const Client::LoginCallback &callback)
     {
-        if (state_ != ConnectionState::AWAIT_AUTHENTICATION) {
-            throw std::logic_error("Cannot login() in current state");
-        }
+        //if (state_ != ConnectionState::AWAIT_AUTHENTICATION) {
+            //throw std::logic_error("Cannot login() in current state");
+        //}
 
         p_login_callback_ = std::unique_ptr<Client::LoginCallback>(new Client::LoginCallback(callback));
 
+        p_auth_params_ = std::unique_ptr<std::string>(new std::string(auth_params));
+
+        if (state_ == ConnectionState::AWAIT_AUTHENTICATION) {
+            send_authentication_request();
+        }
+    }
+
+    void Connection::send_authentication_request()
+    {
+        assert(state_ == ConnectionState::AWAIT_AUTHENTICATION);
+        assert(p_auth_params_);
+
         MessageBuilder authentication_request(Topic::AUTH, Action::REQUEST);
-        authentication_request.add_argument(auth);
+        authentication_request.add_argument(*p_auth_params_);
 
         send(authentication_request);
-
-        Buffer buffer;
-        parser::MessageList messages;
-
-        /*
-         *    if (receive_(&buffer, &messages) != websockets::State::OPEN) {
-         *        return false;
-         *    }
-         *
-         *    if (messages.size() != 1) {
-         *        close();
-         *        return false;
-         *    }
-         *
-         *    const Message& msg = messages.front();
-         *
-         *    if (msg.topic() == Topic::AUTH && msg.action() == Action::REQUEST && msg.is_ack()) {
-         *        assert(state_ == ConnectionState::OPEN);
-         *
-         *        if (msg.num_arguments() == 0 && p_user_data)
-         *            p_user_data->clear();
-         *        else if (msg.num_arguments() == 1 && p_user_data)
-         *            *p_user_data = msg[0];
-         *
-         *        return true;
-         *    }
-         *
-         *    if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_INVALID_AUTH_DATA) {
-         *        assert(state_ == ConnectionState::AWAIT_AUTHENTICATION);
-         *        p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
-         *        return false;
-         *    }
-         *
-         *    if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_INVALID_AUTH_MSG) {
-         *        p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
-         *        close();
-         *        return false;
-         *    }
-         *
-         *    if (msg.topic() == Topic::AUTH && msg.action() == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS) {
-         *        p_error_handler_->onError(ErrorState::AUTHENTICATION_ERROR);
-         *        close();
-         *        return false;
-         *    }
-         *
-         *    close();
-         *    return false;
-         */
     }
 
     void Connection::close()
     {
+        deliberate_close_ = true;
         ws_handler_.close();
-        state_ = ConnectionState::CLOSED;
     }
 
-    ConnectionState Connection::get_connection_state() { return state_; }
+    ConnectionState Connection::state()
+    {
+        return state_;
+    }
+
+    void Connection::state(const ConnectionState state)
+    {
+        DEBUG_MSG("Connection state change: " << state);
+        state_ = state;
+    }
 
     void Connection::on_message(const Buffer &raw_message)
     {
+        DEBUG_MSG(raw_message.size() << " bytes received");
         Buffer buffer;
 
         buffer.assign(raw_message.cbegin(), raw_message.cend());
@@ -236,8 +208,9 @@ namespace deepstream {
         for (auto it = errors.cbegin(); it != errors.cend(); ++it) {
             const parser::Error &error = *it;
             std::stringstream error_message;
-            error_message << "parser error: " << error;
-            on_error(error_message.str());
+            error_message << "parser error: " << error << " \""
+                << Message::to_human_readable(raw_message) << "\"";
+            error_handler_.on_error(error_message.str());
         }
 
         if (!errors.empty()) {
@@ -248,24 +221,32 @@ namespace deepstream {
 
         for (auto it = parsed_messages.cbegin(); it != parsed_messages.cend(); ++it) {
             const Message &parsed_message = *it;
+            DEBUG_MSG("Message received: " << parsed_message.header());
 
             switch (parsed_message.topic()) {
                 case Topic::EVENT:
-                    client_.event.notify_(parsed_message);
+                    event_.notify_(parsed_message);
                     break;
 
                 case Topic::PRESENCE:
-                    client_.presence.notify_(parsed_message);
+                    presence_.notify_(parsed_message);
                     break;
 
                 case Topic::CONNECTION:
-                case Topic::AUTH:
                     handle_connection_response(parsed_message);
                     break;
 
+                case Topic::AUTH:
+                    handle_authentication_response(parsed_message);
+                    break;
+
                 default:
-                    on_error("unsolicited message");
-                    assert(0);
+                    {
+                        std::stringstream error_message;
+                        error_message << "unsolicited message: " << parsed_message.header();
+                        error_handler_.on_error(error_message.str());
+                        assert(0);
+                    }
             }
 
         }
@@ -273,6 +254,16 @@ namespace deepstream {
 
     void Connection::handle_connection_response(const Message &message)
     {
+        ConnectionState new_state = transition_incoming(state_, message);
+
+        if (new_state == ConnectionState::ERROR) {
+            std::stringstream error_message;
+            error_message << "connection error state reached, previous state: " << state_
+                << ", message header: " << message.header();
+            error_handler_.on_error(error_message.str());
+        }
+
+        state(new_state);
         switch(message.action()) {
             case Action::PING:
                 {
@@ -285,36 +276,29 @@ namespace deepstream {
                     challenge_response.add_argument(ws_handler_.URI());
                     send(challenge_response);
                 } break;
+            case Action::CHALLENGE_RESPONSE:
+                {
+                    if (p_auth_params_) {
+                        send_authentication_request();
+                    }
+                } break;
             case Action::REDIRECT:
                 {
                     if (message.num_arguments() < 1) {
-                        on_error("No URI given in connection redirect message");
+                        error_handler_.on_error("No URI given in connection redirect message");
                         break;
                     }
-                    ws_handler_.close();
                     const Buffer &uri_buff(message[0]);
                     ws_handler_.URI(std::string(uri_buff.cbegin(), uri_buff.cend()));
-                    ws_handler_.open();
                 } break;
             default:
                 {
                     std::stringstream error_message;
-                    error_message << "connection message with unknown action" << state_
-                        << ", message header: " << message.header();
-                    on_error(error_message.str());
+                    error_message << "connection message with unknown action " << state_
+                        << std::endl << '\t' << message.header();
+                    error_handler_.on_error(error_message.str());
                 }
         }
-
-        ConnectionState new_state = transition_incoming(state_, message);
-
-        if (new_state == ConnectionState::ERROR) {
-            std::stringstream error_message;
-            error_message << "connection error state reached, previous state: " << state_
-                << ", message header: " << message.header();
-            on_error(error_message.str());
-        }
-
-        state_ = new_state;
     }
 
     void Connection::handle_authentication_response(const Message &message)
@@ -322,14 +306,18 @@ namespace deepstream {
         switch(message.action()) {
             case Action::ERROR_TOO_MANY_AUTH_ATTEMPTS:
                 {
-                    on_error("too many authentication attempts");
+                    error_handler_.on_error("too many authentication attempts");
                     close();
                 } break;
             case Action::ERROR_INVALID_AUTH_DATA:
                 {
+                    error_handler_.on_error("invalid auth data");
+                    close();
                 } break;
             case Action::ERROR_INVALID_AUTH_MSG:
                 {
+                    error_handler_.on_error("invalid auth message");
+                    close();
                 } break;
             case Action::REQUEST:
                 {
@@ -348,9 +336,9 @@ namespace deepstream {
             default:
                 {
                     std::stringstream error_message;
-                    error_message << "connection message with unknown action" << state_
+                    error_message << "authentication message with unknown action" << state_
                         << ", message header: " << message.header();
-                    on_error(error_message.str());
+                    error_handler_.on_error(error_message.str());
                 }
         }
 
@@ -360,24 +348,31 @@ namespace deepstream {
             std::stringstream error_message;
             error_message << "connection error state reached, previous state: " << state_
                 << ", message header: " << message.header();
-            on_error(error_message.str());
+            error_handler_.on_error(error_message.str());
         }
 
-        state_ = new_state;
+        state(new_state);
     }
 
     void Connection::on_error(const std::string &error)
     {
-        state_ = ConnectionState::ERROR;
+        DEBUG_MSG("Websocket error: " << error);
+        state(ConnectionState::ERROR);
+        ws_handler_.reconnect();
     }
 
     void Connection::on_open()
     {
-        state_ = ConnectionState::AWAIT_CONNECTION;
+        state(ConnectionState::AWAIT_CONNECTION);
     }
 
     void Connection::on_close()
     {
+        if (deliberate_close_) {
+            state(ConnectionState::CLOSED);
+            return;
+        }
+        ws_handler_.open();
     }
 
 
@@ -522,7 +517,7 @@ namespace deepstream {
      *        if (new_state == ConnectionState::CLOSED)
      *            return websockets::State::OPEN;
      *
-     *        state_ = new_state;
+     *        state(new_state);
      *    }
      *
      *    return ws_state;
@@ -537,13 +532,12 @@ namespace deepstream {
         if (new_state == ConnectionState::ERROR)
             throw std::logic_error("Invalid client state transition");
 
-        state_ = new_state;
+        state(new_state);
 
         return ws_handler_.send(message.to_binary());
     }
 
-
-    ConnectionState Connection::transition_incoming(ConnectionState state, const Message& message)
+    ConnectionState transition_incoming(const ConnectionState state, const Message& message)
     {
         assert(state != ConnectionState::ERROR);
         assert(state != ConnectionState::CLOSED);
@@ -568,29 +562,36 @@ namespace deepstream {
         }
 
         // actual state transitions
-        if (state == ConnectionState::AWAIT_CONNECTION && topic == Topic::CONNECTION && action == Action::CHALLENGE) {
+        if (state == ConnectionState::AWAIT_CONNECTION && topic == Topic::CONNECTION
+                && action == Action::CHALLENGE) {
             assert(!is_ack);
 
             return ConnectionState::CHALLENGING;
         }
 
-        if (state == ConnectionState::RECONNECTING && topic == Topic::CONNECTION && action == Action::CHALLENGE_RESPONSE && is_ack) {
+        if (state == ConnectionState::CHALLENGING_WAIT && topic == Topic::CONNECTION
+                && action == Action::CHALLENGE_RESPONSE) {
+            assert(is_ack);
             return ConnectionState::AWAIT_AUTHENTICATION;
         }
 
-        if (state == ConnectionState::RECONNECTING && topic == Topic::CONNECTION && action == Action::REDIRECT) {
+        if (state == ConnectionState::CHALLENGING_WAIT && topic == Topic::CONNECTION
+                && action == Action::REDIRECT) {
             assert(!is_ack);
 
             return ConnectionState::AWAIT_CONNECTION;
         }
 
-        if (state == ConnectionState::RECONNECTING && topic == Topic::CONNECTION && action == Action::REJECT) {
+        if (state == ConnectionState::CHALLENGING_WAIT && topic == Topic::CONNECTION
+                && action == Action::REJECT) {
             assert(!is_ack);
 
             return ConnectionState::CLOSED;
         }
 
-        if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH && action == Action::REQUEST && is_ack) {
+        if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH
+                && action == Action::REQUEST) {
+            assert(is_ack);
             return ConnectionState::OPEN;
         }
 
@@ -619,7 +620,7 @@ namespace deepstream {
         return ConnectionState::ERROR;
     }
 
-    ConnectionState Connection::transition_outgoing(ConnectionState state, const Message& message)
+    ConnectionState transition_outgoing(const ConnectionState state, const Message& message)
     {
         assert(state != ConnectionState::ERROR);
         assert(state != ConnectionState::CLOSED);
@@ -642,11 +643,15 @@ namespace deepstream {
             return state;
         }
 
-        if (state == ConnectionState::CHALLENGING && topic == Topic::CONNECTION && action == Action::CHALLENGE_RESPONSE && !is_ack) {
-            return ConnectionState::RECONNECTING;
+        if (state == ConnectionState::CHALLENGING && topic == Topic::CONNECTION
+                && action == Action::CHALLENGE_RESPONSE) {
+            assert(!is_ack);
+            return ConnectionState::CHALLENGING_WAIT;
         }
 
-        if (state == ConnectionState::AWAIT_AUTHENTICATION && topic == Topic::AUTH && action == Action::REQUEST && !is_ack) {
+        if (state == ConnectionState::AWAIT_AUTHENTICATION && topic == Topic::AUTH
+                && action == Action::REQUEST) {
+            assert(!is_ack);
             return ConnectionState::AUTHENTICATING;
         }
 

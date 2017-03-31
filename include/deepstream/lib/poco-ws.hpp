@@ -59,6 +59,8 @@ namespace deepstream {
         WSState state() const override;
 
     private:
+        void state(const WSState);
+
         Poco::URI uri_;
         std::unique_ptr<Poco::Net::HTTPClientSession> session_;
         std::unique_ptr<Poco::Net::WebSocket> websocket_;

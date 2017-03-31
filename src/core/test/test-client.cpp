@@ -23,38 +23,4 @@
 #include "../state.hpp"
 
 namespace deepstream {
-
-    BOOST_AUTO_TEST_CASE(lifetime)
-    {
-        auto make_msg = [](Topic topic, Action action) {
-            return MessageBuilder(topic, action);
-        };
-        auto make_ack_msg = [](Topic topic, Action action) {
-            return MessageBuilder(topic, action, true);
-        };
-
-        ConnectionState s0 = ConnectionState::AWAIT_CONNECTION;
-
-        auto msg0 = make_msg(Topic::CONNECTION, Action::CHALLENGE);
-        ConnectionState s1 = transition(s0, msg0, Sender::SERVER);
-        BOOST_CHECK_EQUAL(s1, ConnectionState::CHALLENGING);
-
-        auto msg1 = make_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
-        msg1.add_argument(Buffer("URL"));
-        ConnectionState s2 = transition(s1, msg1, Sender::CLIENT);
-        BOOST_CHECK_EQUAL(s2, ConnectionState::CHALLENGING_WAIT);
-
-        auto msg2 = make_ack_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
-        ConnectionState s3 = transition(s2, msg2, Sender::SERVER);
-        BOOST_CHECK_EQUAL(s3, ConnectionState::AWAIT_AUTHENTICATION);
-
-        auto msg3 = make_msg(Topic::AUTH, Action::REQUEST);
-        msg3.add_argument(Buffer("{\"username\":\"u\",\"password\":\"p\"}"));
-        ConnectionState s4 = transition(s3, msg3, Sender::CLIENT);
-        BOOST_CHECK_EQUAL(s4, ConnectionState::AUTHENTICATING);
-
-        auto msg4 = make_ack_msg(Topic::AUTH, Action::REQUEST);
-        ConnectionState s5 = transition(s4, msg4, Sender::SERVER);
-        BOOST_CHECK_EQUAL(s5, ConnectionState::CONNECTED);
-    }
 }

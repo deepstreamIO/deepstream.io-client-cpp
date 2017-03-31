@@ -115,16 +115,16 @@ namespace deepstream {
             DEBUG_MSG("Socket read timeout");
             return;
         } catch (WebSocketException &e) {
-            state_ = WSState::CLOSED;
+            state(WSState::CLOSED);
             if (on_error_) {
-                WSHandler::HandlerWithMsgFn on_error_callback = *on_error_;
+                const WSHandler::HandlerWithMsgFn &on_error_callback = *on_error_;
                 on_error_callback(e.displayText());
             }
             return;
         }
 
         if (bytes_received == 0) {
-            state_ = WSState::ERROR;
+            state(WSState::ERROR);
             if (on_error_) {
                 WSHandler::HandlerWithMsgFn on_error_callback = *on_error_;
                 on_error_callback("Tried to read from closed socket");
@@ -136,7 +136,7 @@ namespace deepstream {
                             | WebSocket::FrameOpcodes::FRAME_OP_CLOSE;
 
         if (flags == eof_flags) {
-            state_ = WSState::CLOSED;
+            state(WSState::CLOSED);
             if (on_close_) {
                 const auto on_close_callback = *on_close_;
                 on_close_callback();
@@ -144,8 +144,10 @@ namespace deepstream {
             return;
         }
 
+        buffer.resize(bytes_received);
+
         assert(on_message_);
-        WSHandler::HandlerWithBufFn on_message_callback = *on_message_;
+        const WSHandler::HandlerWithBufFn &on_message_callback = *on_message_;
         on_message_callback(buffer);
     }
 
@@ -156,6 +158,9 @@ namespace deepstream {
 
     void PocoWSHandler::URI(std::string uri)
     {
+        if (state_ == WSState::OPEN) {
+            close();
+        }
         uri_ = uri;
     }
 
@@ -172,7 +177,13 @@ namespace deepstream {
     WSState PocoWSHandler::state() const
     {
         return state_;
-    };
+    }
+
+    void PocoWSHandler::state(const WSState state)
+    {
+        DEBUG_MSG("Websocket State Changed: " << static_cast<int>(state));
+        state_ = state;
+    }
 
     void PocoWSHandler::open()
     {
@@ -187,9 +198,19 @@ namespace deepstream {
             session_ = std::unique_ptr<HTTPClientSession>(
                     new HTTPClientSession(uri_.getHost(), uri_.getPort()));
         }
-        HTTPRequest request(HTTPRequest::HTTP_GET, uri_.getPath(), HTTPRequest::HTTP_1_1);
-        HTTPResponse response;
-        websocket_ = std::unique_ptr<WebSocket>(new WebSocket(*session_, request, response));
+        try {
+            HTTPRequest request(HTTPRequest::HTTP_GET, uri_.getPath(), HTTPRequest::HTTP_1_1);
+            HTTPResponse response;
+            websocket_ = std::unique_ptr<WebSocket>(new WebSocket(*session_, request, response));
+        } catch (NoMessageException &e) {
+            if (on_error_) {
+                WSHandler::HandlerWithMsgFn on_error_callback = *on_error_;
+                on_error_callback(e.displayText());
+            } else {
+                throw e;
+            }
+        }
+        state(WSState::OPEN);
         if (on_open_) {
             const auto on_open_callback = *on_open_;
             on_open_callback();
@@ -200,7 +221,7 @@ namespace deepstream {
     {
         if (state_ == WSState::OPEN) {
             websocket_->close();
-            state_ = WSState::CLOSED;
+            state(WSState::CLOSED);
             if (on_close_) {
                 const auto on_close_callback = *on_close_;
                 on_close_callback();
