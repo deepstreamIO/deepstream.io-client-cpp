@@ -16,7 +16,9 @@
 #include <exception>
 #include <iostream>
 
-#include <deepstream.hpp>
+#include <deepstream/core.hpp>
+#include <deepstream/lib/poco-ws.hpp>
+#include <deepstream/lib/basic-error-handler.hpp>
 
 int main(int argc, char* argv[])
 {
@@ -27,9 +29,11 @@ int main(int argc, char* argv[])
     }
 
     try {
-        deepstream::Deepstream client(uri);
-        client.login();
-        if (client.get_connection_state() == deepstream::ConnectionState::CONNECTED) {
+        deepstream::BasicErrorHandler errh;
+        deepstream::PocoWSHandler wsh;
+        deepstream::Client client(uri, wsh, errh);
+        client.login("{}", [](const std::unique_ptr<deepstream::Buffer> &){});
+        if (client.get_connection_state() == deepstream::ConnectionState::OPEN) {
             std::cout << "successfully logged in to " << uri << std::endl;
             return EXIT_SUCCESS;
         } else {

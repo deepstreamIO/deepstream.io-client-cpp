@@ -148,6 +148,8 @@ struct Message {
      */
     static Buffer from_human_readable(const char* p);
 
+    static std::string to_human_readable(const Buffer &buff);
+
     /**
      * @param[in] p A pointer to a string of length `size`
      * @param[in] size The length of the string referenced by p

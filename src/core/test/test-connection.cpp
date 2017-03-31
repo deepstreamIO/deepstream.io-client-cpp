@@ -43,11 +43,18 @@ namespace deepstream {
         }
     };
 
-    struct SimpleClient : public Client {
-         SimpleClient() : Client()
+    struct EventMock : public Event {
+         EventMock(const SendFn &send_fn) : Event(send_fn)
          {
          }
-    }
+    };
+
+    struct PresenceMock : public Presence {
+         PresenceMock(const SendFn &send_fn) : Presence(send_fn)
+         {
+         }
+    };
+
     /*
      *struct SimpleClient : public websockets::pseudo::Client {
      *    typedef std::unique_ptr<websockets::Frame> FramePtr;
@@ -75,7 +82,7 @@ namespace deepstream {
      *        for (std::size_t i = 0; i < expected_num_args.first; ++i)
      *            builder.add_argument("arg");
      *
-     *        state_ = transition(state_, builder, Sender::SERVER);
+     *        state_ = transition_incoming(state_, builder);
      *
      *        return std::make_pair(websockets::State::OPEN,
      *            builder.to_binary());
@@ -128,7 +135,7 @@ namespace deepstream {
      *        std::for_each(messages.cbegin(), messages.cend(),
      *            [this](const Message& msg) {
      *                State old_state = this->state_;
-     *                State new_state = transition(old_state, msg, Sender::CLIENT);
+     *                State new_state = transition_outgoing(old_state, msg);
      *
      *                this->state_ = new_state;
      *            });
@@ -185,11 +192,13 @@ namespace deepstream {
     {
         SimpleWSHandler wsh;
         FailHandler errh;
-        Connection conn("ws://uri", wsh, errh);
+        EventMock evt([](const Message &){ return true; });
+        PresenceMock pres([](const Message &){ return true; });
+        Connection conn("ws://uri", wsh, errh, evt, pres);
 
-        conn.login("auth", [](const deepstream::Buffer &){});
+        conn.login("auth", [](const std::unique_ptr<Buffer> &){});
 
-        BOOST_CHECK_EQUAL(conn.get_connection_state(), ConnectionState::CONNECTED);
+        BOOST_CHECK_EQUAL(conn.state(), ConnectionState::OPEN);
     }
 
     /*
@@ -229,7 +238,7 @@ namespace deepstream {
      *        if (a == Action::REDIRECT)
      *            builder.add_argument(REDIRECTION_URI);
      *
-     *        state_ = transition(state_, builder, Sender::SERVER);
+     *        state_ = transition_incoming(state_, builder);
      *
      *        return std::make_pair(websockets::State::OPEN,
      *            make_frame(builder.to_binary()));
@@ -284,7 +293,7 @@ namespace deepstream {
      *        std::for_each(messages.cbegin(), messages.cend(),
      *            [this](const Message& msg) {
      *                ConnectionState old_state = this->state_;
-     *                ConnectionState new_state = transition(old_state, msg, Sender::CLIENT);
+     *                ConnectionState new_state = transition_outgoing(old_state, msg);
      *
      *                this->state_ = new_state;
      *            });
@@ -348,11 +357,47 @@ namespace deepstream {
     {
         RedirectionWSHandler wsh;
         FailHandler errh;
-        Connection conn("ws://initial.uri", wsh, errh);
+        EventMock evt([](const Message &){ return true; });
+        PresenceMock pres([](const Message &){ return true; });
+        Connection conn("ws://initial.uri", wsh, errh, evt, pres);
 
-        conn.login("auth", [](const deepstream::Buffer &){});
+        conn.login("auth", [](const std::unique_ptr<Buffer> &){});
 
-        BOOST_CHECK_EQUAL(conn.get_connection_state(), ConnectionState::CONNECTED);
+        BOOST_CHECK_EQUAL(conn.state(), ConnectionState::OPEN);
         BOOST_CHECK_EQUAL(wsh.URI(), "ws://redirection.uri");
+    }
+
+    BOOST_AUTO_TEST_CASE(lifetime)
+    {
+        auto make_msg = [](Topic topic, Action action) {
+            return MessageBuilder(topic, action);
+        };
+        auto make_ack_msg = [](Topic topic, Action action) {
+            return MessageBuilder(topic, action, true);
+        };
+
+        ConnectionState s0 = ConnectionState::AWAIT_CONNECTION;
+
+        auto msg0 = make_msg(Topic::CONNECTION, Action::CHALLENGE);
+        ConnectionState s1 = transition_incoming(s0, msg0);
+        BOOST_CHECK_EQUAL(s1, ConnectionState::CHALLENGING);
+
+        auto msg1 = make_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
+        msg1.add_argument(Buffer("URL"));
+        ConnectionState s2 = transition_outgoing(s1, msg1);
+        BOOST_CHECK_EQUAL(s2, ConnectionState::AWAIT_AUTHENTICATION);
+
+        auto msg2 = make_ack_msg(Topic::CONNECTION, Action::CHALLENGE_RESPONSE);
+        ConnectionState s3 = transition_incoming(s2, msg2);
+        BOOST_CHECK_EQUAL(s3, ConnectionState::AWAIT_AUTHENTICATION);
+
+        auto msg3 = make_msg(Topic::AUTH, Action::REQUEST);
+        msg3.add_argument(Buffer("{\"username\":\"u\",\"password\":\"p\"}"));
+        ConnectionState s4 = transition_outgoing(s3, msg3);
+        BOOST_CHECK_EQUAL(s4, ConnectionState::AUTHENTICATING);
+
+        auto msg4 = make_ack_msg(Topic::AUTH, Action::REQUEST);
+        ConnectionState s5 = transition_incoming(s4, msg4);
+        BOOST_CHECK_EQUAL(s5, ConnectionState::OPEN);
     }
 }

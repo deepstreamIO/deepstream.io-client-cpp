@@ -43,13 +43,13 @@ namespace deepstream {
 
     public:
 
-        explicit Connection(Client &client, const std::string &, WSHandler &, ErrorHandler &);
+        explicit Connection(const std::string &, WSHandler &, ErrorHandler &, Event &, Presence &);
 
         void login(const std::string& auth, const Client::LoginCallback &callback);
 
         void close();
 
-        ConnectionState get_connection_state();
+        ConnectionState state();
 
         /**
          * This method serializes the given message and sends it as a
@@ -58,6 +58,7 @@ namespace deepstream {
         void send(const Message&);
 
     private:
+        void send_authentication_request();
 
         void handle_connection_response(const Message &message);
         void handle_authentication_response(const Message &message);
@@ -67,7 +68,7 @@ namespace deepstream {
         void on_open();
         void on_close();
 
-        Client &client_;
+        void state(const ConnectionState);
 
         ConnectionState state_;
 
@@ -75,15 +76,22 @@ namespace deepstream {
         WSHandler &ws_handler_;
 
         std::unique_ptr<Client::LoginCallback> p_login_callback_;
+        std::unique_ptr<std::string> p_auth_params_;
+
+        Event &event_;
+        Presence &presence_;
+
+        bool deliberate_close_;
 
         /**
          * Given the current client state and a message, return the next state
          * of the client's finite state machine.
          */
-        ConnectionState transition_incoming(ConnectionState s, const Message& message);
-
-        ConnectionState transition_outgoing(ConnectionState s, const Message& message);
     };
+    ConnectionState transition_incoming(const ConnectionState s, const Message& message);
+
+    ConnectionState transition_outgoing(const ConnectionState s, const Message& message);
 }
+
 
 #endif
