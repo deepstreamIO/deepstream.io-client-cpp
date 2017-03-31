@@ -216,9 +216,7 @@ Buffer Message::from_human_readable(const char* p, std::size_t size)
 
 std::string Message::to_human_readable(const Buffer &buff)
 {
-    Buffer nu_buff(buff);
-    std::replace(nu_buff.begin(), nu_buff.end(), '\0', '!');
-    std::string str(nu_buff.cbegin(), nu_buff.cend());
+    std::string str(buff.cbegin(), buff.cend());
     std::replace(str.begin(), str.end(), '\x1f', '|');
     std::replace(str.begin(), str.end(), '\x1e', '+');
 
