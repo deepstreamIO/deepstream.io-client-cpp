@@ -63,8 +63,8 @@ namespace deepstream {
         void handle_connection_response(const Message &message);
         void handle_authentication_response(const Message &message);
 
-        void on_message(const Buffer &message);
-        void on_error(const std::string &error);
+        void on_message(const Buffer &&message);
+        void on_error(const std::string &&error);
         void on_open();
         void on_close();
 

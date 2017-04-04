@@ -30,8 +30,8 @@ namespace deepstream {
 
     class WSHandler {
     public:
-        typedef std::function<void(const std::string&)> HandlerWithMsgFn;
-        typedef std::function<void(const Buffer&)> HandlerWithBufFn;
+        typedef std::function<void(const std::string&&)> HandlerWithMsgFn;
+        typedef std::function<void(const Buffer&&)> HandlerWithBufFn;
         typedef std::function<void()> HandlerFn;
 
         WSHandler(){};
