@@ -524,7 +524,7 @@ namespace deepstream {
      *}
      */
 
-    void Connection::send(const Message& message)
+    bool Connection::send(const Message& message)
     {
         ConnectionState new_state = transition_outgoing(state_, message);
         assert(new_state != ConnectionState::ERROR);

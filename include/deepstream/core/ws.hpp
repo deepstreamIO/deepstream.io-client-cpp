@@ -48,7 +48,7 @@ namespace deepstream {
         // single frame.
         //
         // The frame should always be sent as FRAME_TEXT.
-        virtual void send(const Buffer&) = 0;
+        virtual bool send(const Buffer&) = 0;
 
         virtual void open() = 0;
 

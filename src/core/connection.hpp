@@ -55,7 +55,7 @@ namespace deepstream {
          * This method serializes the given message and sends it as a
          * non-fragmented text frame to the server.
          */
-        void send(const Message&);
+        bool send(const Message&);
 
     private:
         void send_authentication_request();

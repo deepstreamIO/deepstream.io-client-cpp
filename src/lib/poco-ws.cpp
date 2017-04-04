@@ -164,14 +164,26 @@ namespace deepstream {
         uri_ = uri;
     }
 
-    void PocoWSHandler::send(const Buffer& buffer)
+    bool PocoWSHandler::send(const Buffer& buffer)
     {
-        const int bytes_sent = websocket_->sendFrame(buffer.data(), buffer.size());
-        auto on_error_callback = *on_error_;
+        if (state_ != WSState::OPEN)
+        {
+            (*on_error_)("Unable to send message on closed socket");
+            return false;
+        }
+        int bytes_sent = 0;
+        try {
+            bytes_sent = websocket_->sendFrame(buffer.data(), buffer.size());
+        } catch (Poco::IOException &e) {
+            state(WSState::ERROR);
+            (*on_error_)("IO Exception: " + e.displayText());
+            return false;
+        }
         if (bytes_sent != static_cast<int>(buffer.size())) {
-            on_error_callback("Failed to send full buffer. Sent " +
+            (*on_error_)("Failed to send full buffer. Sent " +
                     std::to_string(bytes_sent) + " of " + std::to_string(buffer.size()));
         }
+        return true;
     }
 
     WSState PocoWSHandler::state() const

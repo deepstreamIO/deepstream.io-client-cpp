@@ -164,7 +164,7 @@ namespace deepstream {
 
         void URI(std::string) override {}
 
-        void send(const Buffer&) override {}
+        bool send(const Buffer&) override {}
 
         void open() override {}
 
@@ -324,7 +324,7 @@ namespace deepstream {
 
         void URI(std::string) override {}
 
-        void send(const Buffer&) override {}
+        bool send(const Buffer&) override {}
 
         void open() override {}
 
