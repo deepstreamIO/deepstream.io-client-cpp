@@ -81,26 +81,26 @@ std::ostream& operator<<(std::ostream&, Sender);
 struct Message {
     struct Header {
         /**
-	 * This function returns the list of all valid message headers.
-	 *
-	 * The return value is a pair of iterators forming a half-open
-	 * interval.
-	 */
+         * This function returns the list of all valid message headers.
+         *
+         * The return value is a pair of iterators forming a half-open
+         * interval.
+         */
         static std::pair<const Header*, const Header*> all();
 
         /**
-	 * This function returns the human-readable representation of the
-	 * given message header.
-	 *
-	 * The input must form a valid message header.
-	 */
+         * This function returns the human-readable representation of the
+         * given message header.
+         *
+         * The input must form a valid message header.
+         */
         static const char* to_string(Topic, Action, bool is_ack = false);
 
         /**
-	 * This function returns the number of bytes needed to store the
-	 * serialized message header in a deepstream message or its
-	 * human-readable representation.
-	 */
+         * This function returns the number of bytes needed to store the
+         * serialized message header in a deepstream message or its
+         * human-readable representation.
+         */
         static std::size_t size(Topic, Action, bool is_ack = false);
 
         explicit Header(Topic topic, Action action, bool is_ack = false)
@@ -111,20 +111,20 @@ struct Message {
         }
 
         /**
-	 * @return The human-readable representation of the header
-	 */
+         * @return The human-readable representation of the header
+         */
         const char* to_string() const;
 
         /**
-	 * @return The length of the human-readable header representation in
-	 * bytes
-	 */
+         * @return The length of the human-readable header representation in
+         * bytes
+         */
         std::size_t size() const;
 
         /**
-	 * This method returns the representation of this header in a
-	 * deepstream message.
-	 */
+         * This method returns the representation of this header in a
+         * deepstream message.
+         */
         Buffer to_binary() const;
 
         Topic topic() const { return topic_impl_; }
