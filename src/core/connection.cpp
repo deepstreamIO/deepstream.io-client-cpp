@@ -105,7 +105,7 @@ namespace deepstream {
         state_ = state;
     }
 
-    void Connection::on_message(const Buffer &raw_message)
+    void Connection::on_message(const Buffer &&raw_message)
     {
         DEBUG_MSG(raw_message.size() << " bytes received");
         Buffer buffer;
@@ -266,7 +266,7 @@ namespace deepstream {
         state(new_state);
     }
 
-    void Connection::on_error(const std::string &error)
+    void Connection::on_error(const std::string &&error)
     {
         DEBUG_MSG("Websocket error: " << error);
         state(ConnectionState::ERROR);

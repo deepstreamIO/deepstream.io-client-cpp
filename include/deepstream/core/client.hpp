@@ -69,7 +69,7 @@ inline std::ostream &operator<<(std::ostream &os, ConnectionState state) {
 
 struct Client {
 
-    typedef std::function<void(const std::unique_ptr<Buffer> &)> LoginCallback;
+    typedef std::function<void(const std::unique_ptr<Buffer> &&)> LoginCallback;
 
     Client(const std::string &, WSHandler &, ErrorHandler &);
 
