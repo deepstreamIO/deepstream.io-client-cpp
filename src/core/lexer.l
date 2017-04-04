@@ -58,57 +58,57 @@ NS  [^\x1e\x1f]
 %%
 
 <INITIAL>{
-	A{MPS}A        { BEGIN(yypayload); return DS_PARSE(TOKEN_A_A); }
-	A{MPS}E{MPS}INVALID_AUTH_DATA { BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_IAD); };
-	A{MPS}E{MPS}INVALID_AUTH_MSG { BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_IAM); };
-	A{MPS}E{MPS}TOO_MANY_AUTH_ATTEMPTS { BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_TMAA); };
-	A{MPS}REQ      { BEGIN(yypayload); return DS_PARSE(TOKEN_A_REQ); };
+    A{MPS}A        { BEGIN(yypayload); return DS_PARSE(TOKEN_A_A); }
+    A{MPS}E{MPS}INVALID_AUTH_DATA { BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_IAD); };
+    A{MPS}E{MPS}INVALID_AUTH_MSG { BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_IAM); };
+    A{MPS}E{MPS}TOO_MANY_AUTH_ATTEMPTS { BEGIN(yypayload); return DS_PARSE(TOKEN_A_E_TMAA); };
+    A{MPS}REQ      { BEGIN(yypayload); return DS_PARSE(TOKEN_A_REQ); };
 
-	C{MPS}A        { BEGIN(yypayload); return DS_PARSE(TOKEN_C_A); }
-	C{MPS}CH       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_CH); }
-	C{MPS}CHR      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_CHR); }
-	C{MPS}PI       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_PI); }
-	C{MPS}PO       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_PO); }
-	C{MPS}RED      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_RED); }
-	C{MPS}REJ      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_REJ); }
+    C{MPS}A        { BEGIN(yypayload); return DS_PARSE(TOKEN_C_A); }
+    C{MPS}CH       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_CH); }
+    C{MPS}CHR      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_CHR); }
+    C{MPS}PI       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_PI); }
+    C{MPS}PO       { BEGIN(yypayload); return DS_PARSE(TOKEN_C_PO); }
+    C{MPS}RED      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_RED); }
+    C{MPS}REJ      { BEGIN(yypayload); return DS_PARSE(TOKEN_C_REJ); }
 
-	E{MPS}A{MPS}L  { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_L); };
-	E{MPS}A{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_S); };
-	E{MPS}A{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_US); };
-	E{MPS}EVT      { BEGIN(yypayload); return DS_PARSE(TOKEN_E_EVT); };
-	E{MPS}L        { BEGIN(yypayload); return DS_PARSE(TOKEN_E_L); };
-	E{MPS}LA       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_LA); };
-	E{MPS}LR       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_LR); };
-	E{MPS}S        { BEGIN(yypayload); return DS_PARSE(TOKEN_E_S); };
-	E{MPS}SP       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_SP); };
-	E{MPS}SR       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_SR); };
-	E{MPS}US       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_US); };
+    E{MPS}A{MPS}L  { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_L); };
+    E{MPS}A{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_S); };
+    E{MPS}A{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_E_A_US); };
+    E{MPS}EVT      { BEGIN(yypayload); return DS_PARSE(TOKEN_E_EVT); };
+    E{MPS}L        { BEGIN(yypayload); return DS_PARSE(TOKEN_E_L); };
+    E{MPS}LA       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_LA); };
+    E{MPS}LR       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_LR); };
+    E{MPS}S        { BEGIN(yypayload); return DS_PARSE(TOKEN_E_S); };
+    E{MPS}SP       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_SP); };
+    E{MPS}SR       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_SR); };
+    E{MPS}US       { BEGIN(yypayload); return DS_PARSE(TOKEN_E_US); };
 
-	U{MPS}A{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_U_A_S); };
-	U{MPS}A{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_U_A_US); };
-	U{MPS}PNJ      { BEGIN(yypayload); return DS_PARSE(TOKEN_U_PNJ); };
-	U{MPS}PNL      { BEGIN(yypayload); return DS_PARSE(TOKEN_U_PNL); };
-	U{MPS}Q        { BEGIN(yypayload); return DS_PARSE(TOKEN_U_Q); };
-	U{MPS}S{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_U_S); };
-	U{MPS}US{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_U_US); };
+    U{MPS}A{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_U_A_S); };
+    U{MPS}A{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_U_A_US); };
+    U{MPS}PNJ      { BEGIN(yypayload); return DS_PARSE(TOKEN_U_PNJ); };
+    U{MPS}PNL      { BEGIN(yypayload); return DS_PARSE(TOKEN_U_PNL); };
+    U{MPS}Q        { BEGIN(yypayload); return DS_PARSE(TOKEN_U_Q); };
+    U{MPS}S{MPS}S  { BEGIN(yypayload); return DS_PARSE(TOKEN_U_S); };
+    U{MPS}US{MPS}US { BEGIN(yypayload); return DS_PARSE(TOKEN_U_US); };
 
-	{MS}           { return DS_PARSE(TOKEN_UNKNOWN); };
-	.              { BEGIN(yyerror); yymore(); };
-	\n             { BEGIN(yyerror); yymore(); };
+    {MS}           { return DS_PARSE(TOKEN_UNKNOWN); };
+    .              { BEGIN(yyerror); yymore(); };
+    \n             { BEGIN(yyerror); yymore(); };
 }
 
 
 <yypayload>{
-	{MPS}{NS}+   { return DS_PARSE(TOKEN_PAYLOAD); };
-	{MS}         { BEGIN(INITIAL); return DS_PARSE(TOKEN_MESSAGE_SEPARATOR); };
+    {MPS}{NS}+   { return DS_PARSE(TOKEN_PAYLOAD); };
+    {MS}         { BEGIN(INITIAL); return DS_PARSE(TOKEN_MESSAGE_SEPARATOR); };
 
-	.            { BEGIN(yyerror); yymore(); }
-	\n           { BEGIN(yyerror); yymore(); }
+    .            { BEGIN(yyerror); yymore(); }
+    \n           { BEGIN(yyerror); yymore(); }
 }
 
 <yyerror>{
-	[^\x1e]*{MS}*  { BEGIN(INITIAL); return DS_PARSE(TOKEN_UNKNOWN); };
-	<<EOF>>        { BEGIN(INITIAL); yyless(1); return DS_PARSE(TOKEN_UNKNOWN); };
+    [^\x1e]*{MS}*  { BEGIN(INITIAL); return DS_PARSE(TOKEN_UNKNOWN); };
+    <<EOF>>        { BEGIN(INITIAL); yyless(1); return DS_PARSE(TOKEN_UNKNOWN); };
 }
 
 <<EOF>>            { (void)DS_PARSE(TOKEN_EOF); yyterminate(); };

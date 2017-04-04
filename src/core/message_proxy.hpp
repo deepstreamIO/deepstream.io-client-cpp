@@ -59,19 +59,19 @@ namespace parser {
         typedef std::vector<Location> LocationList;
 
         /**
-	 * Given the message header, this constructor initializes a
-	 * MessageProxy object without payload.
-	 *
-	 * @warning The memory referenced by p must be valid throughout the
-	 * lifetime of the constructed MessageProxy object.
-	 *
-	 * @param[in] p A pointer to, e.g., the beginning of a WebSocket
-	 * frame
-	 * @param[in] offset The start of the deepstream message in p
-	 * @param[in] topic Topic
-	 * @param[in] action Action
-	 * @param[in] is_ack True if this is an ACK message
-	 */
+         * Given the message header, this constructor initializes a
+         * MessageProxy object without payload.
+         *
+         * @warning The memory referenced by p must be valid throughout the
+         * lifetime of the constructed MessageProxy object.
+         *
+         * @param[in] p A pointer to, e.g., the beginning of a WebSocket
+         * frame
+         * @param[in] offset The start of the deepstream message in p
+         * @param[in] topic Topic
+         * @param[in] action Action
+         * @param[in] is_ack True if this is an ACK message
+         */
         explicit MessageProxy(const char* p, std::size_t offset, Topic topic,
             Action action, bool is_ack = false);
 
@@ -95,8 +95,8 @@ namespace parser {
         const char* const base_;
         const std::size_t offset_;
         /**
-	 * the size of the binary representation of the message in bytes
-	 */
+         * the size of the binary representation of the message in bytes
+         */
         std::size_t size_;
 
         Message::Header header_;

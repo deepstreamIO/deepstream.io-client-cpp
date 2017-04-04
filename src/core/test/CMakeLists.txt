@@ -4,51 +4,51 @@
 # Source:
 # https://eb2.co/blog/2015/06/driving-boost-dot-test-with-cmake/
 function(add_boost_test FILENAME DEPENDENCY_LIB)
-	get_filename_component(TEST_EXECUTABLE ${FILENAME} NAME_WE)
-	add_executable(${TEST_EXECUTABLE} ${FILENAME})
-	target_compile_definitions(${TEST_EXECUTABLE} PUBLIC -DBOOST_TEST_DYN_LINK)
-	target_include_directories(${TEST_EXECUTABLE} PUBLIC ${Boost_INCLUDE_DIRS})
-	target_link_libraries(${TEST_EXECUTABLE} ${DEPENDENCY_LIB})
-	target_link_libraries(${TEST_EXECUTABLE} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+    get_filename_component(TEST_EXECUTABLE ${FILENAME} NAME_WE)
+    add_executable(${TEST_EXECUTABLE} ${FILENAME})
+    target_compile_definitions(${TEST_EXECUTABLE} PUBLIC -DBOOST_TEST_DYN_LINK)
+    target_include_directories(${TEST_EXECUTABLE} PUBLIC ${Boost_INCLUDE_DIRS})
+    target_link_libraries(${TEST_EXECUTABLE} ${DEPENDENCY_LIB})
+    target_link_libraries(${TEST_EXECUTABLE} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-	file(READ "${FILENAME}" SOURCE)
-	string(
-		REGEX MATCHALL
-		"BOOST_AUTO_TEST_CASE\\( *([A-Za-z0-9_]+) *\\)"
-		TESTS
-		${SOURCE})
+    file(READ "${FILENAME}" SOURCE)
+    string(
+        REGEX MATCHALL
+        "BOOST_AUTO_TEST_CASE\\( *([A-Za-z0-9_]+) *\\)"
+        TESTS
+        ${SOURCE})
 
-	foreach(TEST ${TESTS})
-		string(
-			REGEX REPLACE
-			".*\\( *([A-Za-z0-9_]+) *\\).*" "\\1"
-			TEST_NAME
-			${TEST})
+    foreach(TEST ${TESTS})
+        string(
+            REGEX REPLACE
+            ".*\\( *([A-Za-z0-9_]+) *\\).*" "\\1"
+            TEST_NAME
+            ${TEST})
 
-		add_test(
-			NAME "${TEST_EXECUTABLE}.${TEST_NAME}"
-			COMMAND ${TEST_EXECUTABLE} --run_test=${TEST_NAME})
-	endforeach()
+        add_test(
+            NAME "${TEST_EXECUTABLE}.${TEST_NAME}"
+            COMMAND ${TEST_EXECUTABLE} --run_test=${TEST_NAME})
+    endforeach()
 endfunction()
 
 add_custom_command(
-	OUTPUT
-		lexer.c
-		lexer.h
-	DEPENDS ${CMAKE_SOURCE_DIR}/src/core/lexer.l
-	COMMAND ${FLEX_EXECUTABLE}
-		--outfile=lexer.c
-		--header-file=lexer.h
-		-- ${CMAKE_SOURCE_DIR}/src/core/lexer.l
-	COMMENT "[FLEX][src] Building lexer with Flex ${FLEX_VERSION}"
-	VERBATIM
+    OUTPUT
+        lexer.c
+        lexer.h
+    DEPENDS ${CMAKE_SOURCE_DIR}/src/core/lexer.l
+    COMMAND ${FLEX_EXECUTABLE}
+        --outfile=lexer.c
+        --header-file=lexer.h
+        -- ${CMAKE_SOURCE_DIR}/src/core/lexer.l
+    COMMENT "[FLEX][src] Building lexer with Flex ${FLEX_VERSION}"
+    VERBATIM
 )
 
 set_source_files_properties(
-	"${CMAKE_CURRENT_BINARY_DIR}/lexer.c"
-	PROPERTIES
-		COMPILE_DEFINITIONS "_POSIX_SOURCE"
-		COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter -Wno-type-limits -Wno-sign-compare"
+    "${CMAKE_CURRENT_BINARY_DIR}/lexer.c"
+    PROPERTIES
+        COMPILE_DEFINITIONS "_POSIX_SOURCE"
+        COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter -Wno-type-limits -Wno-sign-compare"
 )
 
 add_library(test_lexer ${CMAKE_CURRENT_BINARY_DIR}/lexer.c)
