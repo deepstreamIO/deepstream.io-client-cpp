@@ -31,7 +31,7 @@ namespace deepstream {
 
     void PseudoWSHandler::URI(std::string URI){}
 
-    void PseudoWSHandler::send(const Buffer&){}
+    bool PseudoWSHandler::send(const Buffer&){}
 
     void PseudoWSHandler::open(){}
 

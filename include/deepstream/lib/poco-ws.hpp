@@ -38,7 +38,7 @@ namespace deepstream {
 
         void URI(std::string URI) override;
 
-        void send(const Buffer&) override;
+        bool send(const Buffer&) override;
 
         void open() override;
 

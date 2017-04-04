@@ -37,13 +37,10 @@ Client::Client(const std::string &uri, WSHandler &ws_handler, ErrorHandler &erro
     : p_connection_(new Connection(uri, ws_handler, error_handler, event, presence))
     , event([this](const Message& message) -> bool {
         assert(p_connection_);
-        p_connection_->send(message);
-        return true;
+        return p_connection_->send(message);
     })
     , presence([this](const Message& message) -> bool {
-        assert(p_connection_);
-        p_connection_->send(message);
-        return true;
+        return p_connection_->send(message);
     })
 {
 }
