@@ -275,8 +275,7 @@ namespace deepstream {
     void Connection::on_error(const std::string &&error)
     {
         DEBUG_MSG("Websocket error: " << error);
-        state(ConnectionState::RECONNECTING);
-        ws_handler_.reconnect();
+        on_close();
     }
 
     void Connection::on_open()
