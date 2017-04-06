@@ -51,6 +51,8 @@ namespace deepstream {
         , p_auth_params_(nullptr)
         , event_(event)
         , presence_(presence)
+        , deliberate_close_(false)
+        , reconnection_attempt_(0)
     {
         assert(ws_handler.state() == WSState::CLOSED);
 
@@ -279,15 +281,17 @@ namespace deepstream {
 
     void Connection::on_open()
     {
+        reconnection_attempt_ = 0;
         state(ConnectionState::AWAIT_CONNECTION);
     }
 
     void Connection::on_close()
     {
-        if (deliberate_close_) {
+        if (deliberate_close_ || reconnection_attempt_ >= 3) {
             state(ConnectionState::CLOSED);
             return;
         }
+        reconnection_attempt_++;
         state(ConnectionState::RECONNECTING);
         ws_handler_.open();
     }
