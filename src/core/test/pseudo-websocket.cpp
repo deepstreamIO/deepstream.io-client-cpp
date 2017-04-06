@@ -40,18 +40,4 @@ namespace deepstream {
     void PseudoWSHandler::reconnect(){}
 
     void PseudoWSHandler::shutdown(){}
-
-    void PseudoWSHandler::on_open(const HandlerFn&){}
-
-    void PseudoWSHandler::on_close(const HandlerFn&){}
-
-    void PseudoWSHandler::on_error(const HandlerWithMsgFn&){}
-
-    void PseudoWSHandler::on_message(const HandlerWithBufFn&){}
-
-    WSState PseudoWSHandler::state() const
-    {
-        return WSState::CLOSED;
-    }
-
 }

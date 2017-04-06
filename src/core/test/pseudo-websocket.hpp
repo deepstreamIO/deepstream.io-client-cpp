@@ -48,16 +48,6 @@ namespace deepstream {
 
         void shutdown() override;
 
-        void on_open(const HandlerFn&) override;
-
-        void on_close(const HandlerFn&) override;
-
-        void on_error(const HandlerWithMsgFn&) override;
-
-        void on_message(const HandlerWithBufFn&) override;
-
-        WSState state() const override;
-
     };
 
 }

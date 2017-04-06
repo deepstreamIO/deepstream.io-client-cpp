@@ -52,16 +52,6 @@ namespace deepstream {
 
         void shutdown() override;
 
-        void on_open(const HandlerFn&) override;
-
-        void on_close(const HandlerFn&) override;
-
-        void on_error(const HandlerWithMsgFn&) override;
-
-        void on_message(const HandlerWithBufFn&) override;
-
-        WSState state() const override;
-
     private:
         /*
          * Read a websocket frame into a buffer at the given byte offset
@@ -80,11 +70,6 @@ namespace deepstream {
         std::unique_ptr<Poco::Net::HTTPRequest> request_;
         std::unique_ptr<Poco::Net::HTTPResponse> response_;
         std::unique_ptr<Poco::Net::WebSocket> websocket_;
-        WSState state_;
 
-        std::unique_ptr<HandlerFn> on_open_;
-        std::unique_ptr<HandlerFn> on_close_;
-        std::unique_ptr<HandlerWithBufFn> on_message_;
-        std::unique_ptr<HandlerWithMsgFn> on_error_;
     };
 }
