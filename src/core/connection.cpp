@@ -240,7 +240,6 @@ namespace deepstream {
             case Action::REQUEST:
                 {
                     assert(message.is_ack());
-                    //TODO: flush message buffer
                     if (p_login_callback_) {
                         const auto login_callback = *p_login_callback_;
                         if (message.num_arguments() < 1) {
