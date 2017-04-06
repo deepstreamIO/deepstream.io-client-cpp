@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <unistd.h> // usleep
+
 #include <exception>
 #include <iostream>
 
-#include <deepstream.hpp>
+#include <deepstream/core.hpp>
+#include <deepstream/lib/poco-ws.hpp>
+#include <deepstream/lib/basic-error-handler.hpp>
 
 using deepstream::Buffer;
 using deepstream::Event;
@@ -29,13 +33,15 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    deepstream::Client client(argv[1]);
-    if (!client.login()) {
-        std::cout << "Client not logged in" << std::endl;
-        return 1;
-    }
+    std::string uri(argv[1]);
 
-    std::cout << "Client logged in" << std::endl;
+    deepstream::BasicErrorHandler errh;
+    deepstream::PocoWSHandler wsh;
+    deepstream::Client client(uri, wsh, errh);
+
+    client.login("{}", [](const std::unique_ptr<deepstream::Buffer> &){
+            std::cout << "Client logged in" << std::endl;
+            });
 
     // Subscribe to the event "adam"
     Event::SubscribeFnPtr event_sub_ptr = client.event.subscribe(Buffer("adam"), [&](const Buffer& buff) {
@@ -65,8 +71,8 @@ int main(int argc, char* argv[])
 
     Presence::SubscribeFnPtr presence_sub_ptr = client.presence.subscribe([&](const Presence::Name& name, bool online) {
         std::string buff_str(name.begin(), name.end());
-	std::cout << buff_str;
-	std::cout << (online ? " is online" : " is offline") << std::endl;
+        std::cout << buff_str;
+        std::cout << (online ? " is online" : " is offline") << std::endl;
         client.presence.unsubscribe(presence_sub_ptr);
     });
 
@@ -80,6 +86,7 @@ int main(int argc, char* argv[])
     });
 
     while (true) {
-        client.process_messages();
+        wsh.process_messages();
+        usleep(10000);
     }
 }

@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <unistd.h> // usleep
+
 #include <exception>
 #include <iostream>
 
-#include <deepstream.hpp>
+#include <deepstream/core.hpp>
+#include <deepstream/lib/poco-ws.hpp>
+#include <deepstream/lib/basic-error-handler.hpp>
 
 int main(int argc, char* argv[])
 {
@@ -26,15 +31,27 @@ int main(int argc, char* argv[])
         uri = argv[1];
     }
 
+    bool done = false;
     try {
-        deepstream::Client client(uri);
+        deepstream::BasicErrorHandler errh;
+        deepstream::PocoWSHandler wsh;
+        deepstream::Client client(uri, wsh, errh);
+        client.login("{}", [&](const std::unique_ptr<deepstream::Buffer> &){
+                done = true;
+            });
 
-        if (client.login()) {
-            std::cout << "successfully logged in to " << uri << std::endl;
-            return EXIT_SUCCESS;
-        } else {
-            std::cerr << "failed to login to " << uri << std::endl;
-            return EXIT_FAILURE;
+        while (true) {
+            wsh.process_messages();
+            if (client.get_connection_state() == deepstream::ConnectionState::CLOSED
+                    || client.get_connection_state() == deepstream::ConnectionState::ERROR) {
+                std::cerr << "failed to login to " << uri << std::endl;
+                return EXIT_FAILURE;
+            }
+            if (done && client.get_connection_state() == deepstream::ConnectionState::OPEN) {
+                std::cout << "successfully logged in to " << uri << std::endl;
+                return EXIT_SUCCESS;
+            }
+            usleep(10e3);
         }
     } catch (std::exception& e) {
         std::cerr << "Caught exception \"" << e.what() << "\"" << std::endl;

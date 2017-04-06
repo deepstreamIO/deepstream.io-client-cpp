@@ -13,28 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef DEEPSTREAM_VERSION_H
-#define DEEPSTREAM_VERSION_H
+#ifndef DEEPSTREAM_HPP
+#define DEEPSTREAM_HPP
 
-#define DEEPSTREAM_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
-#define DEEPSTREAM_VERSION_MINOR @PROJECT_VERSION_MINOR@
-#define DEEPSTREAM_VERSION_PATCH @PROJECT_VERSION_PATCH@
-#define DEEPSTREAM_VERSION "@PROJECT_VERSION@"
-
-namespace deepstream {
-
-    struct version {
-        version() = delete;
-
-        enum {
-            MAJOR = DEEPSTREAM_VERSION_MAJOR,
-            MINOR = DEEPSTREAM_VERSION_MINOR,
-            PATCH = DEEPSTREAM_VERSION_PATCH
-        };
-
-        static constexpr const char* to_string() { return DEEPSTREAM_VERSION; }
-    };
-
-}
+#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/client.hpp>
+#include <deepstream/core/error_handler.hpp>
+#include <deepstream/core/event.hpp>
+#include <deepstream/core/presence.hpp>
+#include <deepstream/core/version.hpp>
+#include <deepstream/core/ws.hpp>
 
 #endif

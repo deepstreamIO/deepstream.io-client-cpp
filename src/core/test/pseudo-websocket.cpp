@@ -13,28 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef DEEPSTREAM_VERSION_H
-#define DEEPSTREAM_VERSION_H
-
-#define DEEPSTREAM_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
-#define DEEPSTREAM_VERSION_MINOR @PROJECT_VERSION_MINOR@
-#define DEEPSTREAM_VERSION_PATCH @PROJECT_VERSION_PATCH@
-#define DEEPSTREAM_VERSION "@PROJECT_VERSION@"
+#include "pseudo-websocket.hpp"
 
 namespace deepstream {
 
-    struct version {
-        version() = delete;
+    PseudoWSHandler::PseudoWSHandler() : WSHandler()
+    {}
 
-        enum {
-            MAJOR = DEEPSTREAM_VERSION_MAJOR,
-            MINOR = DEEPSTREAM_VERSION_MINOR,
-            PATCH = DEEPSTREAM_VERSION_PATCH
-        };
+    PseudoWSHandler::~PseudoWSHandler(){}
 
-        static constexpr const char* to_string() { return DEEPSTREAM_VERSION; }
-    };
+    void PseudoWSHandler::process_messages(){}
 
+    std::string PseudoWSHandler::URI() const
+    {
+        return "";
+    }
+
+    void PseudoWSHandler::URI(std::string URI){}
+
+    bool PseudoWSHandler::send(const Buffer&){}
+
+    void PseudoWSHandler::open(){}
+
+    void PseudoWSHandler::close(){}
+
+    void PseudoWSHandler::reconnect(){}
+
+    void PseudoWSHandler::shutdown(){}
 }
-
-#endif

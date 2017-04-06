@@ -13,28 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef DEEPSTREAM_VERSION_H
-#define DEEPSTREAM_VERSION_H
 
-#define DEEPSTREAM_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
-#define DEEPSTREAM_VERSION_MINOR @PROJECT_VERSION_MINOR@
-#define DEEPSTREAM_VERSION_PATCH @PROJECT_VERSION_PATCH@
-#define DEEPSTREAM_VERSION "@PROJECT_VERSION@"
+#ifndef DEEPSTREAM_ERROR_HANDLER_HPP
+#define DEEPSTREAM_ERROR_HANDLER_HPP
+
+#include <string>
 
 namespace deepstream {
 
-    struct version {
-        version() = delete;
+enum class ErrorState {
+    PARSER_ERROR,
+    INVALID_STATE_TRANSITION,
+    TOO_MANY_REDIRECTIONS,
+    SYSTEM_ERROR,
+    INVALID_CLOSE_FRAME_SIZE,
+    WEBSOCKET_EXCEPTION,
+    UNEXPECTED_WEBSOCKET_FRAME_FLAGS,
+    SUDDEN_DISCONNECT,
+    AUTHENTICATION_ERROR,
+};
 
-        enum {
-            MAJOR = DEEPSTREAM_VERSION_MAJOR,
-            MINOR = DEEPSTREAM_VERSION_MINOR,
-            PATCH = DEEPSTREAM_VERSION_PATCH
-        };
-
-        static constexpr const char* to_string() { return DEEPSTREAM_VERSION; }
-    };
-
+/**
+ * This class is an interface for the error handlers in the deepstream
+ * client.
+ */
+struct ErrorHandler {
+    virtual ~ErrorHandler() = default;
+    virtual void on_error(const std::string &) const {};
+};
 }
 
 #endif

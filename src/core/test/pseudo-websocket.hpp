@@ -13,26 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef DEEPSTREAM_VERSION_H
-#define DEEPSTREAM_VERSION_H
+#ifndef DEEPSTREAM_WEBSOCKETS_PSEUDO_HPP
+#define DEEPSTREAM_WEBSOCKETS_PSEUDO_HPP
 
-#define DEEPSTREAM_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
-#define DEEPSTREAM_VERSION_MINOR @PROJECT_VERSION_MINOR@
-#define DEEPSTREAM_VERSION_PATCH @PROJECT_VERSION_PATCH@
-#define DEEPSTREAM_VERSION "@PROJECT_VERSION@"
+#include <memory>
+#include <string>
+#include <utility>
+
+#include <deepstream/core/ws.hpp>
+
 
 namespace deepstream {
+    struct Buffer;
 
-    struct version {
-        version() = delete;
+    struct PseudoWSHandler : WSHandler {
 
-        enum {
-            MAJOR = DEEPSTREAM_VERSION_MAJOR,
-            MINOR = DEEPSTREAM_VERSION_MINOR,
-            PATCH = DEEPSTREAM_VERSION_PATCH
-        };
+        explicit PseudoWSHandler();
 
-        static constexpr const char* to_string() { return DEEPSTREAM_VERSION; }
+        ~PseudoWSHandler();
+
+        void process_messages();
+
+        std::string URI() const override;
+
+        void URI(std::string URI) override;
+
+        bool send(const Buffer&) override;
+
+        void open() override;
+
+        void close() override;
+
+        void reconnect() override;
+
+        void shutdown() override;
+
     };
 
 }

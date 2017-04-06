@@ -39,7 +39,7 @@ before_install:
       brew update;
       brew install openssl poco flex ccache;
     else
-      sudo sh -x ubuntu-prerequisites.sh;
+      sudo sh -x scripts/ubuntu-prerequisites.sh;
     fi
 
 script:

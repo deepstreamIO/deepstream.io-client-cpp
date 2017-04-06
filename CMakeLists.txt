@@ -15,7 +15,7 @@ set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-configure_file(version.hpp.in ${CMAKE_BINARY_DIR}/include/deepstream/version.hpp @ONLY)
+configure_file(version.hpp.in ${CMAKE_BINARY_DIR}/include/deepstream/core/version.hpp @ONLY)
 
 # Put the libaries and binaries that get built into directories at the
 # top of the build tree rather than in hard-to-find leaf directories.
@@ -64,12 +64,8 @@ else()
   message(FATAL_ERROR "Compiler ${CMAKE_C_COMPILER} has no C11 support.")
 endif()
 
-if(BUILD_TESTING)
-  find_package(Boost 1.46 REQUIRED COMPONENTS unit_test_framework)
-endif()
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -pedantic")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wall -pedantic")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -pedantic -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wall -pedantic -g")
 
 if(NOT DEFINED(CMAKE_BUILD_TYPE) OR "Debug" STREQUAL "${CMAKE_BUILD_TYPE}")
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -121,8 +117,9 @@ link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
 include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-if(SWIG_FOUND)
+if(SWIG_FOUND AND NOT(DISABLE_SWIG))
   # We need to fix the generated Swig wrapper as the current version
   # of Swig does not handle std::unique_ptr. Our fix directly calls
   # std::move() for the few cases where this smart pointer type is
@@ -131,45 +128,41 @@ if(SWIG_FOUND)
   add_custom_command(
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx
-    COMMAND ${CMAKE_SOURCE_DIR}/fix-deepstream-swig.pl ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
+    COMMAND ${CMAKE_SOURCE_DIR}/swig/fix-deepstream-swig.pl ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx
     COMMAND touch ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
 
   include(${SWIG_USE_FILE})
   find_package(PythonLibs REQUIRED)
   include_directories(${PYTHON_INCLUDE_PATH})
-  include_directories(${CMAKE_CURRENT_SOURCE_DIR})
   set(CMAKE_SWIG_FLAGS "")
   set(CMAKE_SWIG_OUTDIR python)
-  set_source_files_properties(deepstream.i PROPERTIES CPLUSPLUS ON)
+  set_source_files_properties(swig/deepstream.i PROPERTIES CPLUSPLUS ON)
   set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap.cxx PROPERTIES COMPILE_FLAGS -Wno-self-assign)
-  swig_add_module(deepstream python deepstream.i ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
-  swig_link_libraries(deepstream libdeepstream ${POCO_LIBS} ${PYTHON_LIBRARIES})
+  swig_add_module(deepstream python swig/deepstream.i ${CMAKE_CURRENT_BINARY_DIR}/python/deepstreamPYTHON_wrap_fixed.cxx)
+  swig_link_libraries(deepstream libdeepstream_core ${POCO_LIBS} ${PYTHON_LIBRARIES})
 endif()
 
-if(SWIG_FOUND)
+if(SWIG_FOUND AND NOT(DISABLE_SWIG))
   add_test(
     NAME    python-swig-test
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/python-swig-test.py
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/src/core/test/python-swig-test.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 add_subdirectory(doc)
-add_subdirectory(src)
+add_subdirectory(src/core)
+add_subdirectory(src/lib)
 add_subdirectory(examples)
 
-if(BUILD_TESTING AND Boost_FOUND)
-  add_subdirectory(test)
-endif()
-
-INSTALL(
+install(
     DIRECTORY ${CMAKE_SOURCE_DIR}/include/
     DESTINATION include
     FILES_MATCHING PATTERN "*.hpp"
 )
 
-INSTALL(
-    FILES ${CMAKE_BINARY_DIR}/include/deepstream/version.hpp
-    DESTINATION include/deepstream
+install(
+    FILES ${CMAKE_BINARY_DIR}/include/deepstream/core/version.hpp
+    DESTINATION include/deepstream/core
 )
 
 message(STATUS "CMAKE_SYSTEM=${CMAKE_SYSTEM}")

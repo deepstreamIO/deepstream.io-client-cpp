@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef DEEPSTREAM_VERSION_H
-#define DEEPSTREAM_VERSION_H
 
-#define DEEPSTREAM_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
-#define DEEPSTREAM_VERSION_MINOR @PROJECT_VERSION_MINOR@
-#define DEEPSTREAM_VERSION_PATCH @PROJECT_VERSION_PATCH@
-#define DEEPSTREAM_VERSION "@PROJECT_VERSION@"
+#ifndef DEEPSTREAM_BASIC_ERROR_HANDLER_HPP
+#define DEEPSTREAM_BASIC_ERROR_HANDLER_HPP
+
+#include <deepstream/core/error_handler.hpp>
+
+#include <iostream>
+#include <string>
+#include <system_error>
 
 namespace deepstream {
 
-    struct version {
-        version() = delete;
+    /**
+     * This basic error handler simply logs the error message to stderr
+     */
+    struct BasicErrorHandler : public ErrorHandler {
+        BasicErrorHandler() : ErrorHandler()
+        {}
 
-        enum {
-            MAJOR = DEEPSTREAM_VERSION_MAJOR,
-            MINOR = DEEPSTREAM_VERSION_MINOR,
-            PATCH = DEEPSTREAM_VERSION_PATCH
-        };
+        ~BasicErrorHandler() = default;
 
-        static constexpr const char* to_string() { return DEEPSTREAM_VERSION; }
+        void on_error(const std::string &what) const
+        {
+            std::cout << " –– DS CLIENT ERROR –– " << what << std::endl;
+        }
     };
-
 }
 
 #endif
