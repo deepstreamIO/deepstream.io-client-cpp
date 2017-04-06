@@ -26,6 +26,7 @@
 #include <Poco/Net/NetException.h>
 #include <Poco/Net/SSLManager.h>
 #include <Poco/Net/WebSocket.h>
+#include <Poco/Timespan.h>
 #include <Poco/URI.h>
 
 #include <deepstream/lib/poco-ws.hpp>
@@ -34,7 +35,7 @@
 
 #ifndef NDEBUG
 #include <iostream>
-#define DEBUG_MSG(str) do { std::cout << str << std::endl; } while( false )
+#define DEBUG_MSG(str) do { std::cout << "# "<< str << std::endl; } while( false )
 #else
 #define DEBUG_MSG(str) do { } while ( false )
 #endif
@@ -100,36 +101,82 @@ namespace deepstream {
 
     void PocoWSHandler::process_messages()
     {
-        int bytes_received = 0;
-        int flags = 0;
-
-        const std::size_t min_buffer_size = 256;
-        const std::size_t bytes_available = websocket_->available();
-        Buffer buffer(std::max(bytes_available, min_buffer_size), 0);
-
-        try {
-            bytes_received = websocket_->receiveFrame(buffer.data(), buffer.size(), flags);
-        } catch (Poco::TimeoutException &e) {
-            // Received nothing before timeout occurred, but why did we try to
-            // read from a socket without any data?
-            DEBUG_MSG("Socket read timeout");
-            return;
-        } catch (WebSocketException &e) {
-            state(WSState::CLOSED);
-            if (on_error_) {
-                const WSHandler::HandlerWithMsgFn &on_error_callback = *on_error_;
-                on_error_callback(e.displayText());
-            }
+        if (state_ != WSState::OPEN) {
             return;
         }
 
-        if (bytes_received == 0) {
-            state(WSState::ERROR);
-            if (on_error_) {
-                WSHandler::HandlerWithMsgFn on_error_callback = *on_error_;
-                on_error_callback("Tried to read from closed socket");
-            }
+        if (!next_read_non_blocking()) {
             return;
+        }
+
+        // WebSocket.available always returns 0 on secure websockets
+        // see https://github.com/pocoproject/poco/issues/1482
+
+        // If a frame exceeds the buffer size, a WebSocket Exception is thrown
+        // and the socket must be discarded, so best to declare large enough!
+        // The development branch of Poco supports use of the dynamic
+        // `Poco::Buffer` for `receiveFrame`, but this was not in the most recent
+        // release (1.7.8)
+
+        const std::size_t bytes_available = websocket_->available();
+        const std::size_t min_buffer_size = 1024;
+        const std::size_t buffer_size = std::max(bytes_available, min_buffer_size);
+
+        Buffer buffer(buffer_size, 0);
+
+        int offset = 0;
+        int bytes_read = 0;
+        do {
+            bytes_read = read_frame(buffer, offset);
+            offset += bytes_read;
+        } while (bytes_read != 0 && next_read_non_blocking());
+
+        if (offset == 0) {
+            return;
+        }
+
+        buffer.resize(offset);
+
+        (*on_message_)(std::move(buffer));
+    }
+
+    bool PocoWSHandler::next_read_non_blocking()
+    {
+        return websocket_->poll(Poco::Timespan(), Socket::SelectMode::SELECT_READ);
+    }
+
+    int PocoWSHandler::read_frame(Buffer &buffer, int offset)
+    {
+        int bytes_received = 0;
+        int flags = 0;
+
+        try {
+            bytes_received = websocket_->receiveFrame(
+                    buffer.data() + offset, buffer.size() - offset, flags);
+        } catch (Poco::TimeoutException &e) {
+            assert(websocket_->secure());
+
+            // when using wss, occasionally we may read from a socket that
+            // looks readable, but does not have sufficient data to decrypt
+            // this will cause a block (so sendTimeout is short)
+            // see https://github.com/pocoproject/poco/issues/1482
+            DEBUG_MSG("Socket read timeout");
+            return 0;
+        } catch (WebSocketException &e) {
+            state(WSState::ERROR);
+            (*on_error_)(e.displayText());
+            return 0;
+        } catch (NetException &e) {
+            state(WSState::ERROR);
+            (*on_error_)(e.displayText());
+            return 0;
+        }
+
+        if (bytes_received == 0) {
+            DEBUG_MSG("read zero bytes from websocket... closing");
+            state(WSState::CLOSED);
+            close();
+            return 0;
         }
 
         const int eof_flags = WebSocket::FrameFlags::FRAME_FLAG_FIN
@@ -137,18 +184,11 @@ namespace deepstream {
 
         if (flags == eof_flags) {
             state(WSState::CLOSED);
-            if (on_close_) {
-                const auto on_close_callback = *on_close_;
-                on_close_callback();
-            }
-            return;
+            (*on_close_)();
+            return 0;
         }
 
-        buffer.resize(bytes_received);
-
-        assert(on_message_);
-        const WSHandler::HandlerWithBufFn &on_message_callback = *on_message_;
-        on_message_callback(buffer);
+        return bytes_received;
     }
 
     std::string PocoWSHandler::URI() const
@@ -158,10 +198,10 @@ namespace deepstream {
 
     void PocoWSHandler::URI(std::string uri)
     {
-        if (state_ == WSState::OPEN) {
-            close();
-        }
         uri_ = uri;
+        if (state_ == WSState::OPEN) {
+            open();
+        }
     }
 
     bool PocoWSHandler::send(const Buffer& buffer)
@@ -182,6 +222,7 @@ namespace deepstream {
         if (bytes_sent != static_cast<int>(buffer.size())) {
             (*on_error_)("Failed to send full buffer. Sent " +
                     std::to_string(bytes_sent) + " of " + std::to_string(buffer.size()));
+            return false;
         }
         return true;
     }
@@ -199,34 +240,33 @@ namespace deepstream {
 
     void PocoWSHandler::open()
     {
-        assert(on_message_);
-        if (uri_.empty()) {
-            throw std::runtime_error("Cannot open websocket when no URI is set");
+        DEBUG_MSG("<> Connecting to \"" << uri_.toString() << "\" <>");
+        bool initialised = on_message_ && on_error_ && on_open_ && on_close_;
+        if (!initialised) {
+            throw std::runtime_error("Unable to open websocket: not all handlers have been set");
         }
-        if (uri_.getScheme() == "wss") {
-            session_ = std::unique_ptr<HTTPClientSession>(
-                    new HTTPSClientSession(uri_.getHost(), uri_.getPort()));
-        } else {
-            session_ = std::unique_ptr<HTTPClientSession>(
-                    new HTTPClientSession(uri_.getHost(), uri_.getPort()));
+
+        if (uri_.empty()) {
+            throw std::runtime_error("Unable to open websocket: no URI is set");
         }
         try {
+            if (uri_.getScheme() == "wss") {
+                session_ = std::unique_ptr<HTTPClientSession>(
+                        new HTTPSClientSession(uri_.getHost(), uri_.getPort()));
+            } else {
+                session_ = std::unique_ptr<HTTPClientSession>(
+                        new HTTPClientSession(uri_.getHost(), uri_.getPort()));
+            }
             HTTPRequest request(HTTPRequest::HTTP_GET, uri_.getPath(), HTTPRequest::HTTP_1_1);
             HTTPResponse response;
             websocket_ = std::unique_ptr<WebSocket>(new WebSocket(*session_, request, response));
-        } catch (NoMessageException &e) {
-            if (on_error_) {
-                WSHandler::HandlerWithMsgFn on_error_callback = *on_error_;
-                on_error_callback(e.displayText());
-            } else {
-                throw e;
-            }
+            // 100us blocking read timeout (such blocking reads should be rare)
+            websocket_->setReceiveTimeout(Poco::Timespan(0, 100));
+        } catch (NetException &e) {
+            (*on_error_)(e.displayText());
         }
         state(WSState::OPEN);
-        if (on_open_) {
-            const auto on_open_callback = *on_open_;
-            on_open_callback();
-        }
+        (*on_open_)();
     }
 
     void PocoWSHandler::close()
@@ -234,11 +274,9 @@ namespace deepstream {
         if (state_ == WSState::OPEN) {
             websocket_->close();
             state(WSState::CLOSED);
-            if (on_close_) {
-                const auto on_close_callback = *on_close_;
-                on_close_callback();
-            }
         }
+        websocket_ = nullptr;
+        (*on_close_)();
     }
 
     void PocoWSHandler::reconnect()
@@ -254,14 +292,14 @@ namespace deepstream {
         }
     }
 
+    void PocoWSHandler::on_open(const HandlerFn& on_open)
+    {
+        on_open_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_open));
+    }
+
     void PocoWSHandler::on_close(const HandlerFn& on_close)
     {
         on_close_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_close));
-    }
-
-    void PocoWSHandler::on_error(const HandlerWithMsgFn& on_error)
-    {
-        on_error_ = std::unique_ptr<HandlerWithMsgFn>(new HandlerWithMsgFn(on_error));
     }
 
     void PocoWSHandler::on_message(const HandlerWithBufFn& on_message)
@@ -269,9 +307,9 @@ namespace deepstream {
         on_message_ = std::unique_ptr<HandlerWithBufFn>(new HandlerWithBufFn(on_message));
     }
 
-    void PocoWSHandler::on_open(const HandlerFn& on_open)
+    void PocoWSHandler::on_error(const HandlerWithMsgFn& on_error)
     {
-        on_open_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_open));
+        on_error_ = std::unique_ptr<HandlerWithMsgFn>(new HandlerWithMsgFn(on_error));
     }
 
     static SSLManager* sslManager = SSLManager::instance();

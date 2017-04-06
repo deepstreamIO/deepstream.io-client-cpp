@@ -70,6 +70,8 @@ namespace deepstream {
 
         void state(const ConnectionState);
 
+        void on_connection_state_change_();
+
         ConnectionState state_;
 
         ErrorHandler &error_handler_;

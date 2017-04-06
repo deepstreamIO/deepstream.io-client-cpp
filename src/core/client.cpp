@@ -35,13 +35,8 @@ namespace deepstream {
 
 Client::Client(const std::string &uri, WSHandler &ws_handler, ErrorHandler &error_handler)
     : p_connection_(new Connection(uri, ws_handler, error_handler, event, presence))
-    , event([this](const Message& message) -> bool {
-        assert(p_connection_);
-        return p_connection_->send(message);
-    })
-    , presence([this](const Message& message) -> bool {
-        return p_connection_->send(message);
-    })
+    , event(std::bind(&Connection::send, p_connection_.get(), std::placeholders::_1))
+    , presence(std::bind(&Connection::send, p_connection_.get(), std::placeholders::_1))
 {
 }
 
@@ -51,10 +46,13 @@ Client::~Client()
 
 void Client::login(const std::string& auth, const LoginCallback &callback)
 {
+    assert(p_connection_);
     p_connection_->login(auth, callback);
 }
 
-void Client::close() { return p_connection_->close(); }
+void Client::close() {
+    return p_connection_->close();
+}
 
 ConnectionState Client::get_connection_state()
 {

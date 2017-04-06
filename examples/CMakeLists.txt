@@ -9,3 +9,6 @@ target_link_libraries(fuzz-me PUBLIC libdeepstream_poco libdeepstream_core)
 
 add_executable(make-fuzzer-input make-fuzzer-input.cpp)
 target_link_libraries(make-fuzzer-input PUBLIC libdeepstream_poco libdeepstream_core)
+
+add_executable(poco-ws poco-ws.cpp)
+target_link_libraries(poco-ws PUBLIC libdeepstream_poco)

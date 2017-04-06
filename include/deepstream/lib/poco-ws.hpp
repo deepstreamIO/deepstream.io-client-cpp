@@ -38,6 +38,10 @@ namespace deepstream {
 
         void URI(std::string URI) override;
 
+        /*
+         * Send a message
+         * returns true if sending was successful, false otherwise
+         */
         bool send(const Buffer&) override;
 
         void open() override;
@@ -59,10 +63,22 @@ namespace deepstream {
         WSState state() const override;
 
     private:
+        /*
+         * Read a websocket frame into a buffer at the given byte offset
+         * returns the number of bytes read.
+         * Will not overflow buffer, but may lead to error state if there is
+         * insufficient space in buffer for the frame to be read.
+         */
+        int read_frame(Buffer &, int offset);
+
+        bool next_read_non_blocking();
+
         void state(const WSState);
 
         Poco::URI uri_;
         std::unique_ptr<Poco::Net::HTTPClientSession> session_;
+        std::unique_ptr<Poco::Net::HTTPRequest> request_;
+        std::unique_ptr<Poco::Net::HTTPResponse> response_;
         std::unique_ptr<Poco::Net::WebSocket> websocket_;
         WSState state_;
 

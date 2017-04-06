@@ -27,6 +27,7 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <ostream>
 
 namespace deepstream {
 
@@ -47,7 +48,7 @@ enum class ConnectionState {
 };
 
 inline std::ostream &operator<<(std::ostream &os, ConnectionState state) {
-    constexpr const char* states[] = {
+    const char* states[] = {
         "CLOSED",
         "AWAIT_CONNECTION",
         "CHALLENGING",
