@@ -35,7 +35,7 @@
 
 #ifndef NDEBUG
 #include <iostream>
-#define DEBUG_MSG(str) do { std::cout << str << std::endl; } while( false )
+#define DEBUG_MSG(str) do { std::cout << "\033[1,31m#\033[0m " << str << std::endl; } while( false )
 #else
 #define DEBUG_MSG(str) do { } while ( false )
 #endif
@@ -67,6 +67,9 @@ namespace deepstream {
 
     void Connection::login(const std::string& auth_params, const Client::LoginCallback &callback)
     {
+        if (state_ == ConnectionState::OPEN) {
+            return;
+        }
 
         p_login_callback_ = std::unique_ptr<Client::LoginCallback>(new Client::LoginCallback(callback));
 
@@ -101,18 +104,23 @@ namespace deepstream {
 
     void Connection::state(const ConnectionState state)
     {
-        DEBUG_MSG("Connection state change: " << state);
-        state_ = state;
+        if (state != state_) {
+            state_ = state;
+            on_connection_state_change_();
+        }
+    }
+
+    void Connection::on_connection_state_change_()
+    {
+        DEBUG_MSG("Connection state change: " << state_);
+        event_.on_connection_state_change_(state_);
+        //presence_.on_connection_state_change_(state_);
     }
 
     void Connection::on_message(const Buffer &&raw_message)
     {
-        DEBUG_MSG(raw_message.size() << " bytes received");
-        Buffer buffer;
-
-        buffer.assign(raw_message.cbegin(), raw_message.cend());
-        buffer.push_back(0);
-        buffer.push_back(0);
+        Buffer buffer(raw_message.size() + 2, 0);
+        std::copy(raw_message.cbegin(), raw_message.cend(), buffer.begin());
 
         auto parser_result = parser::execute(buffer.data(), buffer.size());
         const parser::ErrorList& errors = parser_result.second;
@@ -123,10 +131,6 @@ namespace deepstream {
             error_message << "parser error: " << error << " \""
                 << Message::to_human_readable(raw_message) << "\"";
             error_handler_.on_error(error_message.str());
-        }
-
-        if (!errors.empty()) {
-            return;
         }
 
         parser::MessageList parsed_messages(std::move(parser_result.first));
@@ -201,7 +205,9 @@ namespace deepstream {
                         break;
                     }
                     const Buffer &uri_buff(message[0]);
-                    ws_handler_.URI(std::string(uri_buff.cbegin(), uri_buff.cend()));
+                    const std::string uri(uri_buff.cbegin(), uri_buff.cend());
+                    DEBUG_MSG("redirecting to \"" << uri << "\"");
+                    ws_handler_.URI(uri);
                 } break;
             default:
                 {
@@ -240,8 +246,7 @@ namespace deepstream {
                         if (message.num_arguments() < 1) {
                             login_callback(std::unique_ptr<Buffer>(nullptr));
                         } else {
-                            const std::unique_ptr<Buffer> auth_data(std::unique_ptr<Buffer>(new Buffer(message[0])));
-                            login_callback(auth_data);
+                            login_callback(std::unique_ptr<Buffer>(new Buffer(message[0])));
                         }
                     }
                 } break;
@@ -269,7 +274,7 @@ namespace deepstream {
     void Connection::on_error(const std::string &&error)
     {
         DEBUG_MSG("Websocket error: " << error);
-        state(ConnectionState::ERROR);
+        state(ConnectionState::RECONNECTING);
         ws_handler_.reconnect();
     }
 
@@ -284,18 +289,26 @@ namespace deepstream {
             state(ConnectionState::CLOSED);
             return;
         }
+        state(ConnectionState::RECONNECTING);
         ws_handler_.open();
     }
 
     bool Connection::send(const Message& message)
     {
-        ConnectionState new_state = transition_outgoing(state_, message);
-        assert(new_state != ConnectionState::ERROR);
+        DEBUG_MSG("--> Sending message: " << message.header());
 
-        if (new_state == ConnectionState::ERROR)
-            throw std::logic_error("Invalid client state transition");
+        if (message.topic() == Topic::CONNECTION || message.topic() == Topic::AUTH) {
+            ConnectionState new_state = transition_outgoing(state_, message);
+            assert(new_state != ConnectionState::ERROR);
 
-        state(new_state);
+            if (new_state == ConnectionState::ERROR) {
+                throw std::logic_error("Invalid client state transition");
+            }
+
+            state(new_state);
+        } else if (state_ != ConnectionState::OPEN) {
+            return false;
+        }
 
         return ws_handler_.send(message.to_binary());
     }
@@ -358,19 +371,22 @@ namespace deepstream {
             return ConnectionState::OPEN;
         }
 
-        if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH && action == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS) {
+        if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH
+                && action == Action::ERROR_TOO_MANY_AUTH_ATTEMPTS) {
             assert(!is_ack);
 
             return ConnectionState::CLOSED;
         }
 
-        if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH && action == Action::ERROR_INVALID_AUTH_DATA) {
+        if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH
+                && action == Action::ERROR_INVALID_AUTH_DATA) {
             assert(!is_ack);
 
             return ConnectionState::AWAIT_AUTHENTICATION;
         }
 
-        if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH && action == Action::ERROR_INVALID_AUTH_MSG) {
+        if (state == ConnectionState::AUTHENTICATING && topic == Topic::AUTH
+                && action == Action::ERROR_INVALID_AUTH_MSG) {
             assert(!is_ack);
 
             return ConnectionState::CLOSED;
@@ -417,9 +433,6 @@ namespace deepstream {
             assert(!is_ack);
             return ConnectionState::AUTHENTICATING;
         }
-
-        if (state == ConnectionState::OPEN)
-            return state;
 
         return ConnectionState::ERROR;
     }

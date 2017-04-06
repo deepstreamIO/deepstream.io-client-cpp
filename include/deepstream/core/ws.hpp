@@ -64,6 +64,13 @@ namespace deepstream {
 
         virtual void on_error(const HandlerWithMsgFn&) = 0;
 
+        /*
+         * Set the callback for handling messages. The callback shall be
+         * invoked whenever messages are processed, with a buffer containing as
+         * many whole messages as were in the socket buffer when checked. The
+         * messages will be placed into the buffer consecutively, leaving the
+         * parser responsible for delimiting messages.
+         */
         virtual void on_message(const HandlerWithBufFn&) = 0;
 
         virtual WSState state() const = 0;

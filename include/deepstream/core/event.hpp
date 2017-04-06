@@ -20,10 +20,13 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <queue>
 
 namespace deepstream {
 struct Buffer;
 struct Message;
+
+enum class ConnectionState;
 
 struct Event {
     typedef Buffer Name;
@@ -134,9 +137,17 @@ struct Event {
      */
     void notify_listeners_(const Message&);
 
-    SendFn send_;
+    void on_connection_state_change_(const ConnectionState);
+
+    const SendFn send_;
     SubscriberMap subscriber_map_;
     ListenerMap listener_map_;
+
+  private:
+
+    void send_buffered(const std::unique_ptr<Message> &&);
+
+    std::queue<std::unique_ptr<Message>> send_queue_;
 };
 }
 

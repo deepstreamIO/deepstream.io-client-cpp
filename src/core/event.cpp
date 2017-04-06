@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <cassert>
 #include <cstdio>
 
 #include <algorithm>
@@ -20,14 +22,15 @@
 
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/event.hpp>
-#include "message_builder.hpp"
+#include <deepstream/core/client.hpp>
 
-#include <cassert>
+#include "message_builder.hpp"
 
 namespace deepstream {
 
 Event::Event(const SendFn& send)
     : send_(send)
+    , send_queue_()
 {
     assert(send_);
 }
@@ -41,8 +44,10 @@ void Event::emit(const Name& name, const Buffer& buffer)
     evt.add_argument(name);
     evt.add_argument(buffer);
 
-    if (!send_(evt))
-        return;
+    if (!send_(evt)) {
+      // sending failed, or the connection is down
+      send_queue_.emplace(new MessageBuilder(evt));
+    }
 
     if (subscriber_map_.find(name) == subscriber_map_.end())
         return;
@@ -276,5 +281,34 @@ void Event::notify_listeners_(const Message& message)
     el.add_argument(pattern);
     el.add_argument(match);
     send_(el);
+}
+
+void Event::on_connection_state_change_(const ConnectionState state)
+{
+    if (state == ConnectionState::OPEN) {
+        for (const auto &subscription: subscriber_map_) {
+            const Name &subscriptionName = subscription.first;
+            MessageBuilder message(Topic::EVENT, Action::SUBSCRIBE);
+            message.add_argument(subscriptionName);
+            if (!send_(message)) {
+                break;
+            }
+        }
+        for (const auto &listen: listener_map_) {
+            const Name &pattern = listen.first;
+            MessageBuilder message(Topic::EVENT, Action::LISTEN);
+            message.add_argument(pattern);
+            if (!send_(message)) {
+                break;
+            }
+        }
+        while (send_queue_.size() > 0) {
+            const auto &message = *send_queue_.front();
+            if (!send_(message)) {
+                break;
+            }
+            send_queue_.pop();
+        }
+    }
 }
 }

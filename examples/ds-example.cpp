@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <unistd.h> // usleep
+
 #include <exception>
 #include <iostream>
 
@@ -37,13 +39,9 @@ int main(int argc, char* argv[])
     deepstream::PocoWSHandler wsh;
     deepstream::Client client(uri, wsh, errh);
 
-    client.login("{}", [](const std::unique_ptr<deepstream::Buffer> &){});
-
-    do {
-        wsh.process_messages();
-    } while (client.get_connection_state() != deepstream::ConnectionState::OPEN);
-
-    std::cout << "Client logged in" << std::endl;
+    client.login("{}", [](const std::unique_ptr<deepstream::Buffer> &){
+            std::cout << "Client logged in" << std::endl;
+            });
 
     // Subscribe to the event "adam"
     Event::SubscribeFnPtr event_sub_ptr = client.event.subscribe(Buffer("adam"), [&](const Buffer& buff) {
@@ -89,5 +87,6 @@ int main(int argc, char* argv[])
 
     while (true) {
         wsh.process_messages();
+        usleep(10000);
     }
 }
