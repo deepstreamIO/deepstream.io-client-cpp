@@ -84,6 +84,7 @@ namespace deepstream {
         Presence &presence_;
 
         bool deliberate_close_;
+        int reconnection_attempt_;
 
         /**
          * Given the current client state and a message, return the next state
