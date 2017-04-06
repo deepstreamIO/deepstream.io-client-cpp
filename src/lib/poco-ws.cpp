@@ -87,11 +87,6 @@ namespace deepstream {
         , uri_()
         , session_(nullptr)
         , websocket_(nullptr)
-        , state_(WSState::CLOSED)
-        , on_open_(nullptr)
-        , on_close_(nullptr)
-        , on_message_(nullptr)
-        , on_error_(nullptr)
     {
     }
 
@@ -227,11 +222,6 @@ namespace deepstream {
         return true;
     }
 
-    WSState PocoWSHandler::state() const
-    {
-        return state_;
-    }
-
     void PocoWSHandler::state(const WSState state)
     {
         DEBUG_MSG("Websocket State Changed: " << static_cast<int>(state));
@@ -291,27 +281,6 @@ namespace deepstream {
             websocket_->shutdown();
         }
     }
-
-    void PocoWSHandler::on_open(const HandlerFn& on_open)
-    {
-        on_open_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_open));
-    }
-
-    void PocoWSHandler::on_close(const HandlerFn& on_close)
-    {
-        on_close_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_close));
-    }
-
-    void PocoWSHandler::on_message(const HandlerWithBufFn& on_message)
-    {
-        on_message_ = std::unique_ptr<HandlerWithBufFn>(new HandlerWithBufFn(on_message));
-    }
-
-    void PocoWSHandler::on_error(const HandlerWithMsgFn& on_error)
-    {
-        on_error_ = std::unique_ptr<HandlerWithMsgFn>(new HandlerWithMsgFn(on_error));
-    }
-
     static SSLManager* sslManager = SSLManager::instance();
 
 }

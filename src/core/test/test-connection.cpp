@@ -148,7 +148,8 @@ namespace deepstream {
      */
 
     struct SimpleWSHandler : public WSHandler {
-        SimpleWSHandler() : WSHandler()
+        SimpleWSHandler()
+            : WSHandler()
         {
         }
 
@@ -156,7 +157,9 @@ namespace deepstream {
         {
         }
 
-        void process_messages() {}
+        void process_messages() {
+
+        }
 
         std::string URI() const override {
             return "test_uri";
@@ -173,19 +176,6 @@ namespace deepstream {
         void reconnect() override {}
 
         void shutdown() override {}
-
-        void on_open(const HandlerFn&) override {}
-
-        void on_close(const HandlerFn&) override {}
-
-        void on_error(const HandlerWithMsgFn&) override {}
-
-        void on_message(const HandlerWithBufFn&) override {}
-
-        WSState state() const override
-        {
-            return WSState::CLOSED;
-        }
     };
 
     BOOST_AUTO_TEST_CASE(simple)
@@ -333,19 +323,6 @@ namespace deepstream {
         void reconnect() override {}
 
         void shutdown() override {}
-
-        void on_open(const HandlerFn&) override {}
-
-        void on_close(const HandlerFn&) override {}
-
-        void on_error(const HandlerWithMsgFn&) override {}
-
-        void on_message(const HandlerWithBufFn&) override {}
-
-        WSState state() const override
-        {
-            return WSState::CLOSED;
-        }
     };
 
     /*

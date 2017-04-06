@@ -34,7 +34,14 @@ namespace deepstream {
         typedef std::function<void(const Buffer&&)> HandlerWithBufFn;
         typedef std::function<void()> HandlerFn;
 
-        WSHandler(){};
+        WSHandler()
+            : on_open_(nullptr)
+            , on_close_(nullptr)
+            , on_message_(nullptr)
+            , on_error_(nullptr)
+            , state_(WSState::CLOSED)
+        {}
+
         WSHandler(WSHandler const&) = delete;
         WSHandler(WSHandler const&&) = delete;
         WSHandler& operator=(WSHandler const&) = delete;
@@ -58,21 +65,45 @@ namespace deepstream {
 
         virtual void shutdown() = 0;
 
-        virtual void on_open(const HandlerFn&) = 0;
+        void on_open(const HandlerFn& on_open)
+        {
+            on_open_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_open));
+        }
 
-        virtual void on_close(const HandlerFn&) = 0;
-
-        virtual void on_error(const HandlerWithMsgFn&) = 0;
+        void on_close(const HandlerFn& on_close)
+        {
+            on_close_ = std::unique_ptr<HandlerFn>(new HandlerFn(on_close));
+        }
 
         /*
          * Set the callback for handling messages. The callback shall be
          * invoked whenever messages are processed, with a buffer containing as
          * many whole messages as were in the socket buffer when checked. The
-         * messages will be placed into the buffer consecutively, leaving the
+         * messages may be placed into the buffer consecutively, leaving the
          * parser responsible for delimiting messages.
          */
-        virtual void on_message(const HandlerWithBufFn&) = 0;
+        void on_message(const HandlerWithBufFn& on_message)
+        {
+            on_message_ = std::unique_ptr<HandlerWithBufFn>(new HandlerWithBufFn(on_message));
+        }
 
-        virtual WSState state() const = 0;
+        void on_error(const HandlerWithMsgFn& on_error)
+        {
+            on_error_ = std::unique_ptr<HandlerWithMsgFn>(new HandlerWithMsgFn(on_error));
+        }
+
+        WSState state()
+        {
+            return state_;
+        }
+
+    protected:
+
+        std::unique_ptr<HandlerFn> on_open_;
+        std::unique_ptr<HandlerFn> on_close_;
+        std::unique_ptr<HandlerWithBufFn> on_message_;
+        std::unique_ptr<HandlerWithMsgFn> on_error_;
+
+        WSState state_;
     };
 }
