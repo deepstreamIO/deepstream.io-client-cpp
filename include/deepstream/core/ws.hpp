@@ -18,6 +18,8 @@
 
 #include <functional>
 #include <string>
+#include <memory>
+
 #include <deepstream/core/buffer.hpp>
 
 namespace deepstream {
