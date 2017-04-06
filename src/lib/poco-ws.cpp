@@ -203,6 +203,7 @@ namespace deepstream {
     {
         if (state_ != WSState::OPEN)
         {
+            state(WSState::ERROR);
             (*on_error_)("Unable to send message on closed socket");
             return false;
         }
@@ -215,6 +216,7 @@ namespace deepstream {
             return false;
         }
         if (bytes_sent != static_cast<int>(buffer.size())) {
+            state(WSState::ERROR);
             (*on_error_)("Failed to send full buffer. Sent " +
                     std::to_string(bytes_sent) + " of " + std::to_string(buffer.size()));
             return false;
@@ -253,7 +255,9 @@ namespace deepstream {
             // 100us blocking read timeout (such blocking reads should be rare)
             websocket_->setReceiveTimeout(Poco::Timespan(0, 100));
         } catch (NetException &e) {
+            state(WSState::ERROR);
             (*on_error_)(e.displayText());
+            return;
         }
         state(WSState::OPEN);
         (*on_open_)();
