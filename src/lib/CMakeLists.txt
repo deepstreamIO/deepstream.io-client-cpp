@@ -11,7 +11,7 @@ if(BUILD_POCO)
 endif()
 
 set_target_properties(libdeepstream_poco PROPERTIES OUTPUT_NAME deepstream-poco)
-target_include_directories(libdeepstream_poco PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${OPENSSL_INCLUDE_DIR})
+target_include_directories(libdeepstream_poco PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${OPENSSL_INCLUDE_DIR} ${POCO_INCLUDE_DIR})
 target_link_libraries(libdeepstream_poco PUBLIC libdeepstream_core ${Poco_LIBRARIES} ${OPENSSL_LIBRARIES} Threads::Threads)
 install(TARGETS libdeepstream_poco DESTINATION "lib")
 
