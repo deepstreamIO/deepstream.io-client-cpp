@@ -103,11 +103,13 @@ if(BUILD_POCO)
     "-DENABLE_POCODOC=OFF"
     "-DENABLE_PAGECOMPILER=OFF"
     "-DENABLE_PAGECOMPILER_FILE2PAGE=OFF"
+    "-DENABLE_JSON=OFF"
+    "-DENABLE_XML=OFF"
     -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/thirdparty
     LOG_CONFIGURE ON
     UPDATE_COMMAND "")
 else()
-  find_package(Poco 1.7.7 REQUIRED NetSSL Crypto Net Util JSON XML Foundation)
+  find_package(Poco 1.7.8 REQUIRED NetSSL Crypto Net Util Foundation)
 endif()
 
 find_package(SWIG 3)
