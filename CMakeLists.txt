@@ -85,8 +85,8 @@ endif()
 if(BUILD_POCO)
   externalproject_add(poco
     PREFIX thirdparty
-    URL https://github.com/pocoproject/poco/archive/poco-1.7.7-release.tar.gz
-    URL_HASH MD5=247b97b545715dc38c8619e412fbcd96
+    URL https://github.com/pocoproject/poco/archive/poco-1.7.8-release.tar.gz
+    URL_HASH MD5=4dbf02e14b9f20940ca0e8c70d8f6036
     CMAKE_GENERATOR ${CMAKE_GENERATOR}
     CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}
     CMAKE_ARGS
