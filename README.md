@@ -13,5 +13,26 @@ Installation
 # OSX (requires homebrew)
 
 ```bash
-./osx-build.sh
+# install dependencies and run debug build
+./scripts/osx-build.sh debug
+```
+
+# Ubuntu (tested on Trusty + Xenial)
+```bash
+# install dependencies
+sudo scripts/ubuntu-prerequisites.sh
+
+# run debug build
+scripts/build-ubuntu.sh debug
+```
+
+Running an example client
+-------------------------
+
+Run an example client application against a local deepstream server
+
+See examples folder for source.
+
+```bash
+build/bin/ds-example 'localhost:6020/deepstream'
 ```
