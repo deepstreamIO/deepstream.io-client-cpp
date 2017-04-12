@@ -21,11 +21,10 @@ eatmydata apt-get -yq --no-install-suggests --no-install-recommends install \
   valgrind \
   wget
 
-# Temporarily disabled 27/03/17
-# if [ "$(lsb_release -cs)" = "trusty" ]; then
-#     eatmydata apt-get -yq -t trusty-backports install swig3.0
-#     eatmydata apt-get -yq -t trusty-backports install cmake
-# else
-#     eatmydata apt-get -yq install swig3.0
-#     eatmydata apt-get -yq install cmake
-# fi
+if [ "$(lsb_release -cs)" = "trusty" ]; then
+    # eatmydata apt-get -yq -t trusty-backports install swig3.0
+    eatmydata apt-get -yq -t trusty-backports install cmake
+else
+    # eatmydata apt-get -yq install swig3.0
+    eatmydata apt-get -yq install cmake
+fi
