@@ -31,19 +31,6 @@ if(CCACHE AND CCACHE_PROGRAM)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
 
-# Use ld.gold if it is available and isn't explicitly disabled.
-option(USE_LD_GOLD "Use GNU gold linker" ON)
-if(USE_LD_GOLD AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  execute_process(COMMAND ${CMAKE_CXX_COMPILER} -fuse-ld=gold -Wl,--version OUTPUT_VARIABLE stdout ERROR_QUIET)
-  if("${stdout}" MATCHES "GNU gold")
-    message(STATUS "matched GNU gold")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fuse-ld=gold")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fuse-ld=gold")
-  else()
-    message(WARNING "GNU gold linker isn't available, using the default system linker.")
-  endif()
-endif()
-
 # We absolutely depend on C++11 support from the toolchain; exit if
 # the toolchain doesn't support it.
 
