@@ -108,6 +108,8 @@ if(BUILD_POCO)
     -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/thirdparty
     LOG_CONFIGURE ON
     UPDATE_COMMAND "")
+
+  set(Poco_LIBRARIES PocoNetSSL PocoCrypto PocoNet PocoUtil PocoFoundation)
 else()
   find_package(Poco 1.7.8 REQUIRED NetSSL Crypto Net Util Foundation)
 endif()
