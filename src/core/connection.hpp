@@ -45,7 +45,7 @@ namespace deepstream {
 
         explicit Connection(const std::string &, WSHandler &, ErrorHandler &, Event &, Presence &);
 
-        void login(const std::string& auth, const Client::LoginCallback &callback);
+        void login(const Buffer& auth, const Client::LoginCallback &callback);
 
         void close();
 
@@ -78,7 +78,7 @@ namespace deepstream {
         WSHandler &ws_handler_;
 
         std::unique_ptr<Client::LoginCallback> p_login_callback_;
-        std::unique_ptr<std::string> p_auth_params_;
+        std::unique_ptr<Buffer> p_auth_params_;
 
         Event &event_;
         Presence &presence_;

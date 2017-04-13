@@ -44,7 +44,7 @@ Client::~Client()
 {
 }
 
-void Client::login(const std::string& auth, const LoginCallback &callback)
+void Client::login(const Buffer& auth, const LoginCallback &callback)
 {
     assert(p_connection_);
     p_connection_->login(auth, callback);

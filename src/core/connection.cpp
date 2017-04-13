@@ -67,7 +67,7 @@ namespace deepstream {
         ws_handler.open();
     }
 
-    void Connection::login(const std::string& auth_params, const Client::LoginCallback &callback)
+    void Connection::login(const Buffer& auth_params, const Client::LoginCallback &callback)
     {
         if (state_ == ConnectionState::OPEN) {
             return;
@@ -75,7 +75,7 @@ namespace deepstream {
 
         p_login_callback_ = std::unique_ptr<Client::LoginCallback>(new Client::LoginCallback(callback));
 
-        p_auth_params_ = std::unique_ptr<std::string>(new std::string(auth_params));
+        p_auth_params_ = std::unique_ptr<Buffer>(new Buffer(auth_params));
 
         if (state_ == ConnectionState::AWAIT_AUTHENTICATION) {
             send_authentication_request();
