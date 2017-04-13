@@ -24,10 +24,13 @@
 #include <deepstream/core/version.hpp>
 #include <deepstream/lib/poco-ws.hpp>
 #include <deepstream/lib/basic-error-handler.hpp>
+#include <deepstream/lib/json.hpp>
 
 #include <string>
 
 namespace deepstream {
+
+    using json = nlohmann::json;
 
     struct Deepstream {
 
@@ -35,8 +38,7 @@ namespace deepstream {
             : wsh_()
             , error_handler_()
             , client_(uri, wsh_, error_handler_)
-            , event(client_.event)
-            , presence(client_.presence)
+            , event(client_)
         {}
 
         /**
@@ -51,12 +53,19 @@ namespace deepstream {
 
         void login()
         {
-            return login("{}", [](const Buffer &){});
+            const json::object_t auth({});
+            login(auth);
+        }
+
+        void login(const json::object_t &auth)
+        {
+            const Client::LoginCallback callback([](const std::unique_ptr<Buffer> &&){});
+            login(auth, callback);
         }
 
         void login(const Client::LoginCallback &callback)
         {
-            return login("{}", callback);
+            login(json({}), callback);
         }
 
         /**
@@ -71,9 +80,10 @@ namespace deepstream {
          * @param[out] p_user_data On a successful reeturn, store the user data
          * in `p_user_data` if the reference is not `NULL`.
          */
-        void login(const std::string &auth, const Client::LoginCallback &callback)
+        void login(const json::object_t &auth, const Client::LoginCallback &callback)
         {
-            client_.login(auth, callback);
+            const std::string auth_str(json(auth).dump());
+            client_.login(Buffer(auth_str.cbegin(), auth_str.cend()), callback);
         }
 
         void close();
@@ -89,11 +99,102 @@ namespace deepstream {
         BasicErrorHandler error_handler_;
         Client client_;
 
+        struct Event {
+            typedef std::function<void(const json&)> SubscribeFn;
+            typedef deepstream::Event::SubscriptionId SubscriptionId;
+
+            Event(Client &client)
+                : client_(client)
+            {}
+
+            void emit(std::string name, json data) {
+                std::string data_str = "O" + data.dump();
+                client_.event.emit(Buffer(name.cbegin(), name.cend()), Buffer(data_str.cbegin(), data_str.cend()));
+            }
+
+            SubscriptionId subscribe(std::string name, SubscribeFn callback) {
+                deepstream::Event::SubscribeFn core_callback([=](const Buffer &data){
+                        callback(json::parse(data));
+                        });
+                return client_.event.subscribe(Buffer(name.cbegin(), name.cend()), callback);
+            }
+
+            void unsubscribe(std::string name, SubscriptionId id) {
+                client_.event.unsubscribe(Buffer(name.cbegin(), name.cend()), id);
+            }
+
+            Client &client_;
+        };
+        struct Presence {
+            Presence() = default;
+        };
+
+        Buffer to_buffer(json &data);
+
+        Buffer to_buffer_prefixed(json &data);
+
+        json to_json(Buffer &data);
+
+        json prefixed_to_json(Buffer &data);
+
     public:
-        Event &event;
-        Presence &presence;
+        Event event;
+        Presence presence;
     };
 
+    Buffer Deepstream::to_buffer(json &data) {
+
+        return Buffer();
+    }
+
+    Buffer Deepstream::to_buffer_prefixed(json &data) {
+        return Buffer();
+    }
+
+    void to_json(json &j, const Buffer &buff) {
+        switch (buff[0]) {
+            case 'S':
+                {
+                    j = json(std::string(buff.data()));
+                } break;
+            case 'O':
+                {
+
+                } break;
+            case 'N':
+                {
+
+                } break;
+            case 'L':
+                {
+
+                } break;
+            case 'T':
+                {
+
+                } break;
+            case 'F':
+                {
+
+                } break;
+            case 'U':
+                {
+
+                } break;
+        }
+        return json({});
+    }
+
+    void from_json(const json &j, Buffer &buff) {
+        return json({});
+    }
+
+    json Deepstream::prefixed_to_json(Buffer &data) {
+        return json({});
+    }
+
+    //struct Deepstream::Presence {
+    //};
 }
 
 #endif
