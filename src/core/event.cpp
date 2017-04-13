@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <map>
 
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/event.hpp>
@@ -28,9 +29,10 @@
 
 namespace deepstream {
 
-Event::Event(const SendFn& send)
+Event::Event(const SendFn& send, SubscriptionId &subscription_counter)
     : send_(send)
     , send_queue_()
+    , subscription_counter_(subscription_counter)
 {
     assert(send_);
 }
@@ -55,80 +57,89 @@ void Event::emit(const Name& name, const Buffer& buffer)
     notify_(evt);
 }
 
-Event::SubscribeFnPtr Event::subscribe(const Name& name, const SubscribeFn& f)
+SubscriptionId Event::subscribe(const Name& name, const SubscribeFn callback)
 {
-    SubscribeFnPtr p_f(new SubscribeFn(f));
-    subscribe(name, p_f);
+    if (name.empty()) {
+        throw std::invalid_argument("Empty event subscription pattern");
+    }
 
-    return p_f;
+    const SubscriptionId subscription_id = subscription_counter_++;
+    const auto insert_result =
+        subscribe_fn_map_.insert(std::make_pair(subscription_id, callback));
+    const bool insert_success = insert_result.second;
+    assert(insert_success);
+
+    SubscriberList &subscribers = subscriber_map_[name];
+
+    if (subscribers.empty()) {
+        MessageBuilder message(Topic::EVENT, Action::SUBSCRIBE);
+        message.add_argument(name);
+        send_(message);
+    }
+
+    assert(std::find(subscribers.cbegin(), subscribers.cend(), subscription_id)
+            == subscribers.end());
+    subscribers.push_back(subscription_id);
+
+    return subscription_id;
 }
 
-void Event::subscribe(const Name& name, const SubscribeFnPtr& p_f)
+/**
+ * Unsubscribe all callbacks for name
+ */
+void Event::unsubscribe(const Name& name)
 {
-    if (name.empty())
-        throw std::invalid_argument("Empty event subscription pattern");
-    if (!p_f)
-        throw std::invalid_argument("Subscribe function pointer is NULL");
+    SubscriberMap::iterator sub_map_it = subscriber_map_.find(name);
 
-    auto ret = subscriber_map_.equal_range(name);
-    SubscriberMap::iterator first = ret.first;
-    SubscriberMap::iterator last = ret.second;
-
-    if (first != last) {
-        assert(first != subscriber_map_.end());
-        assert(first->first == name);
-        assert(std::distance(first, last) == 1);
-
-        // avoid inserting duplicates
-        SubscriberList& subscribers = first->second;
-        assert(!subscribers.empty());
-
-        SubscriberList::const_iterator it = std::find(subscribers.cbegin(), subscribers.cend(), p_f);
-
-        if (it == subscribers.cend())
-            subscribers.push_back(p_f);
-
+    if (sub_map_it == subscriber_map_.end()) {
+        // TODO: warn, subscription did not exist
         return;
     }
 
-    subscriber_map_[name].push_back(p_f);
+    assert(sub_map_it->first == name);
+    SubscriberList &subscribers = sub_map_it->second;
+    for (SubscriptionId id: subscribers) {
+        const size_t removed = subscribe_fn_map_.erase(id);
+        assert(removed == 1);
+    }
 
-    MessageBuilder message(Topic::EVENT, Action::SUBSCRIBE);
-    message.add_argument(name);
-    send_(message);
+    subscriber_map_.erase(sub_map_it);
+
+    if (subscriber_map_.empty()) {
+        MessageBuilder message(Topic::EVENT, Action::UNSUBSCRIBE);
+        message.add_argument(name);
+        send_(message);
+    }
 }
 
-void Event::unsubscribe(const Name& name)
+/**
+ * Only unsubscribe the callback with the given SubscriptionId
+ */
+void Event::unsubscribe(const Name& name, const SubscriptionId subscription_id)
 {
-    SubscriberMap::iterator it = subscriber_map_.find(name);
+    const auto sub_map_it = subscriber_map_.find(name);
 
-    if (it == subscriber_map_.end())
+    if (sub_map_it == subscriber_map_.end())
         return;
 
-    subscriber_map_.erase(it);
+    assert(sub_map_it->first == name);
+    SubscriberList &subscribers = sub_map_it->second;
 
-    MessageBuilder message(Topic::EVENT, Action::UNSUBSCRIBE);
-    message.add_argument(name);
-    send_(message);
-}
-
-void Event::unsubscribe(const Name& name, const SubscribeFnPtr& p_f)
-{
-    SubscriberMap::iterator it = subscriber_map_.find(name);
-
-    if (it == subscriber_map_.end())
+    const auto sub_it = std::find(subscribers.begin(), subscribers.end(), subscription_id);
+    if (sub_it == subscribers.end()) {
+        assert(subscribe_fn_map_.find(subscription_id) == subscribe_fn_map_.end());
+        // TODO: warn, subscription did not exist
         return;
+    }
+    subscribers.erase(sub_it);
 
-    SubscriberList& subscribers = it->second;
-    SubscriberList::iterator ju = std::find(subscribers.begin(), subscribers.end(), p_f);
+    // delete the callback
+    const size_t removed = subscribe_fn_map_.erase(subscription_id);
+    assert(removed == 1);
 
-    if (ju == subscribers.end())
-        return;
-
-    subscribers.erase(ju);
-
-    if (subscribers.empty())
+    if (subscribers.empty()) {
         unsubscribe(name);
+    }
 }
 
 Event::ListenFnPtr Event::listen(const Name& pattern, const ListenFn& f)
@@ -236,9 +247,9 @@ void Event::notify_subscribers_(const Message& message)
     SubscriberList subscribers = it->second;
     it = subscriber_map_.end();
 
-    for (const SubscribeFnPtr& p_f : subscribers) {
-        auto f = *p_f;
-        f(data);
+    for (const SubscriptionId& id : subscribers) {
+        const SubscribeFn &callback = subscribe_fn_map_[id];
+        callback(data);
     }
 }
 

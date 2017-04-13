@@ -56,13 +56,15 @@ namespace deepstream {
     };
 
     struct EventMock : public Event {
-         EventMock(const SendFn &send_fn) : Event(send_fn)
+         EventMock(const SendFn &send_fn, SubscriptionId &subscription_counter)
+             : Event(send_fn, subscription_counter)
          {
          }
     };
 
     struct PresenceMock : public Presence {
-         PresenceMock(const SendFn &send_fn) : Presence(send_fn)
+         PresenceMock(const SendFn &send_fn, SubscriptionId &subscription_counter)
+             : Presence(send_fn, subscription_counter)
          {
          }
     };
@@ -128,8 +130,9 @@ namespace deepstream {
     {
         SimpleWSHandler wsh;
         FailHandler errh;
-        EventMock evt([](const Message &){ return true; });
-        PresenceMock pres([](const Message &){ return true; });
+        SubscriptionId sub_ctr;
+        EventMock evt([](const Message &){ return true; }, sub_ctr);
+        PresenceMock pres([](const Message &){ return true; }, sub_ctr);
         Connection conn("ws://uri", wsh, errh, evt, pres);
 
         conn.login(Buffer("auth"), [](const std::unique_ptr<Buffer> &){});
@@ -195,8 +198,9 @@ namespace deepstream {
     {
         RedirectionWSHandler wsh;
         FailHandler errh;
-        EventMock evt([](const Message &){ return true; });
-        PresenceMock pres([](const Message &){ return true; });
+        SubscriptionId sub_ctr;
+        EventMock evt([](const Message &){ return true; }, sub_ctr);
+        PresenceMock pres([](const Message &){ return true; }, sub_ctr);
         Connection conn("ws://initial.uri", wsh, errh, evt, pres);
 
         conn.login(Buffer("auth"), [](const std::unique_ptr<Buffer> &){});
