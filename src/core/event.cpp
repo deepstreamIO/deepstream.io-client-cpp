@@ -66,8 +66,7 @@ SubscriptionId Event::subscribe(const Name& name, const SubscribeFn callback)
     const SubscriptionId subscription_id = subscription_counter_++;
     const auto insert_result =
         subscribe_fn_map_.insert(std::make_pair(subscription_id, callback));
-    const bool insert_success = insert_result.second;
-    assert(insert_success);
+    assert(insert_result.second);
 
     SubscriberList &subscribers = subscriber_map_[name];
 
@@ -142,27 +141,19 @@ void Event::unsubscribe(const Name& name, const SubscriptionId subscription_id)
     }
 }
 
-Event::ListenFnPtr Event::listen(const Name& pattern, const ListenFn& f)
-{
-    ListenFnPtr p_f(new ListenFn(f));
-    listen(pattern, p_f);
-
-    return p_f;
-}
-
-void Event::listen(const Name& pattern, const ListenFnPtr& p_f)
+void Event::listen(const Name& pattern, const ListenFn callback)
 {
     if (pattern.empty())
         throw std::invalid_argument("Cannot listen for empty patterns");
-    if (!p_f)
-        throw std::invalid_argument("Listen function pointer is NULL");
 
-    ListenerMap::iterator it = listener_map_.find(pattern);
+    auto listener_it = listener_map_.find(pattern);
 
-    if (it != listener_map_.end())
+    if (listener_it != listener_map_.end()) {
+        // TODO: error, there is already a listener!
         return;
+    }
 
-    listener_map_[pattern] = p_f;
+    listener_map_[pattern] = callback;
 
     MessageBuilder message(Topic::EVENT, Action::LISTEN);
     message.add_argument(pattern);
@@ -171,12 +162,14 @@ void Event::listen(const Name& pattern, const ListenFnPtr& p_f)
 
 void Event::unlisten(const Name& pattern)
 {
-    ListenerMap::iterator it = listener_map_.find(pattern);
+    auto listen_map_it = listener_map_.find(pattern);
 
-    if (it == listener_map_.end())
+    if (listen_map_it == listener_map_.end()) {
+        //TODO: warn, not currently listening to the given pattern
         return;
+    }
 
-    listener_map_.erase(it);
+    listener_map_.erase(listen_map_it);
 
     MessageBuilder message(Topic::EVENT, Action::UNLISTEN);
     message.add_argument(pattern);
@@ -237,14 +230,11 @@ void Event::notify_subscribers_(const Message& message)
 
     // Copying the list of subscribers is a necessity here because the callbacks
     // may unsubscribe during their execution and modifications of a subscriber
-    // list may invalidate iterations and ranges. Also, copying the smart
-    // pointer pointer here is a necessity because the referenced function may
-    // decide to unsubscribe and in this case, the std::function object must not
-    // be destructed. Copying ensures a non-zero reference count until `*p_f`
-    // returns.
-    // Finally, the iterator `it` may be invalid after executing a callback
-    // because the list of subscribers for this `name` may have been erased.
+    // list may invalidate iterations and ranges.
     SubscriberList subscribers = it->second;
+
+    // The iterator `it` may be invalid after executing a callback because the
+    // list of subscribers for this `name` may have been erased.
     it = subscriber_map_.end();
 
     for (const SubscriptionId& id : subscribers) {
@@ -278,11 +268,8 @@ void Event::notify_listeners_(const Message& message)
 
     assert(it->first == pattern);
 
-    // copy the smart pointer (increase the reference count) because the
-    // listener may decide to unlisten.
-    ListenFnPtr p_f = it->second;
-    auto f = *p_f;
-    bool accept = f(match, is_subscribed);
+    ListenFn callback = it->second;
+    bool accept = callback(match, is_subscribed);
 
     if (message.action() == Action::SUBSCRIPTION_FOR_PATTERN_REMOVED)
         return;

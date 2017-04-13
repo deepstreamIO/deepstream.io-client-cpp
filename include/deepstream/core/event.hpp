@@ -54,8 +54,7 @@ struct Event {
     /**
      * The representation of a callback is stored as a smart pointer.
      */
-    typedef std::shared_ptr<ListenFn> ListenFnPtr;
-    typedef std::map<Name, ListenFnPtr> ListenerMap;
+    typedef std::map<Name, ListenFn> ListenerMap;
 
     /**
      * This alias is the signature of the function used to send messages to
@@ -106,10 +105,11 @@ struct Event {
      *
      * Existing listeners are not overwritten.
      */
-    ListenFnPtr listen(const Name&, const ListenFn&);
+    void listen(const Name& pattern, const ListenFn);
 
-    void listen(const Name& pattern, const ListenFnPtr&);
-
+    /**
+     * Stop listening to the given pattern
+     */
     void unlisten(const Name& pattern);
 
     /**

@@ -130,7 +130,7 @@ namespace deepstream {
     {
         SimpleWSHandler wsh;
         FailHandler errh;
-        SubscriptionId sub_ctr;
+        SubscriptionId sub_ctr = 0;
         EventMock evt([](const Message &){ return true; }, sub_ctr);
         PresenceMock pres([](const Message &){ return true; }, sub_ctr);
         Connection conn("ws://uri", wsh, errh, evt, pres);
@@ -198,7 +198,7 @@ namespace deepstream {
     {
         RedirectionWSHandler wsh;
         FailHandler errh;
-        SubscriptionId sub_ctr;
+        SubscriptionId sub_ctr = 0;
         EventMock evt([](const Message &){ return true; }, sub_ctr);
         PresenceMock pres([](const Message &){ return true; }, sub_ctr);
         Connection conn("ws://initial.uri", wsh, errh, evt, pres);
