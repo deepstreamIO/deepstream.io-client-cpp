@@ -17,9 +17,8 @@
 #define DEEPSTREAM_BUFFER_HPP
 
 #include <cstring>
-
+#include <string>
 #include <vector>
-
 #include <cassert>
 
 namespace deepstream {
@@ -69,6 +68,11 @@ struct Buffer : public std::vector<char> {
         : Base(p, p + std::strlen(p))
     {
         assert(p);
+    }
+
+    explicit Buffer(std::string &str)
+        : Base(str.begin(), str.end())
+    {
     }
 };
 }

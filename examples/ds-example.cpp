@@ -37,23 +37,23 @@ int main(int argc, char* argv[])
 
     deepstream::Deepstream client(uri);
 
-    client.login(Buffer("{}"), [](const std::unique_ptr<deepstream::Buffer> &&){
+    client.login([](const std::unique_ptr<deepstream::Buffer> &&){
             std::cout << "Client logged in" << std::endl;
             });
 
     // Subscribe to the event "adam"
-    const deepstream::SubscriptionId event_sub_id = client.event.subscribe(Buffer("adam"), [&](const Buffer& buff) {
-        // print the event data
-        std::string buff_str(buff.begin(), buff.end());
-        std::cout << buff_str << std::endl;
-        // emit the "eve" event
-        client.event.emit("eve", json("bar"));
-        // unsubscribe from the "adam" event
-        client.event.unsubscribe("adam", event_sub_ptr);
-    });
+    const deepstream::SubscriptionId event_sub_id =
+        client.event.subscribe("adam", [&](const json &data) {
+            // print the event data
+            std::cout << data << std::endl;
+            // emit the "eve" event
+            client.event.emit("eve", json("bar"));
+            // unsubscribe from the "adam" event
+            client.event.unsubscribe("adam", event_sub_id);
+        });
 
     // Listen for subscriptions to events beginning with "foobar"
-    client.event.listen(Buffer("foobar.*"), [](const Buffer& match, bool isSubscribed) {
+    client.event.listen("foobar.*", [](const std::string& match, bool isSubscribed) {
         std::string match_str(match.begin(), match.end());
         if (isSubscribed) {
             std::cout << "someone is listening to event " << match_str << std::endl;
@@ -67,21 +67,23 @@ int main(int argc, char* argv[])
     // Presence subscription allows clients to know when other clients
     // come online and offline.
 
-    deepstream::SubscriptionId presence_sub_id = client.presence.subscribe([&](const Presence::Name& name, bool online) {
-        std::string buff_str(name.begin(), name.end());
-        std::cout << buff_str;
-        std::cout << (online ? " is online" : " is offline") << std::endl;
-        client.presence.unsubscribe(presence_sub_id);
-    });
-
-    client.presence.get_all([](const Presence::UserList users){
-        std::cout << "Users: " << std::endl;
-
-        for (auto user_buff : users) {
-            std::string user_str(user_buff.begin(), user_buff.end());
-            std::cout << "\t" << user_str << std::endl;
-        }
-    });
+/*
+ *    deepstream::SubscriptionId presence_sub_id = client.presence.subscribe([&](const Presence::Name& name, bool online) {
+ *        std::string buff_str(name.begin(), name.end());
+ *        std::cout << buff_str;
+ *        std::cout << (online ? " is online" : " is offline") << std::endl;
+ *        client.presence.unsubscribe(presence_sub_id);
+ *    });
+ *
+ *    client.presence.get_all([](const Presence::UserList users){
+ *        std::cout << "Users: " << std::endl;
+ *
+ *        for (auto user_buff : users) {
+ *            std::string user_str(user_buff.begin(), user_buff.end());
+ *            std::cout << "\t" << user_str << std::endl;
+ *        }
+ *    });
+ */
 
     while (true) {
         client.process_messages();
