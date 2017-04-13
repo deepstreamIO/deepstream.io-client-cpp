@@ -26,62 +26,75 @@
 
 namespace deepstream {
 
-Presence::Presence(const SendFn& send)
+Presence::Presence(const SendFn& send, SubscriptionId &subscription_counter)
     : send_(send)
+    , subscription_counter_(subscription_counter)
 {
     assert(send_);
 }
 
-Presence::SubscribeFnPtr Presence::subscribe(const SubscribeFn& f)
+SubscriptionId Presence::subscribe(const SubscribeFn callback)
 {
-    SubscribeFnPtr p_f(new SubscribeFn(f));
-    subscribe(p_f);
+    const SubscriptionId subscription_id = subscription_counter_++;
 
-    return p_f;
+    const auto insert_result =
+        subscribe_fn_map_.insert(std::make_pair(subscription_id, callback));
+    const bool insert_success = insert_result.second;
+    assert(insert_success);
+
+    if (subscribers_.empty()) {
+        MessageBuilder presence_subscribe(Topic::PRESENCE, Action::SUBSCRIBE);
+        send_(presence_subscribe);
+    }
+
+    subscribers_.push_back(subscription_id);
+
+    return subscription_id;
 }
 
-void Presence::subscribe(const SubscribeFnPtr& p_f)
+void Presence::unsubscribe(const SubscriptionId subscription_id)
 {
-    SubscriberList::const_iterator ci = std::find(subscribers_.cbegin(), subscribers_.cend(), p_f);
+    assert(subscribe_fn_map_.size() == subscribers_.size());
 
-    if (ci != subscribers_.cend())
+    auto sub_it = std::find(subscribers_.begin(), subscribers_.end(), subscription_id);
+
+    if (sub_it == subscribers_.end()) {
+        // TODO: warn, subscription did not exist
         return;
+    }
 
-    subscribers_.push_back(p_f);
+    subscribers_.erase(sub_it);
 
-    if (subscribers_.size() > 1)
-        return;
+    // delete the callback
+    const size_t removed = subscribe_fn_map_.erase(subscription_id);
+    assert(removed == 1);
 
-    MessageBuilder us(Topic::PRESENCE, Action::SUBSCRIBE);
-    send_(us);
+    if (subscribers_.empty()) {
+        MessageBuilder presence_unsubscribe(Topic::PRESENCE, Action::UNSUBSCRIBE);
+        send_(presence_unsubscribe);
+    }
 }
 
-void Presence::unsubscribe(const SubscribeFnPtr& p_f)
+void Presence::unsubscribe()
 {
-    SubscriberList::iterator it = std::find(subscribers_.begin(), subscribers_.end(), p_f);
+    assert(subscribe_fn_map_.size() == subscribers_.size());
 
-    if (it == subscribers_.end())
-        return;
+    subscribe_fn_map_.clear();
+    subscribers_.clear();
 
-    subscribers_.erase(it);
-
-    if (!subscribers_.empty())
-        return;
-
-    MessageBuilder uus(Topic::PRESENCE, Action::UNSUBSCRIBE);
-    send_(uus);
+    MessageBuilder presence_unsubscribe(Topic::PRESENCE, Action::UNSUBSCRIBE);
+    send_(presence_unsubscribe);
 }
 
 void Presence::get_all(const QueryFn& f)
 {
     querents_.push_back(f);
 
-    if (querents_.size() > 1)
-        return;
-
-    MessageBuilder uqq(Topic::PRESENCE, Action::QUERY);
-    uqq.add_argument("Q");
-    send_(uqq);
+    if (querents_.size() == 1) {
+        MessageBuilder uqq(Topic::PRESENCE, Action::QUERY);
+        uqq.add_argument("Q");
+        send_(uqq);
+    }
 }
 
 void Presence::notify_(const Message& message)
@@ -116,9 +129,9 @@ void Presence::notify_(const Message& message)
     // loop  below
     SubscriberList subscribers(subscribers_);
 
-    for (const auto& p_f : subscribers) {
-        auto f = *p_f;
-        f(message[0], is_login);
+    for (const SubscriptionId id : subscribers) {
+        SubscribeFn &callback = subscribe_fn_map_[id];
+        callback(message[0], is_login);
     }
 }
 }

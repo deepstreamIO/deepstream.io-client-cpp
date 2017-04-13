@@ -16,6 +16,8 @@
 #ifndef DEEPSTREAM_EVENT_HPP
 #define DEEPSTREAM_EVENT_HPP
 
+#include <deepstream/core/fwd.hpp>
+
 #include <functional>
 #include <map>
 #include <memory>
@@ -23,10 +25,6 @@
 #include <queue>
 
 namespace deepstream {
-struct Buffer;
-struct Message;
-
-enum class ConnectionState;
 
 struct Event {
     typedef Buffer Name;
@@ -37,18 +35,15 @@ struct Event {
      */
     typedef std::function<void(const Buffer&)> SubscribeFn;
     /**
-     * The representation of a callback is stored as a smart pointer.
+     * Subscriptions are identified by a unique id returned by the subscribe()
+     * function
      *
      * Given an event name, the deepstream API allows the selective removal
-     * of subscription callbacks. Hence, we need to be able to compare
-     * functions. This is not possible `std::function` objects but with a
-     * smart pointer we solve two problems:
-     * - we can compare function references for equality,
-     * - if a callback removes itself as a callback, we can ensure that the
-     *   `std::function` destructor is not called before returning.
+     * of subscription callbacks by providing the given identifier in calls to
+     * unsubscribe.
      */
-    typedef std::shared_ptr<SubscribeFn> SubscribeFnPtr;
-    typedef std::vector<SubscribeFnPtr> SubscriberList;
+    typedef std::vector<SubscriptionId> SubscriberList;
+    typedef std::map<SubscriptionId, SubscribeFn> SubscribeFnMap;
     typedef std::map<Name, SubscriberList> SubscriberMap;
 
     /**
@@ -78,7 +73,7 @@ struct Event {
      * With this constructor instead of `Event(deepstream::Client*)` it
      * becomes easier to test this module.
      */
-    explicit Event(const SendFn&);
+    explicit Event(const SendFn &, SubscriptionId &);
 
     /**
      * This function emits an event with the provided name and the given
@@ -90,11 +85,9 @@ struct Event {
      * This method subscribes the given function to the event with the given
      * name.
      *
-     * @return A smart pointer which can be used to unsubscribe
+     * @return A SubscriptionId which can be used to unsubscribe
      */
-    SubscribeFnPtr subscribe(const Name&, const SubscribeFn&);
-
-    void subscribe(const Name&, const SubscribeFnPtr&);
+    SubscriptionId subscribe(const Name&, const SubscribeFn);
 
     /**
      * This function unsubscribes *all* callbacks from the given event.
@@ -105,7 +98,7 @@ struct Event {
      * This function removes the given callback from the list of subscribers
      * for the given event.
      */
-    void unsubscribe(const Name&, const SubscribeFnPtr&);
+    void unsubscribe(const Name&, const SubscriptionId);
 
     /**
      * This method adds a callback that listens for subscriptions matching
@@ -141,6 +134,7 @@ struct Event {
 
     const SendFn send_;
     SubscriberMap subscriber_map_;
+    SubscribeFnMap subscribe_fn_map_;
     ListenerMap listener_map_;
 
   private:
@@ -148,6 +142,8 @@ struct Event {
     void send_buffered(const std::unique_ptr<Message> &&);
 
     std::queue<std::unique_ptr<Message>> send_queue_;
+
+    SubscriptionId &subscription_counter_;
 };
 }
 

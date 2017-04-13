@@ -16,6 +16,7 @@
 #ifndef DEEPSTREAM_CLIENT_HPP
 #define DEEPSTREAM_CLIENT_HPP
 
+#include <deepstream/core/fwd.hpp>
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/event.hpp>
 #include <deepstream/core/presence.hpp>
@@ -34,6 +35,8 @@ namespace deepstream {
 struct ErrorHandler;
 
 struct Connection;
+
+typedef unsigned long SubscriptionId;
 
 enum class ConnectionState {
     CLOSED,
@@ -62,11 +65,6 @@ inline std::ostream &operator<<(std::ostream &os, ConnectionState state) {
     os << states[static_cast<int>(state)];
     return os;
 }
-
-// This class does not use `std::unique_ptr<Connection>` because it
-// prevents the use of the PIMPL idiom since the class attempts to
-// evaluate `sizeof(Connection)`; naturally, we must know the definition
-// of `Connection` meaning we have to include the appropriate header.
 
 struct Client {
 
@@ -104,6 +102,7 @@ struct Client {
 
 private:
     const std::unique_ptr<Connection> p_connection_;
+    SubscriptionId subscription_counter_;
 
 public:
     Event event;

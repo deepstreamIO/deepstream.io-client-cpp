@@ -60,7 +60,8 @@ BOOST_AUTO_TEST_CASE(subscription)
         ++num_calls;
     };
 
-    Presence presence(send);
+    SubscriptionId subscription_counter;
+    Presence presence(send, subscription_counter);
 
     const std::size_t N = 10;
     Presence::SubscriberList subscribers;
@@ -68,6 +69,7 @@ BOOST_AUTO_TEST_CASE(subscription)
         subscribers.push_back(presence.subscribe(f));
 
     BOOST_CHECK(is_subscribed);
+    BOOST_CHECK_EQUAL(subscription_counter, N-1);
     BOOST_CHECK_EQUAL(presence.subscribers_.size(), N);
 
     MessageBuilder pnl(Topic::PRESENCE, Action::PRESENCE_LEAVE);
@@ -78,10 +80,10 @@ BOOST_AUTO_TEST_CASE(subscription)
     BOOST_CHECK_EQUAL(num_calls, 10);
 
     while (!subscribers.empty()) {
-        Presence::SubscribeFnPtr p_f = subscribers.back();
+        SubscriptionId subscription_id = subscribers.back();
 
         subscribers.pop_back();
-        presence.unsubscribe(p_f);
+        presence.unsubscribe(subscription_id);
 
         BOOST_CHECK_EQUAL(subscribers.size(), presence.subscribers_.size());
     }
@@ -118,14 +120,17 @@ BOOST_AUTO_TEST_CASE(queries)
         ++num_calls;
     };
 
-    Presence presence(send);
+    SubscriptionId subscription_counter;
+    Presence presence(send, subscription_counter);
 
     presence.get_all(f);
     BOOST_CHECK_EQUAL(num_queries, 1);
+    BOOST_CHECK_EQUAL(subscription_counter, 1);
     BOOST_CHECK_EQUAL(presence.querents_.size(), 1);
 
     presence.get_all(f);
     BOOST_CHECK_EQUAL(num_queries, 1);
+    BOOST_CHECK_EQUAL(subscription_counter, 2);
     BOOST_CHECK_EQUAL(presence.querents_.size(), 2);
 
     MessageBuilder uq(Topic::PRESENCE, Action::QUERY, true);

@@ -44,14 +44,14 @@ int main(int argc, char* argv[])
             });
 
     // Subscribe to the event "adam"
-    Event::SubscribeFnPtr event_sub_ptr = client.event.subscribe(Buffer("adam"), [&](const Buffer& buff) {
+    const deepstream::SubscriptionId event_sub_id = client.event.subscribe(Buffer("adam"), [&](const Buffer& buff) {
         // print the event data
         std::string buff_str(buff.begin(), buff.end());
         std::cout << buff_str << std::endl;
         // emit the "eve" event
         client.event.emit(Buffer("eve"), Buffer("Sbar"));
         // unsubscribe from the "adam" event
-        client.event.unsubscribe(Buffer("adam"), event_sub_ptr);
+        client.event.unsubscribe(Buffer("adam"), event_sub_id);
     });
 
     // Listen for subscriptions to events beginning with "foobar"
@@ -69,11 +69,11 @@ int main(int argc, char* argv[])
     // Presence subscription allows clients to know when other clients
     // come online and offline.
 
-    Presence::SubscribeFnPtr presence_sub_ptr = client.presence.subscribe([&](const Presence::Name& name, bool online) {
+    deepstream::SubscriptionId presence_sub_id = client.presence.subscribe([&](const Presence::Name& name, bool online) {
         std::string buff_str(name.begin(), name.end());
         std::cout << buff_str;
         std::cout << (online ? " is online" : " is offline") << std::endl;
-        client.presence.unsubscribe(presence_sub_ptr);
+        client.presence.unsubscribe(presence_sub_id);
     });
 
     client.presence.get_all([](const Presence::UserList users){

@@ -16,35 +16,26 @@
 #ifndef DEEPSTREAM_PRESENCE_HPP
 #define DEEPSTREAM_PRESENCE_HPP
 
+#include <deepstream/core/fwd.hpp>
+
 #include <functional>
 #include <memory>
 #include <vector>
+#include <map>
 
 namespace deepstream {
-struct Buffer;
-struct Message;
 
 struct Presence {
     typedef Buffer Name;
 
     /**
-   * This alias is the signature of a deepstream present subscription
-   * callback.
-   */
-    typedef std::function<void(const Name&, bool online)> SubscribeFn;
-    /**
-     * The representation of a callback is stored as a smart pointer.
-     *
-     * Given an event name, the deepstream API allows the selective removal
-     * of subscription callbacks. Hence, we need to be able to compare
-     * functions. This is not possible `std::function` objects but with a
-     * smart pointer we solve two problems:
-     * - we can compare function references for equality,
-     * - if a callback removes itself as a callback, we can ensure that the
-     *   `std::function` destructor is not called before returning.
+     * This alias is the signature of a deepstream present subscription
+     * callback.
      */
-    typedef std::shared_ptr<SubscribeFn> SubscribeFnPtr;
-    typedef std::vector<SubscribeFnPtr> SubscriberList;
+    typedef std::function<void(const Name&, bool online)> SubscribeFn;
+
+    typedef std::map<SubscriptionId, SubscribeFn> SubscribeFnMap;
+    typedef std::vector<SubscriptionId> SubscriberList;
 
     typedef std::vector<Name> UserList;
     /**
@@ -75,7 +66,7 @@ struct Presence {
      * With this constructor instead of `Presence(deepstream::Client*)` it
      * becomes easier to test this module.
      */
-    explicit Presence(const SendFn&);
+    explicit Presence(const SendFn&, SubscriptionId &subscription_counter_);
 
     /**
      * This method registers the given function as callback for presence
@@ -83,15 +74,18 @@ struct Presence {
      *
      * @return A smart pointer which can be used to unsubscribe
      */
-    SubscribeFnPtr subscribe(const SubscribeFn&);
-
-    void subscribe(const SubscribeFnPtr&);
+    SubscriptionId subscribe(const SubscribeFn);
 
     /**
      * This function removes the given callback from the list of presence
      * subscribers.
      */
-    void unsubscribe(const SubscribeFnPtr&);
+    void unsubscribe(const SubscriptionId);
+
+    /**
+     * This function clears the list of presence subscribers.
+     */
+    void unsubscribe();
 
     /**
      * This function queries the server for a list of all logged in users.
@@ -113,6 +107,8 @@ struct Presence {
     void notify_(const Message&);
 
     SendFn send_;
+    SubscriptionId &subscription_counter_;
+    SubscribeFnMap subscribe_fn_map_;
     SubscriberList subscribers_;
     QuerentList querents_;
 };

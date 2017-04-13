@@ -35,8 +35,9 @@ namespace deepstream {
 
 Client::Client(const std::string &uri, WSHandler &ws_handler, ErrorHandler &error_handler)
     : p_connection_(new Connection(uri, ws_handler, error_handler, event, presence))
-    , event(std::bind(&Connection::send, p_connection_.get(), std::placeholders::_1))
-    , presence(std::bind(&Connection::send, p_connection_.get(), std::placeholders::_1))
+    , subscription_counter_(0)
+    , event(std::bind(&Connection::send, p_connection_.get(), std::placeholders::_1), subscription_counter_)
+    , presence(std::bind(&Connection::send, p_connection_.get(), std::placeholders::_1), subscription_counter_)
 {
 }
 

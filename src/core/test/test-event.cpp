@@ -97,23 +97,22 @@ BOOST_AUTO_TEST_CASE(simple)
         return false;
     };
 
-    Event event(send);
+    SubscriptionId subscription_counter;
+    Event event(send, subscription_counter);
 
     Event::SubscribeFn f = [](const Buffer&) {};
-    Event::SubscribeFnPtr p1(new Event::SubscribeFn(f));
-    Event::SubscribeFnPtr p2(new Event::SubscribeFn(f));
 
     state = 0;
-    event.subscribe(name, p1);
+    const SubscriptionId s1 = event.subscribe(name, f);
     {
         BOOST_CHECK_EQUAL(event.subscriber_map_.size(), 1);
         auto it = event.subscriber_map_.find(name);
         BOOST_REQUIRE(it != event.subscriber_map_.end());
         BOOST_CHECK_EQUAL(it->second.size(), 1);
-        BOOST_CHECK_EQUAL(it->second.front(), p1);
+        BOOST_CHECK_EQUAL(it->second.front(), s1);
     }
 
-    event.subscribe(name, p2);
+    const SubscriptionId s2 = event.subscribe(name, f);
     {
         BOOST_CHECK_EQUAL(event.subscriber_map_.size(), 1);
         auto it = event.subscriber_map_.find(name);
@@ -121,7 +120,7 @@ BOOST_AUTO_TEST_CASE(simple)
         BOOST_CHECK_EQUAL(it->second.size(), 2);
     }
 
-    event.unsubscribe(name, p1);
+    event.unsubscribe(name, s1);
     {
         BOOST_CHECK_EQUAL(event.subscriber_map_.size(), 1);
         auto it = event.subscriber_map_.find(name);
@@ -159,11 +158,11 @@ BOOST_AUTO_TEST_CASE(simple)
     }
 
     BOOST_CHECK_EQUAL(event.subscriber_map_.size(), 1);
-    event.unsubscribe(name, p1); // we removed p1 above already
+    event.unsubscribe(name, s1); // we removed s1 above already
     BOOST_CHECK_EQUAL(event.subscriber_map_.size(), 1);
 
     state = 2;
-    event.unsubscribe(name, p2);
+    event.unsubscribe(name, s2);
     BOOST_CHECK(event.subscriber_map_.empty());
     BOOST_CHECK_EQUAL(event.listener_map_.size(), 1);
 
@@ -196,7 +195,8 @@ BOOST_AUTO_TEST_CASE(subscriber_notification)
         return true;
     };
 
-    Event event(send);
+    SubscriptionId subscription_counter;
+    Event event(send, subscription_counter);
 
     unsigned num_calls = 0;
     Event::SubscribeFn f = [data, &num_calls](const Buffer& my_data) {
@@ -204,8 +204,7 @@ BOOST_AUTO_TEST_CASE(subscriber_notification)
         ++num_calls;
     };
 
-    Event::SubscribeFnPtr p_f = event.subscribe(name, f);
-    BOOST_CHECK(p_f);
+    SubscriptionId sub_id = event.subscribe(name, f);
     BOOST_CHECK(is_subscribed);
     BOOST_CHECK_EQUAL(event.subscriber_map_.size(), 1);
 
@@ -216,15 +215,14 @@ BOOST_AUTO_TEST_CASE(subscriber_notification)
     event.notify_(message);
     BOOST_CHECK_EQUAL(num_calls, 1);
 
-    Event::SubscribeFn g = [name, data, &num_calls, &event,
-        &p_f](const Buffer& my_data) {
+    Event::SubscribeFn g = [name, data, &num_calls, &event, sub_id](const Buffer& my_data) {
         BOOST_CHECK(std::equal(data.cbegin(), data.cend(), my_data.cbegin()));
 
         num_calls += 10;
-        event.unsubscribe(name, p_f);
+        event.unsubscribe(name, sub_id);
     };
 
-    Event::SubscribeFnPtr p_g = event.subscribe(name, g);
+    SubscriptionId p_g = event.subscribe(name, g);
     event.notify_(message);
     BOOST_CHECK_EQUAL(num_calls, 12);
 
@@ -272,7 +270,8 @@ BOOST_AUTO_TEST_CASE(emit)
         return true;
     };
 
-    Event event(send);
+    SubscriptionId subscription_counter;
+    Event event(send, subscription_counter);
 
     unsigned num_calls = 0;
     Event::SubscribeFn f = [data, &num_calls](const Buffer& my_data) {
@@ -280,8 +279,7 @@ BOOST_AUTO_TEST_CASE(emit)
         ++num_calls;
     };
 
-    Event::SubscribeFnPtr p_f = event.subscribe(name, f);
-    BOOST_CHECK(p_f);
+    SubscriptionId sub = event.subscribe(name, f);
     BOOST_CHECK(is_subscribed);
     BOOST_CHECK_EQUAL(event.subscriber_map_.size(), 1);
 
@@ -289,14 +287,13 @@ BOOST_AUTO_TEST_CASE(emit)
     BOOST_CHECK_EQUAL(num_emit, 1);
     BOOST_CHECK_EQUAL(num_calls, 1);
 
-    Event::SubscribeFn g = [name, data, &num_calls, &event,
-        &p_f](const Buffer& my_data) {
+    Event::SubscribeFn g = [name, data, &num_calls, &event, sub](const Buffer& my_data) {
         BOOST_CHECK(std::equal(data.cbegin(), data.cend(), my_data.cbegin()));
 
         num_calls += 10;
-        event.unsubscribe(name, p_f);
+        event.unsubscribe(name, sub);
     };
-    Event::SubscribeFnPtr p_g = event.subscribe(name, g);
+    SubscriptionId p_g = event.subscribe(name, g);
 
     event.emit(name, data);
     BOOST_CHECK_EQUAL(num_emit, 2);
@@ -355,7 +352,8 @@ BOOST_AUTO_TEST_CASE(listener_notification)
         return true;
     };
 
-    Event event(send);
+    SubscriptionId subscription_counter;
+    Event event(send, subscription_counter);
     Event::ListenFnPtr p_f = event.listen(pattern, f);
 
     BOOST_CHECK(is_listening);
