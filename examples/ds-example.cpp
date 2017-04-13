@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     deepstream::PocoWSHandler wsh;
     deepstream::Client client(uri, wsh, errh);
 
-    client.login("{}", [](const std::unique_ptr<deepstream::Buffer> &){
+    client.login(Buffer("{}"), [](const std::unique_ptr<deepstream::Buffer> &&){
             std::cout << "Client logged in" << std::endl;
             });
 

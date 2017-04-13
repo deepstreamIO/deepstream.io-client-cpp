@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
         deepstream::BasicErrorHandler errh;
         deepstream::PocoWSHandler wsh;
         deepstream::Client client(uri, wsh, errh);
-        client.login("{}", [&](const std::unique_ptr<deepstream::Buffer> &){
+        client.login(deepstream::Buffer("{}"), [&](const std::unique_ptr<deepstream::Buffer> &){
                 done = true;
             });
 

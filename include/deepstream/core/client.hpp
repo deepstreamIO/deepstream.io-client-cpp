@@ -96,7 +96,7 @@ struct Client {
      * @param[out] p_user_data On a successful reeturn, store the user data
      * in `p_user_data` if the reference is not `NULL`.
      */
-    void login(const std::string &auth, const LoginCallback &);
+    void login(const Buffer &auth, const LoginCallback &);
 
     void close();
 
