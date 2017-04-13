@@ -18,13 +18,13 @@
 #include <exception>
 #include <iostream>
 
-#include <deepstream/core.hpp>
-#include <deepstream/lib/poco-ws.hpp>
-#include <deepstream/lib/basic-error-handler.hpp>
+#include <deepstream.hpp>
 
 using deepstream::Buffer;
 using deepstream::Event;
 using deepstream::Presence;
+
+using json = nlohmann::json;
 
 int main(int argc, char* argv[])
 {
@@ -35,9 +35,7 @@ int main(int argc, char* argv[])
 
     std::string uri(argv[1]);
 
-    deepstream::BasicErrorHandler errh;
-    deepstream::PocoWSHandler wsh;
-    deepstream::Client client(uri, wsh, errh);
+    deepstream::Deepstream client(uri);
 
     client.login(Buffer("{}"), [](const std::unique_ptr<deepstream::Buffer> &&){
             std::cout << "Client logged in" << std::endl;
@@ -49,9 +47,9 @@ int main(int argc, char* argv[])
         std::string buff_str(buff.begin(), buff.end());
         std::cout << buff_str << std::endl;
         // emit the "eve" event
-        client.event.emit(Buffer("eve"), Buffer("Sbar"));
+        client.event.emit("eve", json("bar"));
         // unsubscribe from the "adam" event
-        client.event.unsubscribe(Buffer("adam"), event_sub_id);
+        client.event.unsubscribe("adam", event_sub_ptr);
     });
 
     // Listen for subscriptions to events beginning with "foobar"
@@ -86,7 +84,7 @@ int main(int argc, char* argv[])
     });
 
     while (true) {
-        wsh.process_messages();
+        client.process_messages();
         usleep(10000);
     }
 }
