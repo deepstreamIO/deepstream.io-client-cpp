@@ -135,7 +135,7 @@ namespace deepstream {
         PresenceMock pres([](const Message &){ return true; }, sub_ctr);
         Connection conn("ws://uri", wsh, errh, evt, pres);
 
-        conn.login(Buffer("auth"), [](const std::unique_ptr<Buffer> &){});
+        conn.login(Buffer("auth"), [](const Buffer &){});
 
         BOOST_CHECK_EQUAL(conn.state(), ConnectionState::OPEN);
     }
@@ -203,7 +203,7 @@ namespace deepstream {
         PresenceMock pres([](const Message &){ return true; }, sub_ctr);
         Connection conn("ws://initial.uri", wsh, errh, evt, pres);
 
-        conn.login(Buffer("auth"), [](const std::unique_ptr<Buffer> &){});
+        conn.login(Buffer("auth"), [](const Buffer &){});
 
         BOOST_CHECK_EQUAL(conn.state(), ConnectionState::AWAIT_CONNECTION);
         BOOST_CHECK_EQUAL(wsh.URI(), "ws://redirection.uri");

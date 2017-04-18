@@ -245,9 +245,10 @@ namespace deepstream {
                     if (p_login_callback_) {
                         const auto login_callback = *p_login_callback_;
                         if (message.num_arguments() < 1) {
-                            login_callback(std::unique_ptr<Buffer>(nullptr));
+                            Buffer null{ static_cast<char>(PayloadType::NULL_) };
+                            login_callback(std::move(null));
                         } else {
-                            login_callback(std::unique_ptr<Buffer>(new Buffer(message[0])));
+                            login_callback(message[0]);
                         }
                     }
                 } break;
@@ -318,7 +319,6 @@ namespace deepstream {
     ConnectionState transition_incoming(const ConnectionState state, const Message& message)
     {
         assert(state != ConnectionState::ERROR);
-        assert(state != ConnectionState::CLOSED);
 
         const Topic topic = message.topic();
         const Action action = message.action();
