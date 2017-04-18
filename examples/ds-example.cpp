@@ -37,9 +37,10 @@ int main(int argc, char* argv[])
 
     deepstream::Deepstream client(uri);
 
-    client.login([](const std::unique_ptr<deepstream::Buffer> &&){
-            std::cout << "Client logged in" << std::endl;
-            });
+    client.login([](const json &&user_data) {
+        std::cout << "Client logged in with user data: "
+                  << user_data << std::endl;
+    });
 
     // Subscribe to the event "adam"
     const deepstream::SubscriptionId event_sub_id =
@@ -47,7 +48,7 @@ int main(int argc, char* argv[])
             // print the event data
             std::cout << data << std::endl;
             // emit the "eve" event
-            client.event.emit("eve", json("bar"));
+            client.event.emit("eve", "bar");
             // unsubscribe from the "adam" event
             client.event.unsubscribe("adam", event_sub_id);
         });

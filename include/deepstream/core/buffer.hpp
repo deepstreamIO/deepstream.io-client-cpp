@@ -70,8 +70,8 @@ struct Buffer : public std::vector<char> {
         assert(p);
     }
 
-    explicit Buffer(std::string &str)
-        : Base(str.begin(), str.end())
+    explicit Buffer(const std::string &str)
+        : Base(str.cbegin(), str.cend())
     {
     }
 };
