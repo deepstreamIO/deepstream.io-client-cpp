@@ -2,15 +2,24 @@ language: cpp
 
 cache: ccache
 
+sudo: required
 
 matrix:
   include:
     - os: linux
       dist: trusty
-      sudo: required
-      compiler:
-        - clang
-        - gcc
+      compiler: gcc
+      env:
+        - COMPILER=g++-4.9
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: [g++-4.9]
+
+    - os: linux
+      dist: trusty
+      compiler: clang
+
     - os: osx
       compiler:
         - clang
@@ -41,6 +50,10 @@ before_install:
     else
       sudo sh -x scripts/ubuntu-prerequisites.sh;
     fi
+
+install:
+  # make sure CXX is correctly set
+  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
 
 script:
   - cmake --version
