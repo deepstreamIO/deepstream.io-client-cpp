@@ -77,9 +77,8 @@ int main(int argc, char* argv[])
     client.presence.get_all([](const std::vector<std::string> users){
         std::cout << "Users: " << std::endl;
 
-        for (auto user_buff : users) {
-            std::string user_str(user_buff.data(), user_buff.size());
-            std::cout << "\t" << user_str << std::endl;
+        for (const std::string &user : users) {
+            std::cout << "\t" << user << std::endl;
         }
     });
 
