@@ -50,6 +50,7 @@ namespace deepstream {
             , client_(uri, wsh_, error_handler_)
             , json_handler_(error_handler_)
             , event(client_, error_handler_, json_handler_)
+            , presence(client_, error_handler_, json_handler_)
         {
         }
 
@@ -182,7 +183,54 @@ namespace deepstream {
         };
 
         struct PresenceWrapper {
-            PresenceWrapper() = default;
+            typedef std::function<void(const std::string &name, bool online)> SubscribeFn;
+
+            typedef std::vector<std::string> UserList;
+            typedef std::function<void(const UserList&)> QueryFn;
+
+            PresenceWrapper() = delete;
+
+            PresenceWrapper(const PresenceWrapper &) = delete;
+
+            PresenceWrapper &operator=(const PresenceWrapper &) = delete;
+
+            PresenceWrapper(Client &client, ErrorHandler &error_handler, JSONHandler &json_handler)
+                : client_(client)
+                , error_handler_(error_handler)
+                , json_handler_(json_handler)
+            {
+            }
+
+            SubscriptionId subscribe(SubscribeFn callback)
+            {
+                Presence::SubscribeFn core_callback([callback, this](const Buffer &name, bool online) {
+                    callback(std::string(name.data(), name.size()), online);
+                });
+                return client_.presence.subscribe(core_callback);
+            }
+
+            void unsubscribe(SubscriptionId id)
+            {
+                client_.presence.unsubscribe(id);
+            }
+
+            void get_all(QueryFn callback)
+            {
+                Presence::QueryFn core_callback([callback, this](const std::vector<Buffer> users) {
+                    std::vector<std::string> users_str(users.size());
+                    for (std::size_t i = 0; i < users.size(); ++i) {
+                        const Buffer &user = users[i];
+                        users_str[i] = std::string(user.data(), user.size());
+                    }
+                    callback(users_str);
+                });
+                client_.presence.get_all(core_callback);
+            }
+
+        private:
+            Client &client_;
+            ErrorHandler &error_handler_;
+            JSONHandler &json_handler_;
         };
 
     private:

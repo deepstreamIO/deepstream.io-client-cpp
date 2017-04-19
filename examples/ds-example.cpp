@@ -67,24 +67,21 @@ int main(int argc, char* argv[])
 
     // Presence subscription allows clients to know when other clients
     // come online and offline.
+    deepstream::SubscriptionId presence_sub_id = client.presence.subscribe([&](const std::string &name, bool online) {
+        std::string buff_str(name.data(), name.size());
+        std::cout << buff_str;
+        std::cout << (online ? " is online" : " is offline") << std::endl;
+        client.presence.unsubscribe(presence_sub_id);
+    });
 
-/*
- *    deepstream::SubscriptionId presence_sub_id = client.presence.subscribe([&](const Presence::Name& name, bool online) {
- *        std::string buff_str(name.begin(), name.end());
- *        std::cout << buff_str;
- *        std::cout << (online ? " is online" : " is offline") << std::endl;
- *        client.presence.unsubscribe(presence_sub_id);
- *    });
- *
- *    client.presence.get_all([](const Presence::UserList users){
- *        std::cout << "Users: " << std::endl;
- *
- *        for (auto user_buff : users) {
- *            std::string user_str(user_buff.begin(), user_buff.end());
- *            std::cout << "\t" << user_str << std::endl;
- *        }
- *    });
- */
+    client.presence.get_all([](const std::vector<std::string> users){
+        std::cout << "Users: " << std::endl;
+
+        for (auto user_buff : users) {
+            std::string user_str(user_buff.data(), user_buff.size());
+            std::cout << "\t" << user_str << std::endl;
+        }
+    });
 
     while (true) {
         client.process_messages();
