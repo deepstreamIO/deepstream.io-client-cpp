@@ -25,6 +25,7 @@
 #include <deepstream/lib/poco-ws.hpp>
 #include <deepstream/lib/basic-error-handler.hpp>
 #include <deepstream/lib/json.hpp>
+#include <deepstream/lib/json-handler.hpp>
 
 #include <string>
 #include <exception>
@@ -116,102 +117,6 @@ namespace deepstream {
         PocoWSHandler wsh_;
         BasicErrorHandler error_handler_;
         Client client_;
-
-        struct JSONHandler {
-
-        public:
-            JSONHandler() = delete;
-
-            JSONHandler(const JSONHandler &) = delete;
-
-            JSONHandler &operator=(const JSONHandler &);
-
-            JSONHandler(ErrorHandler &error_handler)
-                : error_handler_(error_handler)
-            {
-            }
-
-            Buffer to_buffer(const json &data)
-            {
-                std::string str(data.dump());
-                return Buffer(str);
-            }
-
-            Buffer to_prefixed_buffer(const json &data)
-            {
-                PayloadType prefix;
-                // only certain types should carry a payload
-                bool has_payload;
-
-                if (data.is_object() || data.is_array()) {
-                    prefix = PayloadType::OBJECT;
-                    has_payload = true;
-                } else if (data.is_string()) {
-                    prefix = PayloadType::STRING;
-                    has_payload = true;
-                } else if (data.is_number()) {
-                    prefix = PayloadType::NUMBER;
-                    has_payload = true;
-                } else if (data.is_boolean()) {
-                    prefix = data ? PayloadType::TRUE : PayloadType::FALSE;
-                    has_payload = false;
-                } else if (data.is_null()) {
-                    prefix = PayloadType::NULL_;
-                    has_payload = false;
-                } else {
-                    throw new std::runtime_error("Unable to serialize type: " + data.dump());
-                }
-
-                if (has_payload) {
-                    std::string str = data.dump();
-                    // prepend the prefix
-                    str.insert(0, 1, static_cast<char>(prefix));
-                    return Buffer(str);
-                }
-
-                return Buffer{ static_cast<char>(prefix) };
-            }
-
-            json to_json(const Buffer &buff)
-            {
-                std::string str(buff.data(), buff.size());
-                return json::parse(str);
-            }
-
-            json prefixed_to_json(const Buffer &buff)
-            {
-                if (buff.size() < 1) {
-                    error_handler_.on_error("Received unprefixed empty buffer");
-                }
-                const PayloadType prefix = static_cast<PayloadType>(buff[0]);
-                if (prefix == PayloadType::STRING) {
-                    return std::string(buff.data() + 1, buff.size() - 1);
-                }
-                if (prefix == PayloadType::NULL_) {
-                    assert(buff.size() == 1);
-                    return nullptr;
-                }
-                if (prefix == PayloadType::TRUE) {
-                    return true;
-                }
-                if (prefix == PayloadType::FALSE) {
-                    return false;
-                }
-                if (prefix == PayloadType::UNDEFINED) {
-                    throw std::runtime_error("Cannot convert type UNDEFINED to json");
-                }
-
-                //return to_json(buff + 1);
-                std::string str(buff.data() + 1, buff.size() - 1);
-                assert(str.size() >= 2);
-                return json::parse(str);
-            }
-
-            // void to_json(json &j, const Buffer &buff) { };
-            // void from_json(const json &j, Buffer &buff) { return json({}); }
-        private:
-            ErrorHandler error_handler_;
-        };
 
         struct EventWrapper {
             typedef std::function<void(const json &)> SubscribeFn;

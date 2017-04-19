@@ -38,8 +38,15 @@ enum class ErrorState {
  * client.
  */
 struct ErrorHandler {
+    ErrorHandler() = default;
+
+    ErrorHandler(const ErrorHandler &) = delete;
+
+    ErrorHandler &operator=(ErrorHandler &) = delete;
+
     virtual ~ErrorHandler() = default;
-    virtual void on_error(const std::string &) const {};
+
+    virtual void on_error(const std::string &) {};
 };
 }
 

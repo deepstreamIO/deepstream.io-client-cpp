@@ -34,7 +34,7 @@ namespace deepstream {
 
         ~BasicErrorHandler() = default;
 
-        void on_error(const std::string &what) const
+        void on_error(const std::string &what)
         {
             std::cout << " –– DS CLIENT ERROR –– " << what << std::endl;
         }

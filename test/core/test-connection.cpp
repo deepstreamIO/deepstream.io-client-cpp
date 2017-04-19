@@ -28,28 +28,19 @@
 #include <deepstream/core/error_handler.hpp>
 #include <deepstream/core/ws.hpp>
 
-#include "../connection.hpp"
-#include "../message_builder.hpp"
-#include "../parser.hpp"
-#include "../state.hpp"
+#include "src/core/connection.hpp"
+#include "src/core/message_builder.hpp"
+#include "src/core/parser.hpp"
+#include "src/core/state.hpp"
+
+#include "test/utils.hpp"
 
 #include <cassert>
 
 namespace deepstream {
 
-    std::ostream &operator<< (std::ostream &os, WSState state)
-    {
-        const char* states[] = {
-            "ERROR",
-            "OPEN",
-            "CLOSED"
-        };
-        os << states[static_cast<int>(state)];
-        return os;
-    }
-
     struct FailHandler : public ErrorHandler {
-        virtual void on_error(const std::string &) const override
+        virtual void on_error(const std::string &) override
         {
             BOOST_FAIL("There should be no errors");
         }

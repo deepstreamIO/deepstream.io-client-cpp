@@ -15,3 +15,7 @@ if(BUILD_POCO)
   add_dependencies(libdeepstream_poco poco)
 endif()
 add_dependencies(libdeepstream_poco libdeepstream_core)
+
+if(BUILD_TESTING AND Boost_FOUND)
+  add_subdirectory(test)
+endif()
