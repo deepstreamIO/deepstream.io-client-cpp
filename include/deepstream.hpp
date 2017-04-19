@@ -120,7 +120,6 @@ namespace deepstream {
 
         struct EventWrapper {
             typedef std::function<void(const json &)> SubscribeFn;
-            typedef std::map<SubscriptionId, SubscribeFn> SubscriptionMap;
             typedef std::function<bool(const std::string &, bool)> ListenFn;
 
             EventWrapper() = delete;
@@ -151,7 +150,6 @@ namespace deepstream {
                     callback(data);
                 });
                 SubscriptionId subscription_id = client_.event.subscribe(name_buff, core_callback);
-                subscription_map_[subscription_id] = callback;
                 return subscription_id;
             }
 
@@ -178,7 +176,6 @@ namespace deepstream {
             }
 
         private:
-            SubscriptionMap subscription_map_;
             Client &client_;
             ErrorHandler &error_handler_;
             JSONHandler &json_handler_;
