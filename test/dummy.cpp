@@ -13,32 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define BOOST_TEST_MAIN
-
-#include <boost/test/unit_test.hpp>
-
-#include <deepstream/core/buffer.hpp>
-#include "../message_builder.hpp"
-#include "../random.hpp"
-#include "../use.hpp"
 
 namespace deepstream {
-namespace random {
 
-    BOOST_AUTO_TEST_CASE(simple)
-    {
-        Engine::result_type seed = 1;
-        Engine engine(seed);
-
-        const Message::Header& h = make_header(&engine);
-        use(h);
-
-        std::size_t arg_size = 10;
-        Buffer argument = make_argument(&engine, arg_size, arg_size);
-        BOOST_CHECK_EQUAL(argument.size(), arg_size);
-
-        MessageBuilder builder = make_message(&engine);
-        use(builder);
-    }
-}
 }

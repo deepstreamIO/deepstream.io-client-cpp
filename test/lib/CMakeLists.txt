@@ -51,22 +51,11 @@ set_source_files_properties(
         COMPILE_FLAGS "-Wno-unused-function -Wno-unused-parameter -Wno-type-limits -Wno-sign-compare"
 )
 
-add_library(test_lexer ${CMAKE_CURRENT_BINARY_DIR}/lexer.c)
-target_include_directories(test_lexer PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-target_compile_definitions(test_lexer PUBLIC -DDEEPSTREAM_TEST_LEXER)
+include_directories(${CMAKE_SOURCE_DIR})
 
-add_library(libdeepstream_core_test SHARED pseudo-websocket.cpp)
-set_target_properties(libdeepstream_core_test PROPERTIES OUTPUT_NAME deepstream-core-test)
-target_link_libraries(libdeepstream_core_test PUBLIC libdeepstream_core)
-install(TARGETS libdeepstream_core_test DESTINATION "lib")
+add_library(libdeepstream_poco_test SHARED ../dummy.cpp)
+set_target_properties(libdeepstream_poco_test PROPERTIES OUTPUT_NAME deepstream-poco-test)
+target_link_libraries(libdeepstream_poco_test PUBLIC libdeepstream_poco)
+install(TARGETS libdeepstream_poco_test DESTINATION "lib")
 
-add_boost_test(test-lexer.cpp test_lexer)
-
-add_boost_test(test-client.cpp libdeepstream_core_test)
-add_boost_test(test-connection.cpp libdeepstream_core_test)
-add_boost_test(test-event.cpp libdeepstream_core_test)
-add_boost_test(test-message.cpp libdeepstream_core_test)
-add_boost_test(test-message_builder.cpp libdeepstream_core_test)
-add_boost_test(test-parser.cpp libdeepstream_core_test)
-add_boost_test(test-presence.cpp libdeepstream_core_test)
-add_boost_test(test-random.cpp libdeepstream_core_test)
+add_boost_test(test-serial.cpp libdeepstream_poco_test)
