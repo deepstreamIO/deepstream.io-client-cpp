@@ -76,10 +76,16 @@ public:
         }
     }
 
-    json to_json(const Buffer &buff)
+    json to_json(const Buffer &buff, const std::size_t offset = 0)
     {
-        std::string str(buff.data(), buff.size());
-        return json::parse(str);
+        assert(offset <= buff.size());
+        std::string str(buff.data() + offset, buff.size() - offset);
+        try {
+            return json::parse(str);
+        } catch (std::invalid_argument e) {
+            error_handler_.on_error("failed to parse object: " + str);
+            return json(nullptr);
+        }
     }
 
     json prefixed_to_json(const Buffer &buff)
@@ -114,14 +120,7 @@ public:
             case PayloadType::OBJECT:
             case PayloadType::NUMBER:
                 {
-                    std::string str(buff.data() + 1, buff.size() - 1);
-                    try {
-                        return json::parse(str);
-                    } catch (std::invalid_argument e) {
-                        error_handler_.on_error("failed to parse object: "
-                                + std::string(buff.data(), buff.size()));
-                        return json(nullptr);
-                    }
+                    return to_json(buff, 1);
                 } break;
         }
     }
