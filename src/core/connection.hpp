@@ -23,7 +23,6 @@
 #include <string>
 
 #include "parser.hpp"
-#include "state.hpp"
 #include <deepstream/core/client.hpp>
 
 namespace deepstream {

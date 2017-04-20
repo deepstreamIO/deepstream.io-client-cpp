@@ -31,7 +31,6 @@
 #include "src/core/connection.hpp"
 #include "src/core/message_builder.hpp"
 #include "src/core/parser.hpp"
-#include "src/core/state.hpp"
 
 #include "test/utils.hpp"
 
