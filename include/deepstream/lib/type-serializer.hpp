@@ -1,5 +1,5 @@
-#ifndef DEEPSTREAM_LIB_JSON_HANDLER_HPP
-#define DEEPSTREAM_LIB_JSON_HANDLER_HPP
+#ifndef DEEPSTREAM_LIB_TYPE_SERIALIZER_HPP
+#define DEEPSTREAM_LIB_TYPE_SERIALIZER_HPP
 
 #include <deepstream/core/buffer.hpp> // Buffer
 #include <deepstream/core/client.hpp> // PayloadType
@@ -10,16 +10,16 @@ namespace deepstream {
 
 using json = nlohmann::json;
 
-struct JSONHandler {
+struct TypeSerializer {
 
 public:
-    JSONHandler() = delete;
+    TypeSerializer() = delete;
 
-    JSONHandler(const JSONHandler &) = delete;
+    TypeSerializer(const TypeSerializer &) = delete;
 
-    JSONHandler &operator=(const JSONHandler &);
+    TypeSerializer &operator=(const TypeSerializer &);
 
-    JSONHandler(ErrorHandler &error_handler)
+    TypeSerializer(ErrorHandler &error_handler)
         : error_handler_(error_handler)
     {
     }
@@ -130,4 +130,4 @@ private:
 };
 }
 
-#endif // DEEPSTREAM_LIB_JSON_HANDLER_HPP
+#endif // DEEPSTREAM_LIB_TYPE_SERIALIZER_HPP

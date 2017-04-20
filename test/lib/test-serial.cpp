@@ -18,7 +18,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "deepstream/lib/json.hpp"
-#include "deepstream/lib/json-handler.hpp"
+#include "deepstream/lib/type-serializer.hpp"
 
 #include "test/utils.hpp"
 
@@ -48,10 +48,10 @@ struct CheckHandler : public ErrorHandler {
 BOOST_AUTO_TEST_CASE(deserialize_prefixed)
 {
     FailHandler failh;
-    JSONHandler json_handler(failh);
+    TypeSerializer type_serializer(failh);
 
     CheckHandler checkh;
-    JSONHandler json_handler_check_errors(checkh);
+    TypeSerializer json_handler_check_errors(checkh);
 
     // null
     {
@@ -61,48 +61,48 @@ BOOST_AUTO_TEST_CASE(deserialize_prefixed)
         checkh.reset();
     }
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("L"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("L"));
         BOOST_CHECK(result.is_null());
     }
 
     // undefined
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("U"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("U"));
         BOOST_CHECK(result.is_null());
     }
 
     // boolean
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("T"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("T"));
         BOOST_CHECK(result.is_boolean());
         BOOST_CHECK_EQUAL(result, json(true));
     }
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("F"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("F"));
         BOOST_CHECK(result.is_boolean());
         BOOST_CHECK_EQUAL(result, json(false));
     }
 
     // unexpected payload
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("Tunexpected payload"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("Tunexpected payload"));
         BOOST_CHECK(result.is_boolean());
         BOOST_CHECK_EQUAL(result, json(true));
     }
 
     // string
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("S"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("S"));
         BOOST_CHECK(result.is_string());
         BOOST_CHECK_EQUAL(result, json(""));
     }
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("Sfoo"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("Sfoo"));
         BOOST_CHECK(result.is_string());
         BOOST_CHECK_EQUAL(result, json("foo"));
     }
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("S[1, 2, 3]"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("S[1, 2, 3]"));
         BOOST_CHECK(result.is_string());
         BOOST_CHECK_EQUAL(result, json("[1, 2, 3]"));
     }
@@ -115,24 +115,24 @@ BOOST_AUTO_TEST_CASE(deserialize_prefixed)
         checkh.reset();
     }
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("O{}"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("O{}"));
         BOOST_CHECK(result.is_object());
         BOOST_CHECK_EQUAL(result, json({}));
     }
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("O[1, 2, 3]"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("O[1, 2, 3]"));
         BOOST_CHECK(result.is_array());
         BOOST_CHECK_EQUAL(result, json({1,2,3}));
     }
     {
-        const auto result = json_handler.prefixed_to_json(
+        const auto result = type_serializer.prefixed_to_json(
                 Buffer("O{\"a\": {\"nested\": [\"type\", 2, 3.5, false]}}"));
         BOOST_CHECK(result.is_object());
         BOOST_CHECK_EQUAL(result, json(
                     { { "a", { { "nested", { "type", 2, 3.5, false } } } } }));
     }
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("Onull"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("Onull"));
         BOOST_CHECK(result.is_null());
     }
 
@@ -144,12 +144,12 @@ BOOST_AUTO_TEST_CASE(deserialize_prefixed)
         checkh.reset();
     }
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("N234"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("N234"));
         BOOST_CHECK(result.is_number());
         BOOST_CHECK_EQUAL(result, json(234));
     }
     {
-        const auto result = json_handler.prefixed_to_json(Buffer("N2.3"));
+        const auto result = type_serializer.prefixed_to_json(Buffer("N2.3"));
         BOOST_CHECK(result.is_number());
         BOOST_CHECK_EQUAL(result, json(2.3));
     }
@@ -164,49 +164,49 @@ BOOST_AUTO_TEST_CASE(deserialize_prefixed)
 BOOST_AUTO_TEST_CASE(serialize_prefixed)
 {
     FailHandler failh;
-    JSONHandler json_handler(failh);
+    TypeSerializer type_serializer(failh);
 
     // null
     {
-        const auto result = json_handler.to_prefixed_buffer(json(nullptr));
+        const auto result = type_serializer.to_prefixed_buffer(json(nullptr));
         BOOST_CHECK_EQUAL(result, Buffer("L"));
     }
 
     // boolean
     {
-        const auto result = json_handler.to_prefixed_buffer(json(true));
+        const auto result = type_serializer.to_prefixed_buffer(json(true));
         BOOST_CHECK_EQUAL(result, Buffer("T"));
     }
     {
-        const auto result = json_handler.to_prefixed_buffer(json(false));
+        const auto result = type_serializer.to_prefixed_buffer(json(false));
         BOOST_CHECK_EQUAL(result, Buffer("F"));
     }
 
     // string
     {
-        const auto result = json_handler.to_prefixed_buffer(json(""));
+        const auto result = type_serializer.to_prefixed_buffer(json(""));
         BOOST_CHECK_EQUAL(result, Buffer("S"));
     }
     {
-        const auto result = json_handler.to_prefixed_buffer(json("ps\"st"));
+        const auto result = type_serializer.to_prefixed_buffer(json("ps\"st"));
         BOOST_CHECK_EQUAL(result, Buffer("Sps\"st"));
     }
     {
-        const auto result = json_handler.to_prefixed_buffer(json("{}"));
+        const auto result = type_serializer.to_prefixed_buffer(json("{}"));
         BOOST_CHECK_EQUAL(result, Buffer("S{}"));
     }
 
     // object
     {
-        const auto result = json_handler.to_prefixed_buffer(json({}));
+        const auto result = type_serializer.to_prefixed_buffer(json({}));
         BOOST_CHECK_EQUAL(result, Buffer("O{}"));
     }
     {
-        const auto result = json_handler.to_prefixed_buffer(json::array());
+        const auto result = type_serializer.to_prefixed_buffer(json::array());
         BOOST_CHECK_EQUAL(result, Buffer("O[]"));
     }
     {
-        const auto result = json_handler.to_prefixed_buffer(json(
+        const auto result = type_serializer.to_prefixed_buffer(json(
                     { { "deeply", "nested" }, { "json", { "object", 2, 3.0, true, nullptr } } }));
         BOOST_CHECK_EQUAL(result, Buffer(
                     "O{\"deeply\":\"nested\",\"json\":[\"object\",2,3.0,true,null]}"));
@@ -214,15 +214,15 @@ BOOST_AUTO_TEST_CASE(serialize_prefixed)
 
     // number
     {
-        const auto result = json_handler.to_prefixed_buffer(json(1));
+        const auto result = type_serializer.to_prefixed_buffer(json(1));
         BOOST_CHECK_EQUAL(result, Buffer("N1"));
     }
     {
-        const auto result = json_handler.to_prefixed_buffer(json(2.34));
+        const auto result = type_serializer.to_prefixed_buffer(json(2.34));
         BOOST_CHECK_EQUAL(result, Buffer("N2.34"));
     }
     {
-        const auto result = json_handler.to_prefixed_buffer(json(.23));
+        const auto result = type_serializer.to_prefixed_buffer(json(.23));
         BOOST_CHECK_EQUAL(result, Buffer("N0.23"));
     }
 }
