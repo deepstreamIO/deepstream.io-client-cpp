@@ -24,7 +24,6 @@
 
 #include "connection.hpp"
 #include "message.hpp"
-#include "state.hpp"
 #include "use.hpp"
 #include <deepstream/core/buffer.hpp>
 #include <deepstream/core/client.hpp>
