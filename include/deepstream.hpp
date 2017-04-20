@@ -25,7 +25,7 @@
 #include <deepstream/lib/poco-ws.hpp>
 #include <deepstream/lib/basic-error-handler.hpp>
 #include <deepstream/lib/json.hpp>
-#include <deepstream/lib/json-handler.hpp>
+#include <deepstream/lib/type-serializer.hpp>
 
 #include <string>
 #include <exception>
@@ -48,9 +48,9 @@ namespace deepstream {
             : wsh_()
             , error_handler_()
             , client_(uri, wsh_, error_handler_)
-            , json_handler_(error_handler_)
-            , event(client_, error_handler_, json_handler_)
-            , presence(client_, error_handler_, json_handler_)
+            , type_serializer_(error_handler_)
+            , event(client_, error_handler_, type_serializer_)
+            , presence(client_, error_handler_)
         {
         }
 
@@ -100,7 +100,7 @@ namespace deepstream {
             const Buffer auth_buff(auth_str);
 
             const Client::LoginCallback core_callback([callback, this](const Buffer &&login_data) {
-                const json data = json_handler_.prefixed_to_json(login_data);
+                const json data = type_serializer_.prefixed_to_json(login_data);
                 callback(std::move(data));
             });
 
@@ -129,16 +129,16 @@ namespace deepstream {
 
             EventWrapper &operator=(const EventWrapper &) = delete;
 
-            EventWrapper(Client &client, ErrorHandler &error_handler, JSONHandler &json_handler)
+            EventWrapper(Client &client, ErrorHandler &error_handler, TypeSerializer &type_serializer)
                 : client_(client)
                 , error_handler_(error_handler)
-                , json_handler_(json_handler)
+                , type_serializer_(type_serializer)
             {
             }
 
             void emit(std::string name, json data)
             {
-                const Buffer &data_buff = json_handler_.to_prefixed_buffer(data);
+                const Buffer &data_buff = type_serializer_.to_prefixed_buffer(data);
                 const Buffer name_buff(name);
                 client_.event.emit(name_buff, data_buff);
             }
@@ -147,7 +147,7 @@ namespace deepstream {
             {
                 Buffer name_buff(name);
                 Event::SubscribeFn core_callback([callback, this](const Buffer &prefixed_buff) {
-                    const json &data = json_handler_.prefixed_to_json(prefixed_buff);
+                    const json &data = type_serializer_.prefixed_to_json(prefixed_buff);
                     callback(data);
                 });
                 SubscriptionId subscription_id = client_.event.subscribe(name_buff, core_callback);
@@ -179,7 +179,7 @@ namespace deepstream {
         private:
             Client &client_;
             ErrorHandler &error_handler_;
-            JSONHandler &json_handler_;
+            TypeSerializer &type_serializer_;
         };
 
         struct PresenceWrapper {
@@ -194,10 +194,9 @@ namespace deepstream {
 
             PresenceWrapper &operator=(const PresenceWrapper &) = delete;
 
-            PresenceWrapper(Client &client, ErrorHandler &error_handler, JSONHandler &json_handler)
+            PresenceWrapper(Client &client, ErrorHandler &error_handler)
                 : client_(client)
                 , error_handler_(error_handler)
-                , json_handler_(json_handler)
             {
             }
 
@@ -230,11 +229,10 @@ namespace deepstream {
         private:
             Client &client_;
             ErrorHandler &error_handler_;
-            JSONHandler &json_handler_;
         };
 
     private:
-        JSONHandler json_handler_;
+        TypeSerializer type_serializer_;
 
     public:
         EventWrapper event;
