@@ -32,10 +32,6 @@
 
 namespace deepstream {
 
-struct ErrorHandler;
-
-struct Connection;
-
 typedef unsigned long SubscriptionId;
 
 enum class ConnectionState {
@@ -90,7 +86,7 @@ struct Client {
 
     Client& operator=(const Client&) = delete;
 
-    Client(Client&&) = default;
+    Client(Client&&) = delete;
 
     /**
      * Given a client in `AWAIT_CONNECTION` state, this function attempts to
