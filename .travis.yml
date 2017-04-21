@@ -46,7 +46,7 @@ addons:
 before_install:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       brew update;
-      brew install openssl poco flex ccache swig;
+      brew install openssl poco flex ccache swig python3;
     else
       sudo sh -x scripts/ubuntu-prerequisites.sh;
     fi
