@@ -18,6 +18,9 @@
 
 namespace deepstream {
 
+
+    struct ErrorHandler;
+    struct Connection;
     struct Buffer;
     struct Message;
 

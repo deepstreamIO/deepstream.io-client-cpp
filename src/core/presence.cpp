@@ -33,6 +33,10 @@ Presence::Presence(const SendFn& send, SubscriptionId &subscription_counter)
     assert(send_);
 }
 
+Presence::~Presence()
+{
+}
+
 SubscriptionId Presence::subscribe(const SubscribeFn callback)
 {
     const SubscriptionId subscription_id = subscription_counter_++;

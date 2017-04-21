@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef DEEPSTREAM_HPP
-#define DEEPSTREAM_HPP
+#ifndef DEEPSTREAM_CORE_HPP
+#define DEEPSTREAM_CORE_HPP
 
-#include <deepstream/core/buffer.hpp>
+#include <deepstream/core/ws.hpp>
 #include <deepstream/core/client.hpp>
+#include <deepstream/core/buffer.hpp>
 #include <deepstream/core/error_handler.hpp>
 #include <deepstream/core/event.hpp>
 #include <deepstream/core/presence.hpp>
 #include <deepstream/core/version.hpp>
-#include <deepstream/core/ws.hpp>
 
-#endif
+#endif // DEEPSTREAM_CORE_HPP

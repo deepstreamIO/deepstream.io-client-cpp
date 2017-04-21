@@ -37,6 +37,10 @@ Event::Event(const SendFn& send, SubscriptionId &subscription_counter)
     assert(send_);
 }
 
+Event::~Event()
+{
+}
+
 void Event::emit(const Name& name, const Buffer& buffer)
 {
     if (name.empty())
