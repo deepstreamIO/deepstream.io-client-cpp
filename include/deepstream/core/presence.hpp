@@ -68,6 +68,13 @@ struct Presence {
      */
     explicit Presence(const SendFn&, SubscriptionId &subscription_counter_);
 
+    ~Presence();
+
+    Presence() = delete;
+
+    Presence(const Presence &) = delete;
+    Presence &operator=(const Presence &) = delete;
+
     /**
      * This method registers the given function as callback for presence
      * notifications.

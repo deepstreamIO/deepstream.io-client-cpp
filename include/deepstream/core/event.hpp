@@ -74,6 +74,13 @@ struct Event {
      */
     explicit Event(const SendFn &, SubscriptionId &);
 
+    ~Event();
+
+    Event() = delete;
+
+    Event(const Event &) = delete;
+    Event &operator=(const Event &) = delete;
+
     /**
      * This function emits an event with the provided name and the given
      * buffer as its data.
