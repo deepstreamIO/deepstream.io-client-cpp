@@ -43,7 +43,7 @@ public:
         } else if (data.is_null()) {
             return PayloadType::NULL_;
         } else {
-            throw new std::runtime_error("Unable to serialize type: " + data.dump());
+            throw std::runtime_error("Unable to serialize type: " + data.dump());
         }
     }
 
@@ -72,6 +72,11 @@ public:
             case PayloadType::FALSE:
                 {
                     return Buffer{ static_cast<char>(prefix) };
+                } break;
+            default:
+                {
+                    throw std::runtime_error("Invalid type prefix: "
+                            + std::string{ static_cast<char>(prefix) });
                 } break;
         }
     }
@@ -121,6 +126,12 @@ public:
             case PayloadType::NUMBER:
                 {
                     return to_json(buff, 1);
+                } break;
+            default:
+                {
+                    error_handler_.on_error("Unrecognized prefix: "
+                            + std::string{ static_cast<char>(prefix) });
+                    return nullptr;
                 } break;
         }
     }
