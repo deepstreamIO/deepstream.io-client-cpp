@@ -34,9 +34,10 @@ namespace deepstream {
 
     using json = nlohmann::json;
 
-    struct Deepstream {
+    class Deepstream {
 
-        typedef std::function<void(const json &&)> LoginCallback;
+    public:
+        typedef std::function<void(const json &&client_data)> LoginCallback;
 
         Deepstream() = delete;
 
