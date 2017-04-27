@@ -98,7 +98,7 @@ namespace deepstream {
         ws_handler_.close();
     }
 
-    ConnectionState Connection::state()
+    ConnectionState Connection::state() const
     {
         return state_;
     }

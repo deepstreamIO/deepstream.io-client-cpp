@@ -54,7 +54,7 @@ void Client::close() {
     return p_connection_->close();
 }
 
-ConnectionState Client::get_connection_state()
+ConnectionState Client::get_connection_state() const
 {
     return p_connection_->state();
 }

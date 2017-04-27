@@ -48,7 +48,7 @@ namespace deepstream {
 
         void close();
 
-        ConnectionState state();
+        ConnectionState state() const;
 
         /**
          * This method serializes the given message and sends it as a
@@ -94,6 +94,5 @@ namespace deepstream {
 
     ConnectionState transition_outgoing(const ConnectionState s, const Message& message);
 }
-
 
 #endif
