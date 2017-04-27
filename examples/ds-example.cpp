@@ -20,11 +20,7 @@
 
 #include <deepstream.hpp>
 
-using deepstream::Buffer;
-using deepstream::Event;
-using deepstream::Presence;
-
-using json = nlohmann::json;
+using deepstream::json;
 
 int main(int argc, char* argv[])
 {
@@ -55,11 +51,10 @@ int main(int argc, char* argv[])
 
     // Listen for subscriptions to events beginning with "foobar"
     client.event.listen("foobar.*", [](const std::string& match, bool isSubscribed) {
-        std::string match_str(match.begin(), match.end());
         if (isSubscribed) {
-            std::cout << "someone is listening to event " << match_str << std::endl;
+            std::cout << "someone is listening to event " << match << std::endl;
         } else {
-            std::cout << "nobody is listening to event " << match_str << std::endl;
+            std::cout << "nobody is listening to event " << match << std::endl;
         }
         // accept the listen
         return true;
@@ -68,9 +63,7 @@ int main(int argc, char* argv[])
     // Presence subscription allows clients to know when other clients
     // come online and offline.
     deepstream::SubscriptionId presence_sub_id = client.presence.subscribe([&](const std::string &name, bool online) {
-        std::string buff_str(name.data(), name.size());
-        std::cout << buff_str;
-        std::cout << (online ? " is online" : " is offline") << std::endl;
+        std::cout << name << (online ? " is online" : " is offline") << std::endl;
         client.presence.unsubscribe(presence_sub_id);
     });
 
