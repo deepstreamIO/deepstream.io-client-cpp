@@ -108,7 +108,7 @@ struct Client {
 
     void close();
 
-    ConnectionState get_connection_state();
+    ConnectionState get_connection_state() const;
 
 private:
     const std::unique_ptr<Connection> p_connection_;

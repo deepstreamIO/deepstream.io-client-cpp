@@ -44,7 +44,7 @@ namespace deepstream {
 
         Deepstream &operator=(const Deepstream &) = delete;
 
-        Deepstream(std::string &uri)
+        Deepstream(const std::string &uri)
             : wsh_()
             , error_handler_()
             , client_(uri, wsh_, error_handler_)
@@ -109,15 +109,11 @@ namespace deepstream {
 
         void close();
 
-        ConnectionState get_connection_state()
+        ConnectionState get_connection_state() const
         {
             return client_.get_connection_state();
         }
 
-    private:
-        PocoWSHandler wsh_;
-        BasicErrorHandler error_handler_;
-        Client client_;
 
         struct EventWrapper {
             typedef std::function<void(const json &)> SubscribeFn;
@@ -136,14 +132,14 @@ namespace deepstream {
             {
             }
 
-            void emit(std::string name, json data)
+            void emit(const std::string &name, json data)
             {
                 const Buffer &data_buff = type_serializer_.to_prefixed_buffer(data);
                 const Buffer name_buff(name);
                 client_.event.emit(name_buff, data_buff);
             }
 
-            SubscriptionId subscribe(std::string name, SubscribeFn callback)
+            SubscriptionId subscribe(const std::string &name, SubscribeFn callback)
             {
                 Buffer name_buff(name);
                 Event::SubscribeFn core_callback([callback, this](const Buffer &prefixed_buff) {
@@ -154,7 +150,7 @@ namespace deepstream {
                 return subscription_id;
             }
 
-            void unsubscribe(std::string name, SubscriptionId subscription_id)
+            void unsubscribe(const std::string &name, SubscriptionId subscription_id)
             {
                 Buffer name_buff(name);
                 client_.event.unsubscribe(name_buff, subscription_id);
@@ -163,7 +159,7 @@ namespace deepstream {
             void listen(const std::string &pattern, const ListenFn callback)
             {
                 Event::ListenFn core_callback([callback](const Event::Name &match, bool is_subscribed) -> bool {
-                    std::string pattern_str(match.data(), match.size());
+                    const std::string pattern_str(match.data(), match.size());
                     return callback(pattern_str, is_subscribed);
                 });
                 Event::Name pattern_buff(pattern);
@@ -232,6 +228,9 @@ namespace deepstream {
         };
 
     private:
+        PocoWSHandler wsh_;
+        BasicErrorHandler error_handler_;
+        Client client_;
         TypeSerializer type_serializer_;
 
     public:
