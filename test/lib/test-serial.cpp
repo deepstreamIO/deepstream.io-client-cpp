@@ -61,6 +61,12 @@ BOOST_AUTO_TEST_CASE(deserialize_prefixed)
         checkh.reset();
     }
     {
+        const auto result = json_handler_check_errors.prefixed_to_json(Buffer("X"));
+        BOOST_CHECK(result.is_null());
+        BOOST_CHECK(checkh.error_count > 0);
+        checkh.reset();
+    }
+    {
         const auto result = type_serializer.prefixed_to_json(Buffer("L"));
         BOOST_CHECK(result.is_null());
     }
