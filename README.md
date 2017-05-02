@@ -1,11 +1,7 @@
-deepstream.io-client-cpp [![Build Status](https://travis-ci.org/deepstreamIO/deepstream.io-client-cpp.svg?branch=master)](https://travis-ci.org/deepstreamIO/deepstream.io-client-cpp) [![codecov](https://codecov.io/gh/deepstreamIO/deepstream.io-client-cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/deepstreamIO/deepstream.io-client-cpp)
-
-
+[deepstream.io](http://deepstream.io/) C++ Client [![Build Status](https://travis-ci.org/deepstreamIO/deepstream.io-client-cpp.svg?branch=master)](https://travis-ci.org/deepstreamIO/deepstream.io-client-cpp) [![codecov](https://codecov.io/gh/deepstreamIO/deepstream.io-client-cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/deepstreamIO/deepstream.io-client-cpp)
 =======================
 
-The C++ client for [deepstream.io](http://deepstream.io/)
-
-## Documentation Coming Soon!
+[Documentation](http://dsh.cloud/docs/client-cpp/Deepstream/)
 
 Installation
 ------------
@@ -22,7 +18,7 @@ Installation
 # install dependencies
 sudo scripts/ubuntu-prerequisites.sh
 
-# run debug build
+# debug build
 scripts/build-ubuntu.sh debug
 ```
 
