@@ -22,9 +22,9 @@ eatmydata apt-get -yq --no-install-suggests --no-install-recommends install \
   wget
 
 if [ "$(lsb_release -cs)" = "trusty" ]; then
-    # eatmydata apt-get -yq -t trusty-backports install swig3.0
+    eatmydata apt-get -yq -t trusty-backports install swig3.0
     eatmydata apt-get -yq -t trusty-backports install cmake
 else
-    # eatmydata apt-get -yq install swig3.0
+    eatmydata apt-get -yq install swig3.0
     eatmydata apt-get -yq install cmake
 fi
