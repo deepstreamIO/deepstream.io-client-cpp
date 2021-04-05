@@ -1,3 +1,5 @@
+#UNMAINTAINED  
+
 [deepstream.io](http://deepstream.io/) C++ Client [![Build Status](https://travis-ci.org/deepstreamIO/deepstream.io-client-cpp.svg?branch=master)](https://travis-ci.org/deepstreamIO/deepstream.io-client-cpp) [![codecov](https://codecov.io/gh/deepstreamIO/deepstream.io-client-cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/deepstreamIO/deepstream.io-client-cpp)
 =======================
 
